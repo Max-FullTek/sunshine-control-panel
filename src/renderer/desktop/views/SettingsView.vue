@@ -39,13 +39,10 @@
       @update-value="setSettingValue"
     />
 
-    <SettingsPetCard />
 
     <SettingsAboutCard
       :app-version="appVersion"
-      :checking="checking"
       @open-link="openLink"
-      @check-update="checkUpdate"
     />
 
     <SettingsNotice :notice="statusNotice" />
@@ -66,18 +63,15 @@ import SettingsAdvancedCard from '../components/settings/SettingsAdvancedCard.vu
 import SettingsAppearanceCard from '../components/settings/SettingsAppearanceCard.vue'
 import SettingsLaunchAssistantCard from '../components/settings/SettingsLaunchAssistantCard.vue'
 import SettingsNotice from '../components/settings/SettingsNotice.vue'
-import SettingsPetCard from '../components/settings/SettingsPetCard.vue'
 import SettingsToggleSection from '../components/settings/SettingsToggleSection.vue'
 
 const { t } = useI18n()
 
 const {
   appVersion,
-  checking,
   hasTauri,
   settings,
   statusNotice,
-  checkUpdate,
   disposeSettingsState,
   initializeSettingsState,
   openLink,
@@ -135,12 +129,6 @@ const notificationSettings = computed(() => [  {
     key: 'connectionNotify',
     name: t.value.settings.connectionNotify,
     description: t.value.settings.connectionNotifyDesc,
-    disabled: !settings.value.notifications,
-  },
-  {
-    key: 'updateNotify',
-    name: t.value.settings.updateNotify,
-    description: t.value.settings.updateNotifyDesc,
     disabled: !settings.value.notifications,
   },
 ])

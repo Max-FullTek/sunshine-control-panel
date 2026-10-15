@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { ElMessage, ElMessageBox, ElLoading, ElNotification } from 'element-plus'
-import { openExternalUrl, tools, controllerMeta } from '@/tauri-adapter.js'
+import { openExternalUrl, tools } from '@/tauri-adapter.js'
 import { useI18n } from '../desktop/i18n/index.js'
 import { formatMessage } from '../shared/format-message.js'
 
@@ -186,28 +186,6 @@ export function useTools() {
   /**
    * 检查更新，返回 UpdateInfo（包含 is_latest 标记）由调用方处理展示
    */
-  const checkForUpdates = async (channel = null) => {
-    try {
-      const { invoke } = await import('@tauri-apps/api/core')
-
-      ElMessage.info(t.value.toolActions.checkingUpdates)
-
-      const hasExplicitChannel = channel === 'stable' || channel === 'prerelease'
-      const result = hasExplicitChannel
-        ? await invoke('check_for_updates_for_channel', { channel })
-        : await invoke('check_for_updates')
-
-      if (result) {
-        return result // 返回更新信息（包含 is_latest 标记），让调用者处理
-      }
-      return null
-    } catch (error) {
-      console.error('检查更新失败:', error)
-      ElMessage.error(t.value.toolActions.checkUpdatesFailed)
-      return null
-    }
-  }
-
   /**
    * 公共窗口创建函数
    * @param {string} url - 窗口URL路径
@@ -244,176 +222,6 @@ export function useTools() {
     } catch (error) {
       console.error(`❌ 打开${title}失败:`, error)
       ElMessage.error(formatMessage(t.value.toolActions.windowOpenFailed, { title }))
-    }
-  }
-
-  /**
-   * 打开手柄测试工具（ControllerMeta）
-   *
-   * 流程：
-   * 1. 已安装 → 直接启动
-   * 2. 未安装 → 询问用户：下载并启动 / 打开网页版 / 取消
-   * 3. 下载过程中通过消息提示进度
-   */
-  const openGamepadTest = async () => {
-    const FALLBACK_WEB = 'https://hardwaretester.com/gamepad'
-    const OFFICIAL_SITE = 'https://www.controllermeta.com/'
-
-    ElMessage.info(t.value.controllerMeta.preparing)
-
-    // 规范化版本号比较：忽略 v 前缀、按数字段比较
-    const normalizeVersion = (v) =>
-      String(v || '')
-        .trim()
-        .replace(/^v/i, '')
-    const compareVersion = (a, b) => {
-      const pa = normalizeVersion(a)
-        .split('.')
-        .map((x) => parseInt(x, 10) || 0)
-      const pb = normalizeVersion(b)
-        .split('.')
-        .map((x) => parseInt(x, 10) || 0)
-      const len = Math.max(pa.length, pb.length)
-      for (let i = 0; i < len; i++) {
-        const d = (pa[i] || 0) - (pb[i] || 0)
-        if (d !== 0) return d
-      }
-      return 0
-    }
-
-    // 执行下载 + 启动的完整流程（已有 loading 实例时复用）
-    const downloadAndLaunch = async (release, loading) => {
-      const sizeMb = release.download_size ? (release.download_size / 1024 / 1024).toFixed(1) : '?'
-      loading.setText(formatMessage(t.value.controllerMeta.downloading, { version: release.version, size: sizeMb }))
-
-      const { listen } = await import('@tauri-apps/api/event')
-      const unlisten = await listen('controllermeta-download-progress', (event) => {
-        const p = event.payload?.progress ?? 0
-        const downloaded = ((event.payload?.downloaded ?? 0) / 1024 / 1024).toFixed(1)
-        loading.setText(formatMessage(t.value.controllerMeta.downloadProgress, { version: release.version, downloaded, size: sizeMb, progress: p }))
-      })
-
-      try {
-        await controllerMeta.download(release.download_url, release.version)
-        unlisten()
-        loading.close()
-        ElMessage.success(formatMessage(t.value.controllerMeta.installed, { version: release.version }))
-        try {
-          await controllerMeta.launch()
-        } catch (err) {
-          console.error('[ControllerMeta] launch failed:', err)
-          ElMessage.error(String(err).includes('ControllerMeta 未安装')
-            ? t.value.controllerMeta.notInstalled : t.value.controllerMeta.launchFailed)
-        }
-      } catch (err) {
-        unlisten()
-        loading.close()
-        console.error('[ControllerMeta] download failed:', err)
-        ElMessage.error(String(err).includes('无法覆盖已有版本')
-          ? t.value.controllerMeta.closeBeforeUpdate : t.value.controllerMeta.downloadFailed)
-      }
-    }
-
-    try {
-      const status = await controllerMeta.getStatus()
-
-      if (status.installed) {
-        // 已安装：先启动（不阻塞），然后后台检查更新
-        try {
-          await controllerMeta.launch()
-          ElMessage.success(formatMessage(t.value.controllerMeta.launched, { version: status.version ? ' ' + status.version : '' }))
-        } catch (err) {
-          console.error('[ControllerMeta] launch failed:', err)
-          ElMessage.error(String(err).includes('ControllerMeta 未安装')
-            ? t.value.controllerMeta.notInstalled : t.value.controllerMeta.launchFailed)
-          return
-        }
-
-        // 后台静默检查更新，不打扰用户
-        ;(async () => {
-          try {
-            const release = await controllerMeta.checkRelease()
-            if (release?.download_url && status.version && compareVersion(release.version, status.version) > 0) {
-              ElNotification({
-                title: t.value.controllerMeta.updateTitle,
-                message: formatMessage(t.value.controllerMeta.updateMessage, { current: status.version, latest: release.version }),
-                type: 'info',
-                duration: 0,
-                position: 'bottom-right',
-                dangerouslyUseHTMLString: false,
-                onClick: async () => {
-                  const loading = ElLoading.service({
-                    lock: true,
-                    text: t.value.controllerMeta.preparingUpdate,
-                    background: 'rgba(0, 0, 0, 0.5)',
-                  })
-                  await downloadAndLaunch(release, loading)
-                },
-              })
-            }
-          } catch (err) {
-            console.warn('[ControllerMeta] 后台检查更新失败（静默）:', err)
-          }
-        })()
-
-        return
-      }
-
-      // 未安装：询问用户操作
-      let choice
-      try {
-        choice = await ElMessageBox({
-          title: t.value.controllerMeta.title,
-          message:
-            t.value.controllerMeta.description,
-          showCancelButton: true,
-          distinguishCancelAndClose: true,
-          confirmButtonText: t.value.controllerMeta.downloadAndLaunch,
-          cancelButtonText: t.value.controllerMeta.openWeb,
-          closeOnClickModal: false,
-          type: 'info',
-        })
-      } catch (action) {
-        if (action === 'cancel') {
-          await openExternalUrl(FALLBACK_WEB)
-        }
-        return
-      }
-
-      // ElMessageBox 在当前 Element Plus 版本中 resolve 的是 action 字符串（如 'confirm'），
-      // 不是 { action: 'confirm' } 对象。旧判断会导致点击「下载并启动」后直接返回，
-      // loading 和下载进度监听都不会创建。
-      if (choice !== 'confirm') return
-
-      const loading = ElLoading.service({
-        lock: true,
-        text: t.value.controllerMeta.checkingRelease,
-        background: 'rgba(0, 0, 0, 0.5)',
-      })
-
-      let release
-      try {
-        release = await controllerMeta.checkRelease()
-      } catch (err) {
-        loading.close()
-        console.error('[ControllerMeta] checkRelease failed:', err)
-        ElMessage.error(t.value.controllerMeta.releaseFailed)
-        await openExternalUrl(OFFICIAL_SITE)
-        return
-      }
-
-      if (!release?.download_url) {
-        loading.close()
-        ElMessage.warning(t.value.controllerMeta.noDownload)
-        await openExternalUrl(OFFICIAL_SITE)
-        return
-      }
-
-      await downloadAndLaunch(release, loading)
-    } catch (err) {
-      console.error('[ControllerMeta] openGamepadTest failed:', err)
-      ElMessage.error(t.value.controllerMeta.unavailable)
-      await openExternalUrl(FALLBACK_WEB)
     }
   }
 
@@ -478,8 +286,6 @@ export function useTools() {
     openUrl,
     cleanupCovers,
     restartAsAdmin,
-    checkForUpdates,
-    openGamepadTest,
     showClipboardSyncStatus,
     initClipboardSyncStatus,
     clipboardSyncEnabled,

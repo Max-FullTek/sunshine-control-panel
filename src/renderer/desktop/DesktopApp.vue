@@ -151,7 +151,6 @@ import {
   desktopSettings,
   loadDesktopSettings,
   requestNotificationPermission,
-  showDesktopNotification,
 } from './composables/useDesktopSettings.js'
 import { useI18n } from './i18n/index.js'
 
@@ -237,40 +236,12 @@ const runningStat = computed(() => statFor(runningGame.value?.appName))
 // Tauri invoke
 const invoke = ref(null)
 let settingsListener = null
-let updateUnlisten = null
 let desktopNavigateUnlisten = null
 
 function applyRuntimeSettings() {
   document.documentElement.dataset.fdDevMode = desktopSettings.value.devMode ? 'true' : 'false'
   if (desktopSettings.value.notifications) {
     requestNotificationPermission(desktopSettings.value).catch(() => {})
-  }
-}
-
-function settingsText(key, fallback, replacements = {}) {
-  let text = t.value.settings?.[key] || fallback
-  for (const [name, value] of Object.entries(replacements)) {
-    text = text.replace(`{${name}}`, value)
-  }
-  return text
-}
-
-async function setupUpdateNotifications() {
-  try {
-    const { listen } = await import('@tauri-apps/api/event')
-    updateUnlisten = await listen('update-available', (event) => {
-      if (!desktopSettings.value.notifications || !desktopSettings.value.updateNotify) return
-      const version = event.payload?.version || ''
-      showDesktopNotification(
-        settingsText('notificationTitle', 'Sunshine'),
-        version
-          ? settingsText('updateAvailableVersion', 'Update available: {version}', { version })
-          : settingsText('updateAvailable', 'Update available'),
-        desktopSettings.value
-      )
-    })
-  } catch {
-    // event API unavailable outside Tauri
   }
 }
 
@@ -300,13 +271,11 @@ onMounted(async () => {
   settingsListener = () => applyRuntimeSettings()
   window.addEventListener(DESKTOP_SETTINGS_UPDATED, settingsListener)
   await setupDesktopNavigationEvents()
-  await setupUpdateNotifications()
   await initGameSession()
 })
 
 onUnmounted(() => {
   if (settingsListener) window.removeEventListener(DESKTOP_SETTINGS_UPDATED, settingsListener)
-  if (updateUnlisten) updateUnlisten()
   if (desktopNavigateUnlisten) desktopNavigateUnlisten()
   disposeGameSession()
 })

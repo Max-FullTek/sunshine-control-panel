@@ -251,9 +251,6 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
         true,
         None::<&str>,
     )?;
-    let rtss_control = MenuItem::with_id(app, "rtss_control", s.rtss_control, true, None::<&str>)?;
-    #[cfg(any(debug_assertions, feature = "beta"))]
-    let web_stream = MenuItem::with_id(app, "web_stream", s.web_stream, true, None::<&str>)?;
     let tools_separator = PredefinedMenuItem::separator(app)?;
     let log_console = MenuItem::with_id(app, "log_console", s.log_console, true, None::<&str>)?;
     #[cfg(debug_assertions)]
@@ -261,9 +258,7 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
 
     #[allow(unused_mut)]
     let mut tools_items: Vec<&dyn tauri::menu::IsMenuItem<R>> =
-        vec![&show_toolbar, &host_performance, &rtss_control];
-    #[cfg(any(debug_assertions, feature = "beta"))]
-    tools_items.push(&web_stream);
+        vec![&show_toolbar, &host_performance];
     tools_items.push(&tools_separator);
     tools_items.push(&log_console);
     #[cfg(debug_assertions)]
@@ -369,7 +364,6 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
     let settings_submenu =
         Submenu::with_id_and_items(app, "settings", s.settings_menu, true, &settings_items)?;
 
-    let check_update = MenuItem::with_id(app, "check_update", s.check_update, true, None::<&str>)?;
     let about = MenuItem::with_id(app, "about", s.about, true, None::<&str>)?;
     let help_separator = PredefinedMenuItem::separator(app)?;
     let star_project = MenuItem::with_id(app, "star_project", s.star_project, true, None::<&str>)?;
@@ -393,7 +387,6 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
         s.help_menu,
         true,
         &[
-            &check_update,
             &about,
             &help_separator,
             &star_project,

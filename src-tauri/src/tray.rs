@@ -15,7 +15,7 @@ use tauri::{
 
 #[cfg(target_os = "windows")]
 use crate::desktop_settings;
-use crate::{proxy_server, sunshine, toolbar, tray_config, update, utils, windows};
+use crate::{proxy_server, sunshine, toolbar, tray_config, utils, windows};
 
 mod actions;
 mod events;
@@ -315,17 +315,13 @@ struct TrayStrings {
     restart_user_mode: &'static str,
     show_toolbar: &'static str,
     prevent_sleep: &'static str,
-    rtss_control: &'static str,
     host_performance: &'static str,
     log_console: &'static str,
     open_desktop: &'static str,
     #[cfg(target_os = "windows")]
     auto_start: &'static str,
-    #[cfg(any(debug_assertions, feature = "beta"))]
-    web_stream: &'static str,
     #[cfg(debug_assertions)]
     debug_page: &'static str,
-    check_update: &'static str,
     about: &'static str,
     shutdown: &'static str,
     shutdown_message: &'static str,
@@ -387,17 +383,13 @@ const ZH_STRINGS: TrayStrings = TrayStrings {
     restart_user_mode: "以用户模式运行 Sunshine",
     show_toolbar: "显示桌宠",
     prevent_sleep: "阻止系统休眠",
-    rtss_control: "RTSS 控制",
     host_performance: "主机性能",
     log_console: "日志控制台",
     open_desktop: "大屏模式",
     #[cfg(target_os = "windows")]
     auto_start: "开机运行",
-    #[cfg(any(debug_assertions, feature = "beta"))]
-    web_stream: "Web 串流服务",
     #[cfg(debug_assertions)]
     debug_page: "调试页面",
-    check_update: "检查更新",
     about: "关于 Sunshine",
     shutdown: "退出 Sunshine",
     shutdown_message: "这将停止 Sunshine 服务、GUI 和托盘。确定要退出吗？",
@@ -459,17 +451,13 @@ const EN_STRINGS: TrayStrings = TrayStrings {
     restart_user_mode: "Run Sunshine in User Mode",
     show_toolbar: "Show Desktop Pet",
     prevent_sleep: "Prevent System Sleep",
-    rtss_control: "RTSS Control",
     host_performance: "Host Performance",
     log_console: "Log Console",
     open_desktop: "Large Screen Mode",
     #[cfg(target_os = "windows")]
     auto_start: "Run at Startup",
-    #[cfg(any(debug_assertions, feature = "beta"))]
-    web_stream: "Web Streaming",
     #[cfg(debug_assertions)]
     debug_page: "Debug Page",
-    check_update: "Check for Updates",
     about: "About Sunshine",
     shutdown: "Exit Sunshine",
     shutdown_message: "This will stop the Sunshine service, GUI, and tray. Continue?",
@@ -531,17 +519,13 @@ const JA_STRINGS: TrayStrings = TrayStrings {
     restart_user_mode: "ユーザーモードで Sunshine を実行",
     show_toolbar: "デスクトップペットを表示",
     prevent_sleep: "システムのスリープを防止",
-    rtss_control: "RTSS コントロール",
     host_performance: "ホストパフォーマンス",
     log_console: "ログコンソール",
     open_desktop: "大画面モード",
     #[cfg(target_os = "windows")]
     auto_start: "起動時に実行",
-    #[cfg(any(debug_assertions, feature = "beta"))]
-    web_stream: "Web ストリーミング",
     #[cfg(debug_assertions)]
     debug_page: "デバッグページ",
-    check_update: "更新を確認",
     about: "Sunshine について",
     shutdown: "Sunshine を終了",
     shutdown_message: "Sunshine サービス、GUI、トレイを停止します。続行しますか？",

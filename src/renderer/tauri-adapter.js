@@ -203,46 +203,11 @@ export const tools = {
   openNativeTool: (toolId) => invoke('open_native_tool', { toolId }),
 }
 
-// Folder Sharing
 
-export const fileMapping = {
-  list: () => invoke('list_file_mappings'),
-  quickShareFolder: (path) => invoke('quick_share_folder', { path }),
-  remove: (id) => invoke('delete_file_mapping', { id }),
-  update: (id, patch) => invoke('update_file_mapping', { id, patch }),
-  installMenu: () => invoke('install_file_mapping_menu'),
-  uninstallMenu: () => invoke('uninstall_file_mapping_menu'),
-}
 
-// ─── Moonlight Web ───────────────────────────────────────
 
-export const moonlightWeb = {
-  getStatus: () => wrapDefault('moonlight_web_get_status',
-    { installed: false, running: false, install_path: '', version: '', access_url: '', port: 8080 }),
-  getConfig: () => wrapDefault('moonlight_web_get_config',
-    { web_server: { bind_address: '0.0.0.0:8080' }, webrtc: null, default_settings: null }),
-  start: () => invoke('moonlight_web_start'),
-  stop: () => invoke('moonlight_web_stop'),
-  saveConfig: (config) => invoke('moonlight_web_save_config', { config }),
-  checkRelease: () => invoke('moonlight_web_check_release'),
-  download: (url, version) => invoke('moonlight_web_download', { url, version: version || '' }),
-  getInstallPath: () => invoke('moonlight_web_get_install_path'),
-  generateCert: () => invoke('moonlight_web_generate_cert'),
-}
 
-// ─── ControllerMeta ──────────────────────────────────────
 
-export const controllerMeta = {
-  getStatus: () => wrapDefault('controllermeta_get_status',
-    { installed: false, running: false, install_path: '', binary_path: '', version: '' }),
-  // 可失败的探测：失败时返回 { success: false }，与「未安装」区分开
-  probeStatus: () => wrapResult('controllermeta_get_status'),
-  checkRelease: () => invoke('controllermeta_check_release'),
-  download: (url, version) => invoke('controllermeta_download', { url, version: version || '' }),
-  launch: () => invoke('controllermeta_launch'),
-  getInstallPath: () => invoke('controllermeta_get_install_path'),
-  uninstall: () => invoke('controllermeta_uninstall'),
-}
 
 // ─── 文件系统 ────────────────────────────────────────────
 
@@ -265,8 +230,5 @@ export default {
   rtxHdr,
   sunshine,
   tools,
-  fileMapping,
-  moonlightWeb,
-  controllerMeta,
   readDirectory,
 }

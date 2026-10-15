@@ -129,117 +129,7 @@
               </div>
             </div>
 
-            <!-- 桌面观察 -->
-            <div class="sub-block">
-              <div class="row row-section">
-                <div class="row-info">
-                  <div class="row-name">
-                    {{ t.petTool.vision }}
-                    <span class="help-icon" :title="t.petTool.visionHelp">?</span>
-                  </div>
-                  <div class="row-desc">{{ t.petTool.visionDesc }}</div>
-                </div>
-                <div class="row-control">
-                  <label class="switch">
-                    <input
-                      type="checkbox"
-                      :checked="visionEnabled"
-                      :disabled="visionToggleDisabled || visionConfirmPending"
-                      @change="onVisionToggle"
-                    />
-                    <span class="slider"></span>
-                  </label>
-                </div>
-              </div>
-              <div
-                v-if="masterEnabled && !aiConfigReady"
-                class="row row-detail row-warning"
-              >
-                <div class="row-info">
-                  <div class="row-name">{{ t.petTool.aiKeyMissing }}</div>
-                  <div class="row-desc">{{ t.petTool.aiKeyMissingDesc }}</div>
-                </div>
-              </div>
-
-              <template v-if="masterEnabled && visionEnabled">
-                <div class="row row-detail">
-                  <div class="row-info">
-                    <div class="row-name">{{ t.petTool.visionInterval }}</div>
-                    <div class="row-desc">{{ t.petTool.visionIntervalDesc }}</div>
-                    <div v-if="visionIntervalSec < 60" class="row-desc warn">
-                      ⚠ {{ t.petTool.visionCostHint }}
-                    </div>
-                  </div>
-                  <div class="row-control row-control-stack">
-                    <div class="preset-btns">
-                      <button
-                        v-for="preset in VISION_INTERVAL_PRESETS"
-                        :key="preset"
-                        class="pet-btn small"
-                        :class="{ active: visionIntervalSec === preset }"
-                        @click="setVisionIntervalPreset(preset)"
-                      >
-                        {{ formatSec(preset) }}
-                      </button>
-                    </div>
-                    <div class="number-input">
-                      <input
-                        type="number"
-                        v-model.number="visionIntervalSec"
-                        :min="MIN_INTERVAL_SEC"
-                        :max="MAX_INTERVAL_SEC"
-                        step="1"
-                        class="number-control"
-                      />
-                      <span class="unit">{{ t.petTool.unitSec }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row row-detail">
-                  <div class="row-info">
-                    <div class="row-name">{{ t.petTool.pokeNow }}</div>
-                    <div class="row-desc">{{ t.petTool.pokeNowDesc }}</div>
-                    <div v-if="pokeFailed" class="row-desc warn">{{ t.petTool.pokeFailed }}</div>
-                  </div>
-                  <div class="row-control">
-                    <button class="pet-btn" :disabled="pokePending" @click="onPokeNow">
-                      {{ pokePending ? t.petTool.pokePending : t.petTool.pokeBtn }}
-                    </button>
-                  </div>
-                </div>
-
-                <div class="row row-detail">
-                  <div class="row-info">
-                    <div class="row-name">{{ t.petTool.visionHistory }}</div>
-                    <div class="row-desc">{{ t.petTool.visionHistoryDesc }}</div>
-                  </div>
-                  <div class="row-control">
-                    <button class="pet-btn" @click="toggleHistory">
-                      {{ t.petTool.visionHistoryView }}
-                    </button>
-                  </div>
-                </div>
-                <div v-if="showHistory" class="row row-detail history-panel">
-                  <div v-if="visionHistory.length === 0" class="history-empty">
-                    {{ t.petTool.visionHistoryEmpty }}
-                  </div>
-                  <ul v-else class="history-list">
-                    <li v-for="(item, idx) in visionHistory" :key="idx" class="history-item">
-                      <span class="history-time">{{ formatHistoryTime(item.timestamp) }}</span>
-                      <span class="history-text">{{ item.text }}</span>
-                    </li>
-                  </ul>
-                  <div v-if="visionHistory.length > 0" class="history-actions">
-                    <button class="pet-btn small ghost" @click="onClearHistory">
-                      {{ t.petTool.visionHistoryClear }}
-                    </button>
-                  </div>
-                </div>
-              </template>
-            </div>
           </div>
-
           <div class="panel-footer">
             <button class="pet-btn ghost" :title="t.petTool.resetTooltip" @click="resetSpeechDefaults">
               {{ t.petTool.reset }}
@@ -281,12 +171,6 @@
       </section>
     </div>
 
-    <PetVisionConsentDialog
-      :open="visionConfirmOpen"
-      :text="t.petTool.visionPrivacyConfirm"
-      @confirm="finishVisionConfirmation(true)"
-      @cancel="finishVisionConfirmation(false)"
-    />
   </div>
 </template>
 
@@ -294,33 +178,21 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import { useI18n } from '../../desktop/i18n/index.js'
-import { STORAGE_KEY, DEFAULT_CONFIG } from '../../composables/aiProviders.js'
-import { isApiKeyRequired } from '../../composables/aiClient.js'
-import PetVisionConsentDialog from '../../components/PetVisionConsentDialog.vue'
 import {
   PET_MASTER_KEY,
   PET_RANDOM_ENABLED_KEY,
   PET_RANDOM_INTERVAL_KEY,
   PET_RANDOM_JITTER_KEY,
-  PET_VISION_ENABLED_KEY,
-  PET_VISION_INTERVAL_KEY,
   MIN_INTERVAL_SEC,
   MAX_INTERVAL_SEC,
   MAX_JITTER_PERCENT,
   DEFAULT_RANDOM_INTERVAL_SEC,
-  DEFAULT_VISION_INTERVAL_SEC,
   DEFAULT_JITTER_PERCENT,
   loadMasterEnabled,
   loadRandomEnabled,
   loadRandomIntervalSec,
   loadJitterPercent,
-  loadVisionEnabled,
-  loadVisionIntervalSec,
-  PET_VISION_HISTORY_KEY,
-  loadVisionHistory,
-  clearVisionHistory,
   notifyPetConfigChanged,
-  requestPetVision,
 } from '../../composables/petSpeechConfig.js'
 
 const { t, locale, toggleLocale } = useI18n()
@@ -343,7 +215,6 @@ const TABS = Object.freeze([
 ])
 
 const INTERVAL_PRESETS = Object.freeze([15, 30, 60, 120, 300])
-const VISION_INTERVAL_PRESETS = Object.freeze([30, 60, 120, 300, 600])
 const JITTER_PRESETS = Object.freeze([0, 15, 30, 50])
 
 const activeTab = ref('speech')
@@ -351,18 +222,11 @@ const masterEnabled = ref(loadMasterEnabled())
 const randomEnabled = ref(loadRandomEnabled())
 const randomIntervalSec = ref(loadRandomIntervalSec())
 const jitterPercent = ref(loadJitterPercent())
-const visionEnabled = ref(loadVisionEnabled())
-const visionIntervalSec = ref(loadVisionIntervalSec())
-const aiConfigVersion = ref(0)
-const serverAiConfig = ref(null)
-const visionConfirmPending = ref(false)
-const visionConfirmOpen = ref(false)
 const toolbarShortcutEnabled = ref(true)
 const toolbarShortcutRegistered = ref(false)
 const toolbarShortcutPending = ref(true)
 const toolbarShortcutStateError = ref(false)
 let tabTouchStart = null
-let aiConfigRefreshGeneration = 0
 
 const toolbarShortcutUnavailable = computed(
   () => !toolbarShortcutPending.value
@@ -401,77 +265,6 @@ async function onToolbarShortcutToggle(event) {
     toolbarShortcutStateError.value = true
   } finally {
     toolbarShortcutPending.value = false
-  }
-}
-
-function hasUsableApiKey(key) {
-  return typeof key === 'string' && Boolean(key.trim()) && !key.includes('****')
-}
-
-// AI 配置状态（决定桌面观察是否可用）
-const aiConfigReady = computed(() => {
-  const configVersion = aiConfigVersion.value
-  if (!Number.isFinite(configVersion)) return false
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    const localConfig = saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : { ...DEFAULT_CONFIG }
-    const cfg = serverAiConfig.value || localConfig
-    return !!(cfg.enabled && (hasUsableApiKey(cfg.apiKey) || cfg.apiKeyConfigured || !isApiKeyRequired(cfg)))
-  } catch {
-    return false
-  }
-})
-
-async function refreshAiConfigStatus() {
-  const generation = ++aiConfigRefreshGeneration
-  try {
-    const proxyUrl = await invoke('get_proxy_url_command')
-    const response = await fetch(`${proxyUrl}/api/ai/config`)
-    if (!response.ok) throw new Error(`Failed to load AI configuration (${response.status})`)
-    const remoteConfig = await response.json()
-    if (generation !== aiConfigRefreshGeneration) return false
-    serverAiConfig.value = { ...DEFAULT_CONFIG, ...remoteConfig, apiKey: '' }
-  } catch {
-    if (generation !== aiConfigRefreshGeneration) return false
-    serverAiConfig.value = null
-  }
-  return true
-}
-
-function correctVisionEnabled() {
-  if (!aiConfigReady.value && visionEnabled.value) visionEnabled.value = false
-}
-
-const visionToggleDisabled = computed(() => !masterEnabled.value || !aiConfigReady.value)
-
-// 桌面观察历史
-const visionHistory = ref(loadVisionHistory())
-const showHistory = ref(false)
-const pokePending = ref(false)
-const pokeFailed = ref(false)
-
-function refreshHistory() {
-  visionHistory.value = loadVisionHistory()
-}
-
-function toggleHistory() {
-  if (!showHistory.value) refreshHistory()
-  showHistory.value = !showHistory.value
-}
-
-function onClearHistory() {
-  clearVisionHistory()
-  visionHistory.value = []
-}
-
-function formatHistoryTime(ts) {
-  try {
-    const d = new Date(ts)
-    const hh = String(d.getHours()).padStart(2, '0')
-    const mm = String(d.getMinutes()).padStart(2, '0')
-    return `${hh}:${mm}`
-  } catch {
-    return ''
   }
 }
 
@@ -591,77 +384,12 @@ watch(jitterPercent, (v) => {
 })
 
 // 桌面观察开关：AI Key 未配置时强制下位
-watch(visionEnabled, (v) => {
-  if (suppressWatch) return
-  if (v && !aiConfigReady.value) {
-    safeAssign(visionEnabled, false)
-    return
-  }
-  persistSetting(PET_VISION_ENABLED_KEY, String(!!v))
-  emitConfigChanged()
-})
-
-// 桌面观察间隔：clamp 后以毫秒写入（与 useDesktopPet 兼容）
-watch(visionIntervalSec, (v) => {
-  if (suppressWatch) return
-  const c = clampInterval(v)
-  if (c !== v) {
-    safeAssign(visionIntervalSec, c)
-  }
-  persistSetting(PET_VISION_INTERVAL_KEY, String(c * 1000))
-  emitConfigChanged()
-})
-
 function setRandomIntervalPreset(sec) {
   randomIntervalSec.value = sec
 }
 
 function setJitterPreset(pct) {
   jitterPercent.value = pct
-}
-
-function setVisionIntervalPreset(sec) {
-  visionIntervalSec.value = sec
-}
-
-function onVisionToggle(event) {
-  const nextValue = event.currentTarget.checked
-  event.currentTarget.checked = visionEnabled.value
-
-  if (!nextValue) {
-    visionEnabled.value = false
-    return
-  }
-  if (visionToggleDisabled.value || visionConfirmPending.value) return
-
-  visionConfirmPending.value = true
-  visionConfirmOpen.value = true
-}
-
-function finishVisionConfirmation(accepted) {
-  if (!visionConfirmPending.value) return
-  visionConfirmOpen.value = false
-  visionConfirmPending.value = false
-  if (accepted && !visionToggleDisabled.value) visionEnabled.value = true
-}
-
-async function onPokeNow() {
-  if (!aiConfigReady.value || !visionEnabled.value || pokePending.value) return
-  pokePending.value = true
-  pokeFailed.value = false
-  try {
-    const result = await requestPetVision({ ensureToolbar: true })
-    if (result?.success) {
-      refreshHistory()
-    } else {
-      pokeFailed.value = true
-    }
-  } catch (error) {
-    console.warn('[桌宠设置] 立即观察失败:', error)
-    pokeFailed.value = true
-  } finally {
-    pokePending.value = false
-  }
 }
 
 // 恢复对话相关默认（总开关 / 随机对话 / 桌面观察 / 各间隔）
@@ -671,41 +399,22 @@ function resetSpeechDefaults() {
   randomEnabled.value = true
   randomIntervalSec.value = DEFAULT_RANDOM_INTERVAL_SEC
   jitterPercent.value = DEFAULT_JITTER_PERCENT
-  visionEnabled.value = false
-  visionIntervalSec.value = DEFAULT_VISION_INTERVAL_SEC
   try {
     localStorage.setItem(PET_MASTER_KEY, 'true')
     localStorage.setItem(PET_RANDOM_ENABLED_KEY, 'true')
     localStorage.setItem(PET_RANDOM_INTERVAL_KEY, String(DEFAULT_RANDOM_INTERVAL_SEC))
     localStorage.setItem(PET_RANDOM_JITTER_KEY, String(DEFAULT_JITTER_PERCENT))
-    localStorage.setItem(PET_VISION_ENABLED_KEY, 'false')
-    localStorage.setItem(PET_VISION_INTERVAL_KEY, String(DEFAULT_VISION_INTERVAL_SEC * 1000))
   } catch (_) {}
   Promise.resolve().then(() => { suppressWatch = false })
   emitConfigChanged()
 }
 
 function syncSettingFromStorage(event) {
-  if (event.key === PET_VISION_HISTORY_KEY) {
-    if (showHistory.value) refreshHistory()
-    return
-  }
-
-  if (event.key === STORAGE_KEY) {
-    aiConfigVersion.value += 1
-    void refreshAiConfigStatus().then((applied) => {
-      if (applied) correctVisionEnabled()
-    })
-    return
-  }
-
   suppressWatch = true
   if (event.key === PET_MASTER_KEY) masterEnabled.value = loadMasterEnabled()
   else if (event.key === PET_RANDOM_ENABLED_KEY) randomEnabled.value = loadRandomEnabled()
   else if (event.key === PET_RANDOM_INTERVAL_KEY) randomIntervalSec.value = loadRandomIntervalSec()
   else if (event.key === PET_RANDOM_JITTER_KEY) jitterPercent.value = loadJitterPercent()
-  else if (event.key === PET_VISION_ENABLED_KEY) visionEnabled.value = loadVisionEnabled()
-  else if (event.key === PET_VISION_INTERVAL_KEY) visionIntervalSec.value = loadVisionIntervalSec()
   else {
     suppressWatch = false
     return
@@ -716,9 +425,6 @@ function syncSettingFromStorage(event) {
 onMounted(() => {
   window.addEventListener('storage', syncSettingFromStorage)
   void loadToolbarShortcutStatus()
-  void refreshAiConfigStatus().then((applied) => {
-    if (applied) correctVisionEnabled()
-  })
 })
 onUnmounted(() => window.removeEventListener('storage', syncSettingFromStorage))
 </script>

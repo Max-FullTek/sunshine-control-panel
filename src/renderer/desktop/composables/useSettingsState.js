@@ -13,7 +13,6 @@ export function useSettingsState(t) {
   const settings = ref({ ...defaultDesktopSettings })
   const appVersion = ref('0.0.0-dev')
   const statusNotice = ref(null)
-  const checking = ref(false)
   let statusTimer = null
 
   function showStatus(type, message) {
@@ -69,26 +68,6 @@ export function useSettingsState(t) {
     }
   }
 
-  async function checkUpdate() {
-    if (!invoke.value) {
-      showStatus('warning', t.value.settings.updateUnavailable)
-      return
-    }
-    checking.value = true
-    try {
-      const update = await invoke.value('check_for_updates')
-      if (update) {
-        showStatus('success', `${t.value.settings.updateFound}${update.version}`)
-      } else {
-        showStatus('info', t.value.settings.updateLatest)
-      }
-    } catch {
-      showStatus('error', t.value.settings.updateError)
-    } finally {
-      checking.value = false
-    }
-  }
-
   async function initializeSettingsState() {
     hasTauri.value = await isTauriRuntime()
     if (hasTauri.value) {
@@ -110,11 +89,9 @@ export function useSettingsState(t) {
 
   return {
     appVersion,
-    checking,
     hasTauri,
     settings,
     statusNotice,
-    checkUpdate,
     disposeSettingsState,
     initializeSettingsState,
     openLink,

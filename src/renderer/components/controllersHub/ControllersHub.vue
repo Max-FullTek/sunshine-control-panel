@@ -17,7 +17,6 @@
         <DualSenseSettings
           v-if="ds5Selected"
           embedded
-          @open-controller-meta="emit('open-controller-meta')"
           @manage-components="activeTab = 'components'"
         />
         <div class="chub-advanced-block">
@@ -33,7 +32,6 @@
       <RuntimeComponentsPanel v-else-if="activeTab === 'components'" />
       <template v-else-if="activeTab === 'tools'">
         <DeviceDiagnosticsPanel
-          @open-controller-meta="emit('open-controller-meta')"
           @open-stylus-input-probe="emit('open-stylus-input-probe')"
         />
       </template>
@@ -55,7 +53,7 @@ import RuntimeComponentsPanel from './RuntimeComponentsPanel.vue'
 import UsbPassthroughPanel from './UsbPassthroughPanel.vue'
 import { useI18n } from '../../desktop/i18n/index.js'
 
-const emit = defineEmits(['open-controller-meta', 'open-stylus-input-probe'])
+const emit = defineEmits(['open-stylus-input-probe'])
 const { t } = useI18n()
 const activeTab = ref('overview')
 const ds5Selected = ref(false)

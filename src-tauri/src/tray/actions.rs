@@ -49,12 +49,6 @@ pub fn handle_tray_menu_event<R: Runtime + 'static>(app: &AppHandle<R>, menu_id:
         #[cfg(target_os = "windows")]
         "restart_user_mode" => toggle_sunshine_mode(app),
         "show_toolbar" => toggle_toolbar(app),
-        "rtss_control" => {
-            info!("🎯 托盘菜单：打开 RTSS 控制");
-            if let Err(e) = toolbar::create_tool_window_internal(app, "rtss") {
-                error!("创建工具窗口失败: {}", e);
-            }
-        }
         "host_performance" => {
             info!("📊 托盘菜单：打开主机性能监控");
             if let Err(e) = toolbar::create_tool_window_internal(app, "performance") {
@@ -62,7 +56,6 @@ pub fn handle_tray_menu_event<R: Runtime + 'static>(app: &AppHandle<R>, menu_id:
             }
         }
         "log_console" => windows::open_log_console(app),
-        "web_stream" => open_web_stream_settings(app),
         #[cfg(target_os = "windows")]
         "prevent_sleep" => toggle_prevent_sleep(app),
         #[cfg(debug_assertions)]
@@ -70,7 +63,6 @@ pub fn handle_tray_menu_event<R: Runtime + 'static>(app: &AppHandle<R>, menu_id:
             info!("🐛 托盘菜单：打开调试页面");
             windows::open_debug_page(app);
         }
-        "check_update" => check_for_updates(app),
         "about" => {
             info!("ℹ️ 托盘菜单：显示关于对话框");
             let _ = windows::open_about_window(app);
@@ -449,11 +441,6 @@ fn open_vdd_settings<R: Runtime>(app: &AppHandle<R>) {
     open_main_window_view(app, "open-vdd-settings", "VDD settings");
 }
 
-/// 从托盘打开 Web 串流设置
-fn open_web_stream_settings<R: Runtime>(app: &AppHandle<R>) {
-    open_main_window_view(app, "open-web-stream", "Web stream settings");
-}
-
 fn open_main_window_view<R: Runtime + 'static>(
     app: &AppHandle<R>,
     event: &'static str,
@@ -533,54 +520,6 @@ fn toggle_toolbar<R: Runtime>(app: &AppHandle<R>) {
 }
 
 /// 检查更新（托盘菜单触发，`manual = true`）
-fn check_for_updates<R: Runtime>(app: &AppHandle<R>) {
-    info!("🔄 托盘菜单：检查更新");
-    if app.get_webview_window("main").is_none()
-        && let Err(e) = windows::create_main_window(app)
-    {
-        error!("Failed to create main window for update check: {}", e);
-        return;
-    }
-    let app_handle = app.clone();
-
-    if let Some(window) = app.get_webview_window("main") {
-        windows::show_and_activate_window(&window);
-    }
-
-    let include_prerelease = update::get_include_prerelease(app);
-    tauri::async_runtime::spawn(async move {
-        match update::check_for_updates_internal(true, include_prerelease).await {
-            Ok(Some(update_info)) => {
-                if update_info.is_latest {
-                    info!("✅ 已是最新版本: {}", update_info.version);
-                } else {
-                    info!("🎉 发现新版本: {}", update_info.version);
-                }
-                update::save_last_check_time(&app_handle);
-                match serde_json::to_value(&update_info) {
-                    Ok(payload) => {
-                        emit_to_main_when_ready(&app_handle, "update-available", payload)
-                    }
-                    Err(e) => error!("Failed to serialize update result: {}", e),
-                }
-            }
-            Ok(None) => {
-                // manual=true 时此分支不会触发
-                debug!("✅ 已是最新版本");
-                update::save_last_check_time(&app_handle);
-            }
-            Err(e) => {
-                error!("❌ 检查更新失败: {}", e);
-                emit_to_main_when_ready(
-                    &app_handle,
-                    "update-check-result",
-                    serde_json::json!({ "error": e }),
-                );
-            }
-        }
-    });
-}
-
 /// 切换防止睡眠功能
 #[cfg(target_os = "windows")]
 fn toggle_auto_start<R: Runtime + 'static>(app: &AppHandle<R>) {

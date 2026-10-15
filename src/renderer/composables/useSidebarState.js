@@ -1,12 +1,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { ElMessage } from 'element-plus'
 import { useRouter, ROUTES } from './useRouter.js'
 import { useI18n } from '../desktop/i18n/index.js'
-import { formatMessage } from '../shared/format-message.js'
 
 const STORAGE_KEYS = {
-  SKIPPED_VERSION: 'sunshine-skipped-version',
-  INCLUDE_PRERELEASE: 'sunshine-include-prerelease',
   THEME: 'sunshine-theme',
 }
 
@@ -18,7 +14,6 @@ const THEME = {
 /**
  * 规范化版本号（移除 v/V 前缀）
  */
-const normalizeVersion = (version) => version?.replace(/^[vV]/, '') || ''
 
 /**
  * 向 iframe 发送消息
@@ -44,11 +39,6 @@ const getInvoke = async () => {
 /**
  * 安全地从 localStorage 读取布尔值
  */
-const getStoredBoolean = (key, defaultValue = false) => {
-  const value = localStorage.getItem(key)
-  return value !== null ? value === 'true' : defaultValue
-}
-
 /**
  * 侧边栏状态管理 Composable
  */
@@ -63,11 +53,7 @@ export function useSidebarState() {
   const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
   const isMaximized = ref(false)
   const isAdmin = ref(true)
-  const showUpdateDialog = ref(false)
-  const updateInfo = ref(null)
   const currentVersion = ref('0.0.0')
-  const skippedVersion = ref(localStorage.getItem(STORAGE_KEYS.SKIPPED_VERSION) || '')
-  const includePrerelease = ref(false)
 
   // 清理函数存储
   const cleanupFns = []
@@ -105,69 +91,11 @@ export function useSidebarState() {
   // 导航方法
   const openVddSettings = () => router.navigate(ROUTES.VDD_SETTINGS)
   const openWelcome = () => router.navigate(ROUTES.WELCOME)
-  const openWebStream = () => router.navigate(ROUTES.WEB_STREAM)
-  const openAiAssistant = () => router.navigate(ROUTES.AI_ASSISTANT)
   const openControllers = () => router.navigate(ROUTES.CONTROLLERS)
   const openDualSense = openControllers
   const openControllersHub = () => router.navigate(ROUTES.CONTROLLERS_HUB)
   // RTX HDR 的定向入口也进入公共 HDR 管理页；具体实现由页面内的组件卡片负责。
   const openRtxHdr = () => router.navigate(ROUTES.HDR_ENHANCED)
-
-  /**
-   * 忽略指定版本的更新
-   */
-  const skipVersion = (version) => {
-    if (!version) return
-    const normalized = normalizeVersion(version)
-    skippedVersion.value = normalized
-    localStorage.setItem(STORAGE_KEYS.SKIPPED_VERSION, normalized)
-    ElMessage.info(formatMessage(t.value.toolActions.versionSkipped, { version }))
-  }
-
-  /**
-   * 检查版本是否被忽略
-   */
-  const isVersionSkipped = (version) => {
-    if (!version || !skippedVersion.value) return false
-    return normalizeVersion(version) === skippedVersion.value
-  }
-
-  /**
-   * 初始化 beta 更新偏好
-   */
-  const initIncludePrerelease = async () => {
-    try {
-      const invoke = await getInvoke()
-      const savedPreference = localStorage.getItem(STORAGE_KEYS.INCLUDE_PRERELEASE)
-
-      if (savedPreference !== null) {
-        const value = savedPreference === 'true'
-        includePrerelease.value = value
-        await invoke('set_include_prerelease_preference', { include: value })
-      } else {
-        includePrerelease.value = await invoke('get_include_prerelease_preference')
-        localStorage.setItem(STORAGE_KEYS.INCLUDE_PRERELEASE, includePrerelease.value.toString())
-      }
-    } catch (error) {
-      console.error('加载内测偏好设置失败:', error)
-      includePrerelease.value = getStoredBoolean(STORAGE_KEYS.INCLUDE_PRERELEASE)
-    }
-  }
-
-  /**
-   * 设置是否包含预发布版本的偏好
-   */
-  const setIncludePrerelease = async (value) => {
-    includePrerelease.value = value
-    localStorage.setItem(STORAGE_KEYS.INCLUDE_PRERELEASE, value.toString())
-
-    try {
-      const invoke = await getInvoke()
-      await invoke('set_include_prerelease_preference', { include: value })
-    } catch (error) {
-      console.error('保存内测偏好设置失败:', error)
-    }
-  }
 
   /**
    * 初始化管理员状态
@@ -234,37 +162,6 @@ export function useSidebarState() {
     window.addEventListener('message', handleMessage)
     cleanupFns.push(() => window.removeEventListener('message', handleMessage))
 
-    // Tauri 事件监听
-    const { listen } = await import('@tauri-apps/api/event')
-
-    const unlistenUpdate = await listen('update-available', ({ payload }) => {
-      // is_latest 时跳过“忽略版本”检查，始终弹出
-      if (payload?.is_latest || !isVersionSkipped(payload?.version)) {
-        updateInfo.value = payload
-        showUpdateDialog.value = true
-      }
-    })
-    cleanupFns.push(unlistenUpdate)
-
-    const unlistenCheckResult = await listen('update-check-result', ({ payload }) => {
-      const { error } = payload
-      if (error) {
-        console.error('Update check failed:', error)
-        ElMessage.error(t.value.toolActions.checkUpdatesFailed)
-      }
-    })
-    cleanupFns.push(unlistenCheckResult)
-
-    const unlistenInstallResult = await listen('update-install-result', ({ payload }) => {
-      const version = payload?.target_version || ''
-      if (payload?.success) {
-        ElMessage.success(t.value.updateDialog.installResultSuccess.replace('{version}', version))
-      } else {
-        const message = payload?.message || t.value.updateDialog.installResultUnknown
-        ElMessage.warning(t.value.updateDialog.installResultFailed.replace('{error}', message))
-      }
-    })
-    cleanupFns.push(unlistenInstallResult)
   }
 
   /**
@@ -273,18 +170,9 @@ export function useSidebarState() {
   const initState = async () => {
     initTheme()
     // 优先初始化偏好设置，确保后端在检查更新前能读取到正确的偏好
-    await initIncludePrerelease()
     // 然后并行初始化其他状态
     await Promise.all([initAdminStatus(), initWindowState(), initVersion(), initEventListeners()])
 
-    // `--hidden` 启动时主窗口是按需创建的；等监听器就绪后再启动一次幂等的自动检查，
-    // 确保发现更新时原生对话框能够接收到事件。
-    try {
-      const invoke = await getInvoke()
-      await invoke('start_update_checker_when_ui_ready')
-    } catch (error) {
-      console.error('启动自动更新检查失败:', error)
-    }
   }
 
   onMounted(initState)
@@ -300,10 +188,7 @@ export function useSidebarState() {
     themeMode,
     isMaximized,
     isAdmin,
-    showUpdateDialog,
-    updateInfo,
     currentVersion,
-    includePrerelease,
     router,
 
     // 方法
@@ -311,13 +196,9 @@ export function useSidebarState() {
     toggleCollapse,
     openVddSettings,
     openWelcome,
-    openWebStream,
-    openAiAssistant,
     openControllers,
     openDualSense,
     openControllersHub,
     openRtxHdr,
-    skipVersion,
-    setIncludePrerelease,
   }
 }

@@ -8,8 +8,6 @@ export const ROUTES = {
   HOME: 'home',           // 默认内容 (slot)
   VDD_SETTINGS: 'vdd-settings',
   WELCOME: 'welcome',
-  WEB_STREAM: 'web-stream',
-  AI_ASSISTANT: 'ai-assistant',
   CONTROLLERS: 'controllers',
   // Compatibility alias for callers that still navigate to the original page id.
   DUALSENSE: 'dualsense',
@@ -39,16 +37,6 @@ const routeConfig = {
     name: ROUTES.WELCOME,
     component: 'Welcome',
     titleKey: 'welcome',
-  },
-  [ROUTES.WEB_STREAM]: {
-    name: ROUTES.WEB_STREAM,
-    component: 'WebStreamSettings',
-    titleKey: 'webStream',
-  },
-  [ROUTES.AI_ASSISTANT]: {
-    name: ROUTES.AI_ASSISTANT,
-    component: 'AiAssistant',
-    titleKey: 'aiAssistant',
   },
   [ROUTES.CONTROLLERS]: {
     name: ROUTES.CONTROLLERS,
@@ -89,7 +77,7 @@ export function useRouter() {
    * @param {object} options - 导航选项
    */
   const navigate = (routeName, options = {}) => {
-    if ([ROUTES.WEB_STREAM, ROUTES.AI_ASSISTANT].includes(routeName) || !routeConfig[routeName]) {
+    if (!routeConfig[routeName]) {
       console.warn(`路由 ${routeName} 不存在`)
       return
     }

@@ -43,10 +43,8 @@ pub struct DesktopSettings {
     pub auto_start: bool,
     pub start_minimized: bool,
     pub auto_start_sunshine: bool,
-    pub file_mapping_menu_enabled: bool,
     pub notifications: bool,
     pub connection_notify: bool,
-    pub update_notify: bool,
     pub dev_mode: bool,
     pub log_level: String,
     pub toolbar_shortcut_enabled: bool,
@@ -59,10 +57,8 @@ impl Default for DesktopSettings {
             auto_start: true,
             start_minimized: true,
             auto_start_sunshine: true,
-            file_mapping_menu_enabled: true,
             notifications: true,
             connection_notify: true,
-            update_notify: true,
             dev_mode: false,
             log_level: "info".to_string(),
             toolbar_shortcut_enabled: true,
@@ -127,13 +123,6 @@ fn save_desktop_settings_to_disk(settings: &DesktopSettings) -> Result<(), Strin
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let text = serde_json::to_string_pretty(settings).map_err(|e| e.to_string())?;
     fs::write(dir.join(SETTINGS_FILE), text).map_err(|e| e.to_string())
-}
-
-pub fn set_file_mapping_menu_enabled(enabled: bool) -> Result<(), String> {
-    let _settings_guard = lock_desktop_settings();
-    let mut settings = load_desktop_settings_from_disk();
-    settings.file_mapping_menu_enabled = enabled;
-    save_desktop_settings_to_disk(&settings)
 }
 
 #[cfg(target_os = "windows")]
@@ -387,7 +376,8 @@ pub async fn save_desktop_settings(
     {
         let _settings_guard = lock_desktop_settings();
         // 桌宠快捷键只由桌宠设置页的独立命令修改，避免普通设置页保存旧快照时覆盖它。
-        settings.toolbar_shortcut_enabled = load_desktop_settings_from_disk().toolbar_shortcut_enabled;
+        settings.toolbar_shortcut_enabled =
+            load_desktop_settings_from_disk().toolbar_shortcut_enabled;
         normalize(&mut settings);
         save_desktop_settings_to_disk(&settings)?;
     }
@@ -556,7 +546,6 @@ mod tests {
 
         assert!(settings.notifications);
         assert!(settings.connection_notify);
-        assert!(settings.update_notify);
     }
 
     #[test]
@@ -566,7 +555,6 @@ mod tests {
 
         assert!(settings.notifications);
         assert!(settings.connection_notify);
-        assert!(settings.update_notify);
     }
 
     #[test]
@@ -580,9 +568,8 @@ mod tests {
 
     #[test]
     fn toolbar_shortcut_can_be_disabled_explicitly() {
-        let settings: DesktopSettings =
-            serde_json::from_str(r#"{"toolbarShortcutEnabled":false}"#)
-                .expect("toolbar shortcut setting should deserialize");
+        let settings: DesktopSettings = serde_json::from_str(r#"{"toolbarShortcutEnabled":false}"#)
+            .expect("toolbar shortcut setting should deserialize");
 
         assert!(!settings.toolbar_shortcut_enabled);
     }
@@ -595,9 +582,8 @@ mod tests {
             .expect("legacy desktop settings should deserialize");
         assert!(settings.text_context_enabled);
 
-        let disabled: DesktopSettings =
-            serde_json::from_str(r#"{"textContextEnabled":false}"#)
-                .expect("text context setting should deserialize");
+        let disabled: DesktopSettings = serde_json::from_str(r#"{"textContextEnabled":false}"#)
+            .expect("text context setting should deserialize");
         assert!(!disabled.text_context_enabled);
     }
 

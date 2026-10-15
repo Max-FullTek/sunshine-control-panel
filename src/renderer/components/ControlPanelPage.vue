@@ -133,7 +133,7 @@
   </div>
 </template>
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { TopRight } from '@element-plus/icons-vue'
 import { useI18n } from '../desktop/i18n/index.js'
 import { ROUTES } from '../composables/useRouter.js'
@@ -142,13 +142,12 @@ const props = defineProps({
   tools: { type: Array, default: () => [] },
   themeMode: { type: String, default: 'system' },
   locale: { type: String, default: 'en' },
-  includePrerelease: Boolean,
   currentVersion: { type: String, default: '' },
   clipboardSyncEnabled: Boolean,
   isAdmin: Boolean,
   actions: { type: Object, required: true },
 })
-const emit = defineEmits(['theme-change', 'locale-change', 'channel-change', 'webui-navigate'])
+const emit = defineEmits(['theme-change', 'locale-change', 'webui-navigate'])
 const { t } = useI18n()
 const heading = computed(() => {
   const s = t.value.sidebar
@@ -156,16 +155,6 @@ const heading = computed(() => {
   if (props.page === ROUTES.PANEL_SETTINGS) return { title: s.panelSettings, description: s.panelSettingsDescription }
   return { title: s.helpAbout, description: 'Foundation Sunshine' }
 })
-const checkingUpdate = ref(false)
-const checkUpdate = async () => {
-  if (checkingUpdate.value) return
-  checkingUpdate.value = true
-  try {
-    await props.actions.handleCheckForUpdates()
-  } finally {
-    checkingUpdate.value = false
-  }
-}
 </script>
 <style scoped lang="less">
 .panel-page {

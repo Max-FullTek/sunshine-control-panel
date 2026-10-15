@@ -140,7 +140,6 @@
         <ControllersHub
           v-if="[ROUTES.CONTROLLERS, ROUTES.DUALSENSE, ROUTES.CONTROLLERS_HUB].some(router.isRoute)"
           @close="goHome"
-          @open-controller-meta="openGamepadTest"
           @open-stylus-input-probe="openStylusInputProbe"
         />
         <ControlPanelPage
@@ -149,32 +148,22 @@
           :tools="toolsMenuItems"
           :theme-mode="themeMode"
           :locale="locale"
-          :include-prerelease="includePrerelease"
           :current-version="currentVersion"
           :clipboard-sync-enabled="clipboardSyncEnabled"
           :is-admin="isAdmin"
           :actions="toolsCtx"
           @theme-change="setTheme"
           @locale-change="locale = $event"
-          @channel-change="setIncludePrerelease"
           @webui-navigate="openWebUi"
         />
         <slot v-if="router.isRoute(ROUTES.HOME)" />
-        <UpdateDialog
-          v-if="showUpdateDialog"
-          v-model="showUpdateDialog"
-          :update-info="updateInfo"
-          :current-version="currentVersion"
-          @close="showUpdateDialog = false"
-          @skip-version="skipVersion"
-        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, defineAsyncComponent, toRef, watch, onMounted } from 'vue'
+import { computed, toRef, watch, onMounted } from 'vue'
 import VddSettings from './VddSettings.vue'
 import Welcome from './welcome.vue'
 import ControllersHub from './controllersHub/ControllersHub.vue'
@@ -187,7 +176,6 @@ import { useTouchWindowDrag } from '../composables/useTouchWindowDrag.js'
 import { createNavigationGroups, createUtilityTools, createFooterTools } from '../composables/toolsRegistry.js'
 import { ROUTES } from '../composables/useRouter.js'
 import { useI18n } from '../desktop/i18n/index.js'
-const UpdateDialog = defineAsyncComponent(() => import('./UpdateDialog.vue'))
 const props = defineProps({ webuiPath: { type: String, default: '/' } })
 const emit = defineEmits(['route-change', 'webui-navigate'])
 const { t, locale } = useI18n()
@@ -195,8 +183,6 @@ const {
   isCollapsed,
   isMaximized,
   isAdmin,
-  showUpdateDialog,
-  updateInfo,
   currentVersion,
   router,
   themeMode,
@@ -204,15 +190,10 @@ const {
   toggleCollapse,
   openVddSettings,
   openWelcome,
-  openWebStream,
-  openAiAssistant,
   openControllers,
   openDualSense,
   openControllersHub,
   openRtxHdr,
-  skipVersion,
-  includePrerelease,
-  setIncludePrerelease,
 } = useSidebarState()
 const { minimizeWindow, toggleMaximize, closeWindow } = useWindowControls(isMaximized)
 const { onTouchWindowDragStart } = useTouchWindowDrag(isMaximized)
@@ -221,8 +202,6 @@ const {
   openUrl,
   cleanupCovers,
   restartAsAdmin,
-  checkForUpdates,
-  openGamepadTest,
   openStylusInputProbe,
   showClipboardSyncStatus,
   initClipboardSyncStatus,
@@ -236,13 +215,6 @@ const openWebUi = (path) => {
   router.goHome()
 }
 const goHome = () => openWebUi('/')
-const handleCheckForUpdates = async (channel = null) => {
-  const result = await checkForUpdates(channel)
-  if (!result) return false
-  updateInfo.value = result
-  showUpdateDialog.value = true
-  return true
-}
 const toolsCtx = {
   t,
   router,
@@ -251,12 +223,10 @@ const toolsCtx = {
   openControllers,
   openTimer,
   openUrl,
-  openGamepadTest,
   openStylusInputProbe,
   cleanupCovers,
   restartAsAdmin,
   showClipboardSyncStatus,
-  handleCheckForUpdates,
 }
 const navigationGroups = computed(() => createNavigationGroups(toolsCtx))
 const toolsMenuItems = computed(() => createUtilityTools(toolsCtx))
@@ -270,14 +240,11 @@ watch(
 defineExpose({
   openVddSettings,
   openWelcome,
-  openWebStream,
-  openAiAssistant,
   openControllers,
   openDualSense,
   openControllersHub,
   openRtxHdr,
   goHome,
-  checkForUpdates: handleCheckForUpdates,
   router,
 })
 </script>

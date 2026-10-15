@@ -244,7 +244,7 @@ pub(crate) async fn acquire_sidecar_package(
                 .to_string(),
         );
     }
-    let candidates = crate::update::resolve_component_download_candidates(
+    let candidates = crate::component_releases::resolve_component_download_candidates(
         "dualsense-sidecar-zip",
         &manifest.asset_name,
         &manifest.sha256,

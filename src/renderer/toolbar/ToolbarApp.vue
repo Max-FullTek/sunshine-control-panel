@@ -47,16 +47,11 @@ import { getCurrentWindow } from '@tauri-apps/api/window'
 import { cursorPosition } from '@tauri-apps/api/window'
 import { PhysicalPosition } from '@tauri-apps/api/dpi'
 import { useI18n } from '../desktop/i18n/index.js'
-import { callVisionLLM, isApiKeyRequired } from '../composables/aiClient.js'
-import { STORAGE_KEY, DEFAULT_CONFIG } from '../composables/aiProviders.js'
 import {
   loadMasterEnabled,
   loadRandomEnabled,
   loadRandomIntervalSec,
   loadJitterPercent,
-  loadVisionEnabled,
-  loadVisionIntervalSec,
-  pushVisionHistory,
   MIN_INTERVAL_SEC,
   PET_SPEECH_CHANNEL,
 } from '../composables/petSpeechConfig.js'
@@ -276,467 +271,32 @@ const showSpeech = () => {
   }, 3600)
 }
 
-// 直接显示桌面观察的状态或错误文本。
-// 与 showSpeech 共用同一气泡组件与入场动画
-const showSpeechRaw = (text, durationMs) => {
-  if (componentDisposed || menuVisible.value || !loadMasterEnabled() || !text) return
-  // 先关再开，确保 v-if 重新挂载、走 bubble-enter 过渡
-  speechVisible.value = false
-  if (speechTimer) {
-    clearTimeout(speechTimer)
-    speechTimer = null
-  }
-  cancelSpeechAnimationFrame()
-  // 文本中可能含换行/缩进，统一压成单行避免气泡顶部高度异常
-  const normalized = String(text).replace(/\s+/g, ' ').trim()
-  const auto = Math.min(12000, 4000 + Math.floor(normalized.length / 8) * 1000)
-  const ms = typeof durationMs === 'number' ? durationMs : auto
-
-  // 下一帧再设为 true，让 Vue 触发离开→进入过渡
-  speechRafId = requestAnimationFrame(() => {
-    speechRafId = null
-    if (componentDisposed || menuVisible.value || !loadMasterEnabled()) return
-    speechSource.value = 'vision'
-    speechText.value = normalized
-    speechVisible.value = true
-    speechTimer = setTimeout(() => {
-      speechVisible.value = false
-    }, ms)
-  })
-}
-
-// ===== Vision 桌面观察 =====
-
-// 运行时文案统一从 i18n 读取（zh.js / en.js 中 petTool.runtime.*）
-const rt = () => t.value.petTool?.runtime || {}
-
-const getAiConfig = async (signal) => {
-  let localConfig
-  let legacyKey = ''
-  let sanitizedStoredConfig = null
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    const parsed = saved ? JSON.parse(saved) : {}
-    legacyKey = typeof parsed.apiKey === 'string' && !parsed.apiKey.includes('****') ? parsed.apiKey : ''
-    delete parsed.apiKey
-    sanitizedStoredConfig = parsed
-    localConfig = { ...DEFAULT_CONFIG, ...parsed, apiKey: '' }
-    if (saved && !legacyKey) localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed))
-  } catch {
-    localConfig = { ...DEFAULT_CONFIG, apiKey: '' }
-  }
-
-  try {
-    const proxyUrl = await awaitWithSignal(invoke('get_proxy_url_command'), signal)
-    if (legacyKey) {
-      const migration = await fetch(`${proxyUrl}/api/ai/config`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKeyAction: 'replace', apiKey: legacyKey }),
-        signal,
-      })
-      const migrationResult = await migration.json().catch(() => ({}))
-      if (!migration.ok || migrationResult.status === 'error') {
-        throw new Error(migrationResult.error || `Failed to migrate AI credential (${migration.status})`)
-      }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizedStoredConfig))
-    }
-    const response = await fetch(`${proxyUrl}/api/ai/config`, { signal })
-    if (response.ok) return { ...localConfig, ...(await response.json()), apiKey: '' }
-  } catch {
-    // Fall back to the safe local snapshot while Sunshine is unavailable.
-  }
-  return localConfig
-}
-
-const isPetVisionEnabled = () => {
-  // 总开关 + 桌面观察开关 双条件
-  return loadMasterEnabled() && loadVisionEnabled()
-}
-
-// 从各种原始错误中提取人可读的 message
-const extractErrorMessage = (err) => {
-  if (!err) return rt().visionUnknownError || ''
-  let raw = typeof err === 'string' ? err : err?.message || String(err)
-  const jsonMatch = raw.match(/\{[\s\S]*\}/)
-  if (jsonMatch) {
-    try {
-      const parsed = JSON.parse(jsonMatch[0])
-      const msg =
-        parsed?.error?.message ||
-        parsed?.message ||
-        parsed?.data?.message ||
-        parsed?.error
-      if (typeof msg === 'string' && msg.trim()) return msg.trim()
-    } catch {
-      // 解析失败则回退到原始文本
-    }
-  }
-  return raw
-}
-
-// 错误特征 → i18n key 映射；命中即返回对应短提示
-const VISION_ERROR_PATTERNS = [
-  [/capture is already in progress/, 'visionBusy'],
-  [/not a vlm|vision language model|text-only|no vision|不支持视觉|不支持图像/, 'notVlm'],
-  [/401|unauthor|invalid api key/, 'unauthorized'],
-  [/403|forbidden|permission/, 'forbidden'],
-  [/404|not found|no such model/, 'notFound'],
-  [/429|rate limit|too many|quota/, 'rateLimit'],
-  [/timeout|timed out|abort/, 'timeout'],
-  [/network|fetch failed|econn|enot|failed to fetch/, 'network'],
-]
-
-const friendlyVisionError = (msg) => {
-  const m = (msg || '').toLowerCase()
-  const runtime = rt()
-  const errors = runtime.errors || {}
-  for (const [re, key] of VISION_ERROR_PATTERNS) {
-    if (re.test(m)) return key === 'visionBusy' ? runtime.visionBusy || null : errors[key] || null
-  }
-  return null
-}
-
-// 剥离 LLM 特殊 token / 思维链 / Markdown 代码块包裹
-// 例如 GLM 系列会输出 <|begin_of_box|>...<|end_of_box|>，思维模型会输出 <think>...</think>
-const sanitizeLlmReply = (raw) => {
-  if (!raw) return ''
-  let s = String(raw)
-  // 思维链：DeepSeek-R1 / Claude thinking / Qwen
-  s = s.replace(/<think>[\s\S]*?<\/think>/gi, '')
-  s = s.replace(/<reasoning>[\s\S]*?<\/reasoning>/gi, '')
-  // 包裹型特殊 token：<|...|>...<|...|>，先尝试提取 begin_of_box / answer 内的内容
-  const boxed = s.match(/<\|begin_of_box\|>([\s\S]*?)<\|end_of_box\|>/i)
-  if (boxed) s = boxed[1]
-  const answered = s.match(/<\|begin_of_answer\|>([\s\S]*?)<\|end_of_answer\|>/i)
-  if (answered) s = answered[1]
-  // 去除残余的 <|...|> 标记
-  s = s.replace(/<\|[^|]*\|>/g, '')
-  // 去除 Markdown 代码块围栏（少数模型会包代码块）
-  s = s.replace(/^```[a-z]*\s*|```\s*$/gim, '')
-  // 去除前后引号
-  s = s.trim().replace(/^["'「『]+|["'」』]+$/g, '')
-  return s.trim()
-}
-
-// 防止用户连点 / 多 trigger 同时跑
-let visionInflight = false
-let visionAbortController = null
-watch(locale, () => {
-  visionAbortController?.abort('locale-changed')
-  cancelSpeechAnimationFrame()
-  speechVisible.value = false
-  if (speechTimer) {
-    clearTimeout(speechTimer)
-    speechTimer = null
-  }
-  loadSpeechPhrases()
-})
-// 戳一下成功/失败后的冷静期，避免连按
-const VISION_COOLDOWN_MS = 3000
-let visionCooldownUntil = 0
-// 截图与 AI 请求共用一个 120s 截止时间。
-const VISION_REQUEST_TIMEOUT_MS = 120000
-
-const awaitWithSignal = (promise, signal) => new Promise((resolve, reject) => {
-  const rejectAborted = () => {
-    const isTimeout = signal.reason === 'timeout'
-    const error = new Error(isTimeout ? 'timeout' : 'cancelled')
-    error.name = 'AbortError'
-    error.isTimeout = isTimeout
-    reject(error)
-  }
-  if (signal.aborted) {
-    Promise.resolve(promise).catch(() => {})
-    rejectAborted()
-    return
-  }
-
-  signal.addEventListener('abort', rejectAborted, { once: true })
-  promise.then(
-    (value) => {
-      signal.removeEventListener('abort', rejectAborted)
-      resolve(value)
-    },
-    (error) => {
-      signal.removeEventListener('abort', rejectAborted)
-      reject(error)
-    }
-  )
-})
-
-const setVisionSpeech = (text) => {
-  if (componentDisposed || menuVisible.value || !isPetVisionEnabled()) return false
-  cancelSpeechAnimationFrame()
-  speechSource.value = 'vision'
-  speechText.value = text
-  speechVisible.value = true
-  if (speechTimer) clearTimeout(speechTimer)
-  // 桌面观察的内容信息量较大，按文本长度自适应：基础 7s，每 8 字 +1s，最长 15s
-  const showMs = Math.min(15000, 7000 + Math.floor(text.length / 8) * 1000)
-  speechTimer = setTimeout(() => {
-    speechVisible.value = false
-  }, showMs)
-  return true
-}
-
-const tryVisionSpeech = async (isManual = false) => {
-  const r = rt()
-  if (visionInflight) {
-    if (isManual) {
-      console.info('[桌宠Vision] 已有请求进行中，跳过本次触发')
-      showSpeechRaw(r.visionBusy || r.visionLoading || '')
-    }
-    return false
-  }
-  visionInflight = true
-  const controller = new AbortController()
-  visionAbortController = controller
-  let visionTimedOut = false
-  let applyCooldown = false
-  const timeoutTimer = setTimeout(() => {
-    visionTimedOut = true
-    controller.abort('timeout')
-  }, VISION_REQUEST_TIMEOUT_MS)
-
-  try {
-    const config = await getAiConfig(controller.signal)
-    if (!config.enabled || (!(config.apiKey || config.apiKeyConfigured) && isApiKeyRequired(config)) || !isPetVisionEnabled()) {
-      if (isManual) showSpeechRaw(r.visionNotConfigured || '')
-      return false
-    }
-
-    // 冷静期：仅对 manual 触发提示，auto 静默跳过
-    const now = Date.now()
-    if (now < visionCooldownUntil) {
-      if (isManual) {
-        console.info('[桌宠Vision] 冷静期内，跳过', { remainMs: visionCooldownUntil - now })
-        showSpeechRaw(r.visionCooldown || '')
-      }
-      return false
-    }
-    applyCooldown = true
-
-    // 手动触发：立即抢占当前气泡，显示加载提示，避免用户以为没生效
-    if (isManual && r.visionLoading) {
-      showSpeechRaw(r.visionLoading, 30000) // 30s 占位，下面成功/失败会覆盖
-    }
-
-    const trigger = isManual ? 'manual' : 'auto'
-    const t0 = performance.now()
-    console.info(`[桌宠Vision] 开始捕获屏幕 trigger=${trigger} model=${config.model || '(default)'}`)
-    const screenshot = await awaitWithSignal(invoke('capture_screenshot'), controller.signal)
-    if (!screenshot) {
-      console.info('[桌宠Vision] 未检测到可用显示器，跳过本次观察')
-      // null 表示正常跳过：自动调度可以继续随机对话，手动请求也不显示失败。
-      return null
-    }
-    const shotMs = Math.round(performance.now() - t0)
-    const shotLen = typeof screenshot === 'string' ? screenshot.length : (screenshot?.byteLength || 0)
-    console.info(`[桌宠Vision] 截图完成 ${shotMs}ms size=${shotLen}`)
-
-    const t1 = performance.now()
-    const response = await awaitWithSignal(
-      callVisionLLM(
-        config,
-        r.visionPrompt,
-        r.visionUserMsg,
-        screenshot,
-        150,
-        { signal: controller.signal }
-      ),
-      controller.signal
-    )
-    const llmMs = Math.round(performance.now() - t1)
-    console.info(`[桌宠Vision] AI 响应 ${llmMs}ms`)
-
-    const cleaned = sanitizeLlmReply(response)
-    if (cleaned) {
-      if (!setVisionSpeech(cleaned)) return false
-      // 写入历史（仅成功评论，不记录错误提示）
-      pushVisionHistory(cleaned)
-      return true
-    }
-    console.warn('[桌宠Vision] AI 返回空内容（清洗后）')
-    if (isManual) showSpeechRaw(r.visionEmpty || '')
-  } catch (err) {
-    if (controller.signal.aborted && !visionTimedOut) {
-      console.info('[桌宠Vision] 请求已取消:', controller.signal.reason || 'cancelled')
-    } else if (visionTimedOut || err?.isTimeout || err?.name === 'AbortError') {
-      console.warn('[桌宠Vision] 请求超时', VISION_REQUEST_TIMEOUT_MS, 'ms')
-      if (isManual) showSpeechRaw(r.visionTimeout || '')
-    } else {
-      const raw = extractErrorMessage(err)
-      console.warn('[桌宠Vision] 失败:', raw)
-      if (isManual) {
-        const friendly = friendlyVisionError(raw)
-        const short = friendly || (raw.length > 35 ? raw.slice(0, 35) + '…' : raw)
-        showSpeechRaw(`${r.visionErrorPrefix || ''}${short}`)
-      }
-    }
-  } finally {
-    clearTimeout(timeoutTimer)
-    if (visionAbortController === controller) visionAbortController = null
-    visionInflight = false
-    if (isManual && applyCooldown) visionCooldownUntil = Date.now() + VISION_COOLDOWN_MS
-  }
-  return false
-}
-
-// 调度状态：模块级，便于 config-changed 时重排
 let nextRandomAt = 0
-let nextVisionAt = 0
-
-// 配置变化时根据"已等待时长"与新间隔取较小者，避免一改就等满整段
 const rescheduleSpeech = () => {
-  const now = Date.now()
-  const randomIntervalMs = Math.max(MIN_INTERVAL_SEC, loadRandomIntervalSec()) * 1000
-  const visionIntervalMs = Math.max(MIN_INTERVAL_SEC, loadVisionIntervalSec()) * 1000
-  if (nextRandomAt > now + randomIntervalMs) nextRandomAt = now + randomIntervalMs
-  if (nextVisionAt > now + visionIntervalMs) nextVisionAt = now + visionIntervalMs
-  console.info('[桌宠] 配置变化，重新调度', {
-    randomInMs: nextRandomAt - now,
-    visionInMs: nextVisionAt - now,
-  })
-
-  // 当前可见或等待下一帧显示的气泡若被总开关关闭，立即收起。
-  const masterOn = loadMasterEnabled()
-  const visionOn = loadVisionEnabled()
-  if ((!masterOn || !visionOn) && visionAbortController) {
-    visionAbortController.abort('config-changed')
-  }
-  if (!masterOn) {
-    cancelSpeechAnimationFrame()
-    speechVisible.value = false
-    if (speechTimer) { clearTimeout(speechTimer); speechTimer = null }
-    return
-  }
-  if (!visionOn) {
-    cancelSpeechAnimationFrame()
-  }
-  if (!speechVisible.value) return
-  if (speechSource.value === 'vision' && !visionOn) {
-    speechVisible.value = false
-    if (speechTimer) { clearTimeout(speechTimer); speechTimer = null }
-    return
-  }
-  if (speechSource.value === 'random' && !loadRandomEnabled()) {
-    speechVisible.value = false
-    if (speechTimer) { clearTimeout(speechTimer); speechTimer = null }
-  }
+  nextRandomAt = Math.min(nextRandomAt, Date.now() + Math.max(MIN_INTERVAL_SEC, loadRandomIntervalSec()) * 1000)
+  if (!loadMasterEnabled() || !loadRandomEnabled()) { speechVisible.value = false; cancelSpeechAnimationFrame() }
 }
-
 const startSpeechLoop = () => {
-  // 首次延迟随机出现（随机对话）
-  const firstDelay = 4000 + Math.random() * 6000
-  startupSpeechTimer = setTimeout(() => {
-    startupSpeechTimer = null
-    if (!menuVisible.value && loadMasterEnabled() && loadRandomEnabled()) showSpeech()
-  }, firstDelay)
-
-  // 随机对话与桌面观察使用两个独立的下一次调度点，
-  // 在一个定时器中轮询，避免互相干扰。
-  const TICK_MS = 1000
-  nextRandomAt = Date.now() + firstDelay
-  nextVisionAt = Date.now() + firstDelay + 8000 // 视觉首次略后，避免启动后立即被截屏
-
-  const computeNextRandom = () => {
-    const intervalSec = Math.max(MIN_INTERVAL_SEC, loadRandomIntervalSec())
-    const jitterPct = Math.max(0, loadJitterPercent()) / 100
-    const jitter = (Math.random() - 0.5) * 2 * intervalSec * jitterPct
-    return Date.now() + Math.max(MIN_INTERVAL_SEC, intervalSec + jitter) * 1000
-  }
-
-  const computeNextVision = () => {
-    const intervalSec = Math.max(MIN_INTERVAL_SEC, loadVisionIntervalSec())
-    return Date.now() + intervalSec * 1000
-  }
-
-  speechInterval = setInterval(async () => {
-    if (speechTickRunning || !loadMasterEnabled() || menuVisible.value) return
-    speechTickRunning = true
-    try {
-      const now = Date.now()
-
-      // 桌面观察（优先调度，如果到点则尝试截屏）
-      if (loadVisionEnabled() && now >= nextVisionAt) {
-        nextVisionAt = computeNextVision()
-        const used = await tryVisionSpeech()
-        if (used) {
-          // 视觉说过话了，同时把随机对话下次点往后推一点避免接踵
-          if (loadRandomEnabled()) {
-            nextRandomAt = Math.max(nextRandomAt, Date.now() + Math.max(5, MIN_INTERVAL_SEC / 2) * 1000)
-          }
-          return
-        }
-      }
-
-      // 随机对话
-      if (loadRandomEnabled() && now >= nextRandomAt) {
-        nextRandomAt = computeNextRandom()
-        showSpeech()
-      }
-    } finally {
-      speechTickRunning = false
-    }
-  }, TICK_MS)
+  nextRandomAt = Date.now() + 4000 + Math.random() * 6000
+  speechInterval = setInterval(() => {
+    if (!loadMasterEnabled() || !loadRandomEnabled() || menuVisible.value || Date.now() < nextRandomAt) return
+    showSpeech()
+    const interval = Math.max(MIN_INTERVAL_SEC, loadRandomIntervalSec())
+    const jitter = (Math.random() - 0.5) * 2 * interval * Math.max(0, loadJitterPercent()) / 100
+    nextRandomAt = Date.now() + Math.max(MIN_INTERVAL_SEC, interval + jitter) * 1000
+  }, 1000)
 }
 
 // 设置弹窗跨窗口通信
 let speechBroadcast = null
-const visionRequestStates = new Map()
-
-const sendVisionRequestStatus = (requestId, status, success) => {
-  speechBroadcast?.postMessage({
-    type: 'vision-status',
-    requestId,
-    status,
-    ...(status === 'completed' ? { success: !!success } : {}),
-  })
-}
-
-const handleVisionRequest = async (requestId) => {
-  if (!requestId) return
-
-  const existing = visionRequestStates.get(requestId)
-  if (existing) {
-    sendVisionRequestStatus(requestId, existing.status, existing.success)
-    return
-  }
-
-  if (visionRequestStates.size >= 100) {
-    const oldestRequestId = visionRequestStates.keys().next().value
-    visionRequestStates.delete(oldestRequestId)
-  }
-  visionRequestStates.set(requestId, { status: 'accepted' })
-  sendVisionRequestStatus(requestId, 'accepted')
-
-  const result = await tryVisionSpeech(true)
-  const success = result === true || result === null
-  visionRequestStates.set(requestId, { status: 'completed', success })
-  sendVisionRequestStatus(requestId, 'completed', success)
-}
-
 const initSpeechBroadcast = () => {
   try {
     speechBroadcast = new BroadcastChannel(PET_SPEECH_CHANNEL)
-    speechBroadcast.addEventListener('message', async (e) => {
-      const message = e?.data
-      const type = message?.type
-      if (type === 'config-changed') {
-        // 设置面板修改了间隔等：根据新值收紧已有调度
-        rescheduleSpeech()
-      } else if (type === 'vision-request') {
-        await handleVisionRequest(message.requestId)
-      } else if (type === 'poke-vision') {
-        // 兼容旧版本设置窗口。
-        await tryVisionSpeech(true)
-      } else if (type === 'poke') {
-        // 兼容旧消息：优先视觉，失败则随机
-        if (!(await tryVisionSpeech())) showSpeech()
-      }
+    speechBroadcast.addEventListener('message', ({ data }) => {
+      if (data?.type === 'config-changed') rescheduleSpeech()
+      else if (data?.type === 'poke') showSpeech()
     })
-  } catch (_) {}
+  } catch {}
 }
 
 const menuItems = computed(() => [
@@ -781,7 +341,6 @@ const menuItems = computed(() => [
 const toggleMenu = () => {
   menuVisible.value = !menuVisible.value
   if (menuVisible.value) {
-    visionAbortController?.abort('menu-opened')
     cancelSpeechAnimationFrame()
     speechVisible.value = false
     if (speechTimer) {
@@ -2009,8 +1568,6 @@ onMounted(async () => {
 onUnmounted(() => {
   componentDisposed = true
   phraseLoadGeneration += 1
-  visionAbortController?.abort('disposed')
-  visionAbortController = null
   dragDisposed = true
   clearDragState()
   if (unlistenDragScaleChanged) {
@@ -2049,7 +1606,6 @@ onUnmounted(() => {
     try { speechBroadcast.close() } catch (_) {}
     speechBroadcast = null
   }
-  visionRequestStates.clear()
 })
 </script>
 

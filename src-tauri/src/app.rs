@@ -2,7 +2,6 @@ use crate::proxy_server;
 use crate::sunshine;
 use crate::toolbar;
 use crate::tray;
-use crate::update;
 use crate::windows;
 use log::{debug, error, info, warn};
 use tauri::{App, AppHandle, Manager};
@@ -25,8 +24,6 @@ pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>
     let desktop_settings = crate::desktop_settings::load_desktop_settings_from_disk();
     let send_to_client_paths = crate::file_transfer::parse_send_to_client_args(&args);
     let is_send_to_client = !send_to_client_paths.is_empty();
-    let quick_share_folder_paths = crate::file_mapping::parse_quick_share_folder_args(&args);
-    let is_quick_share_folder = !quick_share_folder_paths.is_empty();
     let url_contains_pin = args
         .iter()
         .find(|arg| arg.starts_with("--url="))
@@ -37,7 +34,6 @@ pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>
     crate::desktop_settings::apply_startup_settings(&app_handle, &desktop_settings);
     // 更新偏好属于应用级状态，必须在 `--hidden` 的纯托盘代理模式下也立即注册。
     // 自动联网检查仍在后面按窗口启动模式决定，避免把状态初始化和网络行为耦合。
-    update::init_update_preferences(&app_handle)?;
     #[cfg(target_os = "windows")]
     crate::vdd::start_hardware_cursor_migration();
     #[cfg(target_os = "windows")]
@@ -56,7 +52,7 @@ pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>
             windows::create_desktop_window(&app_handle)?;
         }
         windows::create_main_window_hidden(&app_handle)?;
-    } else if !show_toolbar && !url_contains_pin && !is_send_to_client && !is_quick_share_folder {
+    } else if !show_toolbar && !url_contains_pin && !is_send_to_client {
         if start_minimized {
             windows::create_main_window_hidden(&app_handle)?;
         } else {
@@ -70,12 +66,6 @@ pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>
     if let Err(e) = crate::shell_context_menu::install_file_transfer_menu() {
         warn!("⚠️  安装文件传输右键菜单失败: {}", e);
     }
-    #[cfg(target_os = "windows")]
-    if desktop_settings.file_mapping_menu_enabled {
-        if let Err(e) = crate::shell_context_menu::install_file_mapping_menu() {
-            warn!("install file mapping context menu failed: {}", e);
-        }
-    }
     register_global_shortcuts(app, desktop_settings.toolbar_shortcut_enabled)?;
     crate::nr_overlay::initialize(&app_handle);
     setup_menu_event_handler(app);
@@ -86,17 +76,12 @@ pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>
     if is_send_to_client {
         crate::file_transfer::dispatch_cli_send(send_to_client_paths);
     }
-    if is_quick_share_folder {
-        crate::file_mapping::dispatch_cli_quick_share(quick_share_folder_paths);
-    }
 
     // 启动 WebView 心跳监控（检测渲染进程崩溃并自动恢复）
     windows::start_heartbeat_monitor(app.handle().clone());
 
     // 延迟任务
     tauri::async_runtime::spawn(async move {
-        update::emit_update_result_if_requested(&app_handle);
-
         // PIN 配对窗口
         if url_contains_pin {
             info!("🔐 将在应用启动后打开 PIN 配对窗口");
@@ -125,7 +110,6 @@ pub fn shutdown_application() {
     crate::text_context::stop();
     #[cfg(target_os = "windows")]
     crate::tray::cleanup_prevent_sleep();
-    crate::moonlight_web::cleanup();
     crate::windows::unregister_agent_restart();
 }
 
@@ -141,7 +125,9 @@ fn register_global_shortcuts(
 
     let registered = sync_toolbar_shortcut(app.handle(), true).map_err(std::io::Error::other)?;
     if !registered {
-        warn!("Desktop pet shortcut is currently unavailable; the application will continue normally");
+        warn!(
+            "Desktop pet shortcut is currently unavailable; the application will continue normally"
+        );
     }
 
     Ok(())
@@ -239,12 +225,6 @@ pub fn handle_single_instance(app: &AppHandle, args: Vec<String>) {
     }
 
     // 诊断：列出当前所有窗口
-    let quick_share_folder_paths = crate::file_mapping::parse_quick_share_folder_args(&args);
-    if !quick_share_folder_paths.is_empty() {
-        info!("file mapping quick share request detected");
-        crate::file_mapping::dispatch_cli_quick_share(quick_share_folder_paths);
-        return;
-    }
 
     if args.iter().any(|arg| arg == "--hidden") {
         info!("User agent is already running; ignoring duplicate hidden startup");

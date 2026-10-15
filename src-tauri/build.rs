@@ -11,7 +11,6 @@ const GENERATED_CAPABILITY_PATH: &str = "capabilities/app-commands.generated.jso
 /// Commands that must never be exposed to the Sunshine backend remote origin.
 /// Their local window-scoped grants live in hand-written capability files.
 const LOCAL_ONLY_COMMANDS: &[&str] = &[
-    "capture_screenshot",
     "hdr_enhanced_select_backend",
     "list_native_components",
     "native_component_get_status",
@@ -20,14 +19,6 @@ const LOCAL_ONLY_COMMANDS: &[&str] = &[
     "native_component_remove",
     "open_local_path",
     "open_native_tool",
-    "check_for_updates",
-    "check_for_updates_for_channel",
-    "start_update_checker_when_ui_ready",
-    "get_include_prerelease_preference",
-    "set_include_prerelease_preference",
-    "download_update",
-    "check_cached_update",
-    "install_update",
     "usbip_get_forwarding_config",
     "usbip_save_forwarding_config",
 ];

@@ -300,34 +300,6 @@ const createMessageHandler = () => {
         }
       }
     },
-    'native-updater-context-request': (_data, event) => {
-      replyToSunshine(event, {
-        type: 'native-updater-context',
-        source: 'sunshine-control-panel',
-        available: true,
-      })
-    },
-    'native-update-request': async (data, event) => {
-      const requestId = typeof data.requestId === 'string' ? data.requestId : ''
-      if (data.channel !== 'stable' && data.channel !== 'prerelease') {
-        replyToSunshine(event, {
-          type: 'native-update-result',
-          source: 'sunshine-control-panel',
-          requestId,
-          ok: false,
-          error: 'Unsupported update channel',
-        })
-        return
-      }
-
-      const opened = await sidebarMenuRef.value?.checkForUpdates?.(data.channel)
-      replyToSunshine(event, {
-        type: 'native-update-result',
-        source: 'sunshine-control-panel',
-        requestId,
-        ok: opened === true,
-      })
-    },
     'native-rtx-hdr-context-request': (_data, event) => {
       replyToSunshine(event, {
         type: 'native-rtx-hdr-context',
@@ -517,10 +489,6 @@ onMounted(async () => {
 
     unlistenVddSettings = await currentWindow.listen('open-vdd-settings', () => {
       sidebarMenuRef.value?.openVddSettings?.()
-    })
-
-    await currentWindow.listen('open-web-stream', () => {
-      sidebarMenuRef.value?.openWebStream?.()
     })
 
     await currentWindow.listen('open-welcome', openWelcome)

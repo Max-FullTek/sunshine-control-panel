@@ -41,20 +41,6 @@ function harness(messages = en, options = {}) {
     ElLoading: { service: (config) => { calls.loads.push(config.text); return loading } },
     openExternalUrl: async (url) => calls.urls.push(url), tools: {},
     console: { error() {}, warn() {}, log() {} },
-    controllerMeta: {
-      getStatus: async () => ({ installed: options.installed || false, version: '1.0' }),
-      checkRelease: async () => {
-        if (options.releaseError) throw options.releaseError
-        return { download_url: 'https://example.com/tool.exe', version: '2.0', download_size: 1048576 }
-      },
-      download: async (...args) => {
-        calls.downloads.push(args)
-        if (options.duringDownload) options.duringDownload(t)
-        progressListener({ payload: { progress: 50, downloaded: 524288 } })
-        if (options.downloadError) throw options.downloadError
-      },
-      launch: async () => { calls.launches++; if (options.launchError) throw options.launchError },
-    },
     loadTauri: async () => ({
       listen: async (_, listener) => { progressListener = listener; return () => { unlistened = true } },
       invoke: async (command) => command === 'is_running_as_admin' ? true : {
@@ -65,53 +51,6 @@ function harness(messages = en, options = {}) {
   })
   return { api, calls, t, unlistened: () => unlistened }
 }
-
-test('English Gamepad Test prompt, download progress and launch use translated text', async () => {
-  const { api, calls, unlistened } = harness()
-  await api.openGamepadTest()
-  assert.equal(calls.dialogs[0].title, 'Gamepad Test Tool')
-  assert.equal(calls.dialogs[0].confirmButtonText, 'Download and Launch')
-  assert.equal(calls.dialogs[0].cancelButtonText, 'Open Web Version')
-  assert.equal(calls.dialogs[0].distinguishCancelAndClose, true)
-  assert.match(calls.loads.join('\n'), /0\.5\/1\.0 MB \(50%\)/)
-  assert.equal(calls.downloads.length, 1)
-  assert.equal(calls.launches, 1)
-  assert.equal(unlistened(), true)
-  assert.doesNotMatch(JSON.stringify(calls), /\p{Script=Han}/u)
-})
-
-test('web choice opens only the fallback; closing the prompt performs no action', async () => {
-  for (const choice of ['cancel', 'close']) {
-    const { api, calls } = harness(en, { choice })
-    await api.openGamepadTest()
-    assert.equal(calls.downloads.length, 0)
-    assert.equal(calls.launches, 0)
-    assert.equal(calls.urls.length, choice === 'cancel' ? 1 : 0)
-    if (choice === 'cancel') assert.equal(calls.urls[0], 'https://hardwaretester.com/gamepad')
-  }
-})
-
-test('Chinese prompt remains available and async progress follows the current locale', async () => {
-  const { api, calls } = harness(zh, { duringDownload: (t) => { t.value = en } })
-  await api.openGamepadTest()
-  assert.equal(calls.dialogs[0].title, zh.controllerMeta.title)
-  assert.match(calls.loads.at(-1), /Downloading/)
-  assert.match(calls.messages.at(-1), /installed/)
-})
-
-test('backend failures do not leak Chinese into English notifications', async () => {
-  for (const options of [
-    { releaseError: '查询 GitHub Release 失败' },
-    { downloadError: '无法覆盖已有版本，请先关闭 ControllerMeta 后重试: os error 5' },
-    { installed: true, launchError: 'ControllerMeta 未安装' },
-  ]) {
-    const { api, calls } = harness(en, options)
-    await api.openGamepadTest()
-    assert.doesNotMatch(JSON.stringify(calls), /\p{Script=Han}/u)
-    if (options.downloadError) assert.equal(calls.messages.at(-1), en.controllerMeta.closeBeforeUpdate)
-    if (options.launchError) assert.equal(calls.messages.at(-1), en.controllerMeta.notInstalled)
-  }
-})
 
 test('cleanup formats counters locally instead of displaying backend Chinese text', async () => {
   for (const deletedCount of [0, 2]) {
@@ -124,7 +63,7 @@ test('cleanup formats counters locally instead of displaying backend Chinese tex
 })
 
 test('new translations have matching keys and placeholder names in both supported locales', () => {
-  for (const section of ['toolActions', 'controllerMeta', 'coverPicker', 'windowActions', 'routeTitles']) {
+  for (const section of ['toolActions', 'coverPicker', 'windowActions', 'routeTitles']) {
     assert.deepEqual(Object.keys(en[section]).sort(), Object.keys(zh[section]).sort())
     for (const key of Object.keys(en[section])) {
       assert.deepEqual(en[section][key].match(/\{\w+\}/g), zh[section][key].match(/\{\w+\}/g))

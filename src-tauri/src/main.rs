@@ -8,27 +8,23 @@ mod clipboard;
 mod commands;
 mod controller_hub;
 mod controller_input;
-mod controllermeta;
 mod desktop_settings;
 mod device_config;
 mod dualsense;
 #[cfg(target_os = "windows")]
 mod elevation;
-mod file_mapping;
 mod file_transfer;
 mod fs_utils;
 mod game_session;
 mod github_download;
 mod hwinfo;
 mod logger;
-mod moonlight_web;
 mod native_tools;
-mod perf;
 mod power;
 mod proxy_server;
-mod rtss;
-mod rtss_frame_rates;
 use native_components::providers::nvidia_rtx_hdr as rtx_hdr;
+#[path = "update/metadata.rs"]
+mod component_releases;
 mod hdr_enhanced;
 mod native_components;
 mod nr_overlay;
@@ -41,7 +37,6 @@ mod text_context;
 mod toolbar;
 mod tray;
 mod tray_config;
-mod update;
 mod usbip;
 mod utils;
 mod vdd;
@@ -152,9 +147,6 @@ fn main() {
     if desktop_settings::try_remove_auto_start_from_args() {
         return;
     }
-    if update::try_run_updater_helper_from_args() {
-        return;
-    }
     if sunshine::try_run_core_compatibility_check_from_args() {
         return;
     }
@@ -211,7 +203,6 @@ fn main() {
             toolbar::create_toolbar_window,
             commands::fetch_speech_phrases,
             commands::fetch_remote_bytes,
-            commands::capture_screenshot,
             desktop_settings::get_desktop_settings,
             desktop_settings::save_desktop_settings,
             desktop_settings::load_toolbar_shortcut_status,
@@ -305,14 +296,6 @@ fn main() {
             fs_utils::search_steam_covers,
             fs_utils::upload_steam_cover,
             fs_utils::save_text_file,
-            update::check_for_updates,
-            update::check_for_updates_for_channel,
-            update::start_update_checker_when_ui_ready,
-            update::get_include_prerelease_preference,
-            update::set_include_prerelease_preference,
-            update::download_update,
-            update::check_cached_update,
-            update::install_update,
             logger::get_all_logs,
             logger::clear_logs,
             logger::export_logs,

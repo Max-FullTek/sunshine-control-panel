@@ -14,9 +14,6 @@
         </div>
       </div>
     </div>
-    <button class="desktop-btn" :disabled="checking" @click="emit('check-update')">
-      {{ checking ? t.settings.checking : t.settings.checkUpdate }}
-    </button>
   </div>
 </template>
 
@@ -29,13 +26,9 @@ defineProps({
     type: String,
     required: true,
   },
-  checking: {
-    type: Boolean,
-    required: true,
-  },
 })
 
-const emit = defineEmits(['open-link', 'check-update'])
+const emit = defineEmits(['open-link'])
 const { t } = useI18n()
 </script>
 

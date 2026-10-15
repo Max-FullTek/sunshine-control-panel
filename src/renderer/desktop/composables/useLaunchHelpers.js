@@ -8,7 +8,6 @@ const TEMPLATE_I18N_MAP = {
   'locale-emulator': 'localeEmulator',
   'translator': 'translator',
   'game-trainer': 'gameTrainer',
-  'rtss-fps-limiter': 'rtssLimiter',
   'custom': 'custom',
 }
 

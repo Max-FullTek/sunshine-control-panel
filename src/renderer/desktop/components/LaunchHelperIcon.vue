@@ -18,7 +18,6 @@ const helperIconMap = {
   'locale-emulator': Connection,
   translator: Document,
   'game-trainer': Tools,
-  'rtss-fps-limiter': Aim,
   custom: Setting,
 }
 

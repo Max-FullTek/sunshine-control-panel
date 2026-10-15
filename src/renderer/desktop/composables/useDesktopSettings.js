@@ -10,7 +10,6 @@ export const defaultDesktopSettings = {
   autoStartSunshine: true,
   notifications: true,
   connectionNotify: true,
-  updateNotify: true,
   devMode: false,
   logLevel: 'info',
   textContextEnabled: true,
