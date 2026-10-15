@@ -3,6 +3,8 @@ use log::{info, warn};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+const FOLDER_SHARING_ENABLED: bool = false;
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct FileMappingInfo {
     pub id: String,
@@ -63,6 +65,10 @@ pub fn parse_quick_share_folder_args(args: &[String]) -> Vec<String> {
 }
 
 pub fn dispatch_cli_quick_share(paths: Vec<String>) {
+    if !FOLDER_SHARING_ENABLED {
+        warn!("Folder sharing is disabled in this personal fork");
+        return;
+    }
     if paths.is_empty() {
         return;
     }

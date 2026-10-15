@@ -8,6 +8,12 @@
 
 import { AI_PROVIDERS } from './aiProviders.js'
 
+const AI_ENABLED = false
+
+function requireAiEnabled() {
+  if (!AI_ENABLED) throw new Error('AI is disabled in this personal fork')
+}
+
 async function getProxyUrl() {
   try {
     const { invoke } = await import('@tauri-apps/api/core')
@@ -18,6 +24,7 @@ async function getProxyUrl() {
 }
 
 async function fetchJson(url, options = {}) {
+  requireAiEnabled()
   const resp = await fetch(url, options)
   const data = await resp.json().catch(() => ({}))
   if (!resp.ok || data.status === 'error') {
@@ -52,6 +59,7 @@ async function refreshSunshineProxyTarget() {
  * Generic proxy for provider helper endpoints such as /models.
  */
 export async function proxyFetch(url, method, headers, body) {
+  requireAiEnabled()
   const tauri = window.__TAURI__
   if (tauri?.core?.invoke) {
     const result = await tauri.core.invoke('ai_api_proxy', {
@@ -127,6 +135,7 @@ export async function callAnthropic(apiBase, apiKey, model, messages, maxTokens 
 }
 
 export async function callLLM(config, messages, maxTokens = 2048, requestOptions = {}) {
+  requireAiEnabled()
   const proxyUrl = await getProxyUrl()
   const url = `${proxyUrl}/api/ai/chat/completions`
   const options = {
@@ -200,6 +209,7 @@ export async function callVisionLLM(
 }
 
 export async function fetchModels(apiBase, apiKey, providerValue, syncConfig) {
+  requireAiEnabled()
   const apiType = getApiType(providerValue)
   if (apiType === 'anthropic') return []
   if (!apiBase) return []

@@ -25,7 +25,6 @@
 
     <SettingsLaunchAssistantCard :has-tauri="hasTauri" />
 
-    <SettingsFileSharingCard />
 
     <SettingsToggleSection
       :title="t.settings.notifications"
@@ -65,7 +64,6 @@ import SettingsActions from '../components/settings/SettingsActions.vue'
 import SettingsAboutCard from '../components/settings/SettingsAboutCard.vue'
 import SettingsAdvancedCard from '../components/settings/SettingsAdvancedCard.vue'
 import SettingsAppearanceCard from '../components/settings/SettingsAppearanceCard.vue'
-import SettingsFileSharingCard from '../components/settings/SettingsFileSharingCard.vue'
 import SettingsLaunchAssistantCard from '../components/settings/SettingsLaunchAssistantCard.vue'
 import SettingsNotice from '../components/settings/SettingsNotice.vue'
 import SettingsPetCard from '../components/settings/SettingsPetCard.vue'

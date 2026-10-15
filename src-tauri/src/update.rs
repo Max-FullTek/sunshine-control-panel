@@ -27,6 +27,8 @@ const UPDATE_RESULT_ARG: &str = "--update-result";
 
 // ========== 常量定义 ==========
 const UPDATE_CHECK_INTERVAL: u64 = 4 * 60 * 60; // 4小时（秒）
+// Install this fork through its reviewed build artifacts, never upstream updates.
+const UPDATER_ENABLED: bool = false;
 
 /// temp 目录中记录“已下载待安装”安装包的标记文件名。
 const UPDATE_CACHE_MARKER_FILE: &str = "sunshine-update-cache.json";
@@ -241,6 +243,9 @@ async fn check_for_updates_in_channel(
     manual: bool,
     channel: UpdateChannel,
 ) -> Result<Option<UpdateInfo>, String> {
+    if !UPDATER_ENABLED {
+        return Err("Updates are disabled in this personal fork".to_string());
+    }
     info!(
         "🔍 开始检查更新... (通道: {})",
         channel_description(channel)
@@ -295,6 +300,10 @@ pub fn try_run_updater_helper_from_args() -> bool {
     let Some(index) = args.iter().position(|arg| arg == UPDATER_HELPER_ARG) else {
         return false;
     };
+    if !UPDATER_ENABLED {
+        warn!("Updater helper is disabled in this personal fork");
+        return true;
+    }
 
     let Some(state_path) = args.get(index + 1) else {
         return true;
@@ -1309,6 +1318,9 @@ fn handle_auto_check_result<R: Runtime>(
 
 /// 启动时自动检查更新（如果距离上次检查超过4小时）
 pub fn check_for_updates_on_startup<R: Runtime + 'static>(app: AppHandle<R>) {
+    if !UPDATER_ENABLED {
+        return;
+    }
     let last_check_time = get_last_check_time(&app);
 
     if !should_auto_check(last_check_time) {
@@ -1738,6 +1750,12 @@ pub async fn download_update(
     asset_type: Option<String>,
     app_handle: AppHandle,
 ) -> Result<serde_json::Value, DownloadCommandError> {
+    if !UPDATER_ENABLED {
+        return Err(DownloadCommandError::new(
+            DownloadErrorCode::SetupFailed,
+            "Updates are disabled in this personal fork",
+        ));
+    }
     validate_download_url(&url, Some(&filename)).map_err(|detail| {
         DownloadCommandError::new(DownloadErrorCode::FilePreparationFailed, detail)
     })?;
@@ -1964,6 +1982,19 @@ pub fn check_cached_update(
 #[cfg(test)]
 mod download_source_tests {
     use super::*;
+
+    #[tokio::test]
+    async fn personal_fork_rejects_update_checks_before_resolving_any_release() {
+        for channel in [
+            UpdateChannel::StableOnly,
+            UpdateChannel::StableAndPrerelease,
+        ] {
+            let error = check_for_updates_in_channel(true, channel)
+                .await
+                .unwrap_err();
+            assert!(error.contains("disabled in this personal fork"));
+        }
+    }
 
     #[test]
     fn download_url_requires_an_allowlisted_foundation_release_host() {
@@ -2395,6 +2426,9 @@ pub async fn install_update(
     expected_sha256: Option<String>,
     app_handle: AppHandle,
 ) -> Result<(), String> {
+    if !UPDATER_ENABLED {
+        return Err("Updates are disabled in this personal fork".to_string());
+    }
     #[cfg(target_os = "windows")]
     {
         info!("🔧 开始安装更新: {}", file_path);
@@ -2642,6 +2676,9 @@ pub fn init_update_preferences(app: &tauri::AppHandle) -> Result<(), Box<dyn std
 pub fn start_update_checker<R: Runtime + 'static>(
     app: &tauri::AppHandle<R>,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    if !UPDATER_ENABLED {
+        return Ok(());
+    }
     if UPDATE_CHECKER_STARTED.set(()).is_err() {
         debug!("更新检查器已启动，跳过重复初始化");
         return Ok(());

@@ -89,7 +89,7 @@ export function useRouter() {
    * @param {object} options - 导航选项
    */
   const navigate = (routeName, options = {}) => {
-    if (!routeConfig[routeName]) {
+    if ([ROUTES.WEB_STREAM, ROUTES.AI_ASSISTANT].includes(routeName) || !routeConfig[routeName]) {
       console.warn(`路由 ${routeName} 不存在`)
       return
     }

@@ -68,9 +68,6 @@ onMounted(async () => {
       case 'shortcuts':
         currentTool.value = defineAsyncComponent(() => import('./tools/ShortcutsTool.vue'))
         break
-      case 'rtss':
-        currentTool.value = defineAsyncComponent(() => import('./tools/RtssOsdTool.vue'))
-        break
       case 'nr':
         currentTool.value = defineAsyncComponent(() => import('./tools/NrOverlayTool.vue'))
         break

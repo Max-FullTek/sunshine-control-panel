@@ -1050,6 +1050,7 @@ export const zh = {
     stableChannel: '稳定版',
     betaChannel: '测试版',
     currentVersion: '当前版本',
+    manualUpdates: '此版本使用手動更新。',
     syncFeatures: '同步功能',
     clipboardDescription: '查看串流剪贴板同步的连接状态。',
     connected: '已连接',

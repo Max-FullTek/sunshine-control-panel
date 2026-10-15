@@ -68,8 +68,6 @@ export function createNavigationGroups(ctx) {
       label: labels.sectionAssist,
       items: [
         routeItem('toolbox', IconTools, labels.toolbox, ROUTES.TOOLBOX),
-        routeItem('ai-assistant', MagicStick, labels.aiAssistant, ROUTES.AI_ASSISTANT),
-        ...(import.meta.env.DEV ? [routeItem('web-stream', Connection, labels.webStream, ROUTES.WEB_STREAM)] : []),
       ],
     },
   ]
@@ -92,13 +90,6 @@ export function createUtilityTools(ctx) {
       description: labels.latencyDescription,
       external: true,
       action: () => ctx.openUrl('https://yangkile.github.io/D-lay/'),
-    },
-    {
-      id: 'gamepad-test',
-      icon: Cpu,
-      label: labels.gamepadTest,
-      description: labels.gamepadDescription,
-      action: ctx.openGamepadTest,
     },
     {
       id: 'stylus-input-probe',

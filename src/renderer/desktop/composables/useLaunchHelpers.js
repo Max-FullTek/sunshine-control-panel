@@ -55,18 +55,6 @@ const BUILTIN_TEMPLATES = [
     ],
   },
   {
-    id: 'rtss-fps-limiter',
-    type: 'prep',
-    defaultDoCmd: '"{path}" limit:set {fps}',
-    defaultUndoCmd: '"{path}" limit:set 0',
-    elevated: true,
-    params: [
-      { key: 'path', placeholder: 'C:\\Program Files (x86)\\RivaTuner Statistics Server\\rtss-cli.exe', required: true },
-      { key: 'fps', placeholder: '60', required: true },
-      { key: 'extraArgs', placeholder: '' },
-    ],
-  },
-  {
     id: 'custom',
     type: 'prep',
     defaultDoCmd: '',

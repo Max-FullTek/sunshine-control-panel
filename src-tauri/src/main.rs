@@ -23,11 +23,11 @@ mod hwinfo;
 mod logger;
 mod moonlight_web;
 mod native_tools;
+mod perf;
 mod power;
 mod proxy_server;
 mod rtss;
 mod rtss_frame_rates;
-mod perf;
 use native_components::providers::nvidia_rtx_hdr as rtx_hdr;
 mod hdr_enhanced;
 mod native_components;
@@ -211,7 +211,6 @@ fn main() {
             toolbar::create_toolbar_window,
             commands::fetch_speech_phrases,
             commands::fetch_remote_bytes,
-            commands::ai_api_proxy,
             commands::capture_screenshot,
             desktop_settings::get_desktop_settings,
             desktop_settings::save_desktop_settings,
@@ -317,28 +316,7 @@ fn main() {
             logger::get_all_logs,
             logger::clear_logs,
             logger::export_logs,
-            moonlight_web::moonlight_web_get_status,
-            moonlight_web::moonlight_web_start,
-            moonlight_web::moonlight_web_stop,
-            moonlight_web::moonlight_web_get_config,
-            moonlight_web::moonlight_web_save_config,
-            moonlight_web::moonlight_web_check_release,
-            moonlight_web::moonlight_web_download,
-            moonlight_web::moonlight_web_get_install_path,
-            moonlight_web::moonlight_web_generate_cert,
-            controllermeta::controllermeta_get_status,
-            controllermeta::controllermeta_check_release,
-            controllermeta::controllermeta_download,
-            controllermeta::controllermeta_launch,
-            controllermeta::controllermeta_get_install_path,
-            controllermeta::controllermeta_uninstall,
             clipboard::clipboard_sync_status,
-            file_mapping::quick_share_folder,
-            file_mapping::list_file_mappings,
-            file_mapping::delete_file_mapping,
-            file_mapping::update_file_mapping,
-            file_mapping::install_file_mapping_menu,
-            file_mapping::uninstall_file_mapping_menu,
             file_transfer::send_file_to_client,
             windows::webview_heartbeat,
             windows::resize_about_window,
@@ -352,21 +330,6 @@ fn main() {
             nr_overlay::nr_overlay_select_session,
             nr_overlay::nr_overlay_set_visible,
             nr_overlay::nr_overlay_is_visible,
-            rtss::get_rtss_status,
-            rtss::rtss_set_osd,
-            rtss::rtss_clear_osd,
-            rtss::rtss_set_framerate_limit,
-            rtss::rtss_get_framerate_limit,
-            rtss::rtss_toggle_limiter,
-            rtss::rtss_get_limiter_status,
-            rtss::rtss_toggle_overlay,
-            rtss::rtss_download_cli,
-            rtss::rtss_get_available_metrics,
-            rtss::rtss_start_monitoring,
-            rtss::rtss_stop_monitoring,
-            rtss::rtss_get_monitoring_status,
-            rtss::rtss_get_osd_properties,
-            rtss::rtss_set_osd_property,
             hwinfo::hwinfo_get_sensors,
             hwinfo::hwinfo_get_readings,
             hwinfo::hwinfo_check_available,

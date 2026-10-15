@@ -197,9 +197,6 @@
           :disabled="status.in_use || controlsBusy || !canTestAudioHaptics"
           @click="test('composite')"
         >{{ t.dualSense.testComposite }}</el-button>
-        <el-button text type="success" class="ds5-action" @click="emit('open-controller-meta')">
-          {{ t.dualSense.openControllerMeta }}
-        </el-button>
       </div>
     </section>
 

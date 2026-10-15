@@ -136,8 +136,6 @@
       <div class="page-content">
         <VddSettings v-if="router.isRoute(ROUTES.VDD_SETTINGS)" @close="goHome" />
         <Welcome v-if="router.isRoute(ROUTES.WELCOME)" @close="goHome" />
-        <WebStreamSettings v-if="router.isRoute(ROUTES.WEB_STREAM)" @close="goHome" />
-        <AiAssistant v-if="router.isRoute(ROUTES.AI_ASSISTANT)" @close="goHome" />
         <HdrEnhancedManager v-if="router.isRoute(ROUTES.HDR_ENHANCED)" />
         <ControllersHub
           v-if="[ROUTES.CONTROLLERS, ROUTES.DUALSENSE, ROUTES.CONTROLLERS_HUB].some(router.isRoute)"
@@ -179,8 +177,6 @@
 import { computed, defineAsyncComponent, toRef, watch, onMounted } from 'vue'
 import VddSettings from './VddSettings.vue'
 import Welcome from './welcome.vue'
-import WebStreamSettings from './WebStreamSettings.vue'
-import AiAssistant from './AiAssistant.vue'
 import ControllersHub from './controllersHub/ControllersHub.vue'
 import HdrEnhancedManager from './HdrEnhancedManager.vue'
 import ControlPanelPage from './ControlPanelPage.vue'

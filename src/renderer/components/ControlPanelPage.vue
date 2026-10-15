@@ -39,22 +39,11 @@
         <h2>{{ t.sidebar.softwareUpdate }}</h2>
         <div class="settings-card">
           <div class="settings-row">
-            <span id="panel-update-channel">{{ t.sidebar.updateChannel }}</span>
-            <el-radio-group
-              :model-value="includePrerelease"
-              aria-labelledby="panel-update-channel"
-              @update:model-value="emit('channel-change', $event)"
-            >
-              <el-radio :value="false">{{ t.sidebar.stableChannel }}</el-radio>
-              <el-radio :value="true">{{ t.sidebar.betaChannel }}</el-radio>
-            </el-radio-group>
-          </div>
-          <div class="settings-row">
             <div>
               <strong>{{ t.sidebar.currentVersion }}</strong>
               <p>{{ currentVersion }}</p>
             </div>
-            <el-button :loading="checkingUpdate" @click="checkUpdate">{{ t.sidebar.checkUpdate }}</el-button>
+            <span>{{ t.sidebar.manualUpdates }}</span>
           </div>
         </div>
       </section>
