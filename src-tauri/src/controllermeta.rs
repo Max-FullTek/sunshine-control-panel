@@ -7,7 +7,10 @@
 //   3. 下载并落盘（带进度事件）
 //   4. 启动 EXE（GUI 进程，不捕获窗口）
 
-use log::{debug, info, warn};
+use crate::github_download::{
+    DownloadCandidate, DownloadRequest, download_to_file_from_candidates,
+};
+use log::info;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -21,15 +24,7 @@ const BINARY_NAME: &str = "ControllerMeta.exe";
 const INSTALL_SUBDIR: &str = "controllermeta";
 const DOWNLOAD_PROGRESS_EVENT: &str = "controllermeta-download-progress";
 
-/// GitHub API 加速代理前缀（按优先级试探，最后才直连）
-const API_PROXY_PREFIXES: &[&str] = &["https://ghapi.hackhub.cn/", "https://mirror.ghproxy.com/"];
-
-/// GitHub Release 资产下载加速代理
-const DOWNLOAD_PROXY_PREFIXES: &[&str] = &[
-    "https://ghfast.top/",
-    "https://ghproxy.com/",
-    "https://mirror.ghproxy.com/",
-];
+const MAX_DOWNLOAD_BYTES: u64 = 256 * 1024 * 1024;
 
 /// 已启动的子进程句柄（仅用于判断是否由我们拉起）
 static CHILD_PROCESS: Lazy<Mutex<Option<std::process::Child>>> = Lazy::new(|| Mutex::new(None));
@@ -74,6 +69,8 @@ struct GitHubAsset {
     name: String,
     browser_download_url: String,
     size: u64,
+    #[serde(default)]
+    digest: Option<String>,
 }
 
 // ========== 路径工具 ==========
@@ -160,87 +157,89 @@ pub async fn controllermeta_get_status() -> Result<ControllerMetaStatus, String>
     })
 }
 
-#[tauri::command]
-pub async fn controllermeta_check_release() -> Result<ControllerMetaRelease, String> {
+async fn fetch_official_release() -> Result<GitHubRelease, String> {
     let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(5))
-        .connect_timeout(std::time::Duration::from_secs(3))
+        .https_only(true)
+        .redirect(reqwest::redirect::Policy::none())
+        .timeout(std::time::Duration::from_secs(15))
         .user_agent("sunshine-control-panel")
         .build()
-        .map_err(|e| format!("创建 HTTP 客户端失败: {}", e))?;
-
-    // 依次试探：直连 → 代理 1 → 代理 2……
-    let mut urls = vec![GITHUB_API_LATEST.to_string()];
-    for proxy in API_PROXY_PREFIXES {
-        urls.push(format!("{}{}", proxy, GITHUB_API_LATEST));
-    }
-
-    let mut last_err = String::from("未尝试");
-    for url in &urls {
-        debug!("📦 查询 ControllerMeta 最新版本: {}", url);
-        let result = client
-            .get(url)
-            .header("Accept", "application/vnd.github.v3+json")
-            .send()
-            .await;
-
-        let response = match result {
-            Ok(r) if r.status().is_success() => r,
-            Ok(r) => {
-                last_err = format!("HTTP {}", r.status());
-                warn!("⚠️ 请求失败 ({}): {}", url, last_err);
-                continue;
-            }
-            Err(e) => {
-                last_err = e.to_string();
-                warn!("⚠️ 请求失败 ({}): {}", url, last_err);
-                continue;
-            }
-        };
-
-        match response.json::<GitHubRelease>().await {
-            Ok(release) => {
-                let asset = release
-                    .assets
-                    .iter()
-                    .find(|a| a.name.eq_ignore_ascii_case(BINARY_NAME))
-                    .or_else(|| {
-                        release
-                            .assets
-                            .iter()
-                            .find(|a| a.name.to_lowercase().ends_with(".exe"))
-                    });
-
-                let (download_url, download_name, download_size) = match asset {
-                    Some(a) => (
-                        Some(a.browser_download_url.clone()),
-                        Some(a.name.clone()),
-                        a.size,
-                    ),
-                    None => (None, None, 0),
-                };
-
-                return Ok(ControllerMetaRelease {
-                    version: release.tag_name.clone(),
-                    download_url,
-                    download_name,
-                    download_size,
-                    release_page: release.html_url,
-                    release_notes: release.body.unwrap_or_default(),
-                });
-            }
-            Err(e) => {
-                last_err = format!("解析失败: {}", e);
-                warn!("⚠️ {}", last_err);
-            }
+        .map_err(|e| e.to_string())?;
+    let mut response = client
+        .get(GITHUB_API_LATEST)
+        .header("Accept", "application/vnd.github+json")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?
+        .error_for_status()
+        .map_err(|e| e.to_string())?;
+    let mut body = Vec::new();
+    while let Some(chunk) = response.chunk().await.map_err(|e| e.to_string())? {
+        if body.len().saturating_add(chunk.len()) > 2 * 1024 * 1024 {
+            return Err("ControllerMeta release metadata exceeds size limit".into());
         }
+        body.extend_from_slice(&chunk);
     }
+    serde_json::from_slice(&body).map_err(|e| e.to_string())
+}
 
-    Err(format!(
-        "查询 GitHub Release 失败（已尝试 {} 个地址）: {}",
-        urls.len(),
-        last_err
-    ))
+fn verified_asset<'a>(
+    release: &'a GitHubRelease,
+    url: &str,
+    version: &str,
+) -> Result<(&'a GitHubAsset, String), String> {
+    if version.trim_start_matches('v') != release.tag_name.trim_start_matches('v') {
+        return Err("ControllerMeta release changed; check for updates again".into());
+    }
+    let asset = release
+        .assets
+        .iter()
+        .find(|a| a.browser_download_url == url)
+        .ok_or("ControllerMeta asset is not in the official release")?;
+    let parsed = reqwest::Url::parse(url).map_err(|e| e.to_string())?;
+    if parsed.scheme() != "https"
+        || parsed.host_str() != Some("github.com")
+        || !parsed.username().is_empty()
+        || parsed.password().is_some()
+        || !parsed
+            .path()
+            .starts_with("/HK560/ControllerMeta/releases/download/")
+        || !asset.name.to_ascii_lowercase().ends_with(".exe")
+        || asset.size == 0
+        || asset.size > MAX_DOWNLOAD_BYTES
+    {
+        return Err("Invalid ControllerMeta release asset".into());
+    }
+    let hash = asset
+        .digest
+        .as_deref()
+        .and_then(|d| d.strip_prefix("sha256:"))
+        .filter(|h| h.len() == 64 && h.bytes().all(|c| c.is_ascii_hexdigit()))
+        .ok_or("Official ControllerMeta release has no valid SHA-256; download refused")?;
+    Ok((asset, hash.to_ascii_lowercase()))
+}
+
+#[tauri::command]
+pub async fn controllermeta_check_release() -> Result<ControllerMetaRelease, String> {
+    let release = fetch_official_release().await?;
+    let asset = release
+        .assets
+        .iter()
+        .find(|a| a.name.eq_ignore_ascii_case(BINARY_NAME))
+        .or_else(|| {
+            release
+                .assets
+                .iter()
+                .find(|a| a.name.to_ascii_lowercase().ends_with(".exe"))
+        });
+    Ok(ControllerMetaRelease {
+        version: release.tag_name.clone(),
+        download_url: asset.map(|a| a.browser_download_url.clone()),
+        download_name: asset.map(|a| a.name.clone()),
+        download_size: asset.map_or(0, |a| a.size),
+        release_page: release.html_url,
+        release_notes: release.body.unwrap_or_default(),
+    })
 }
 
 /// 下载 ControllerMeta.exe 到安装目录
@@ -253,96 +252,50 @@ pub async fn controllermeta_download(
     version: String,
     app_handle: tauri::AppHandle,
 ) -> Result<String, String> {
-    use futures_util::StreamExt;
     use tauri::Emitter;
 
-    info!("📥 开始下载 ControllerMeta: {}", url);
-
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(600))
-        .connect_timeout(std::time::Duration::from_secs(10))
-        .user_agent("sunshine-control-panel")
-        .build()
-        .map_err(|e| format!("创建客户端失败: {}", e))?;
-
-    // 构造下载 URL 列表：代理优先（国内直连 GitHub Releases 常常超时），最后直连
-    let mut urls: Vec<String> = DOWNLOAD_PROXY_PREFIXES
-        .iter()
-        .map(|p| format!("{}{}", p, url))
-        .collect();
-    urls.push(url.clone());
-
-    let mut last_err = String::from("未尝试");
-    let mut response_opt = None;
-    for try_url in &urls {
-        debug!("🔗 尝试下载: {}", try_url);
-        match client
-            .get(try_url)
-            .header("Accept", "application/octet-stream")
-            .send()
-            .await
-        {
-            Ok(r) if r.status().is_success() => {
-                info!("✅ 连接成功: {}", try_url);
-                response_opt = Some(r);
-                break;
-            }
-            Ok(r) => {
-                last_err = format!("HTTP {}", r.status());
-                warn!("⚠️ {} → {}", try_url, last_err);
-            }
-            Err(e) => {
-                last_err = e.to_string();
-                warn!("⚠️ {} → {}", try_url, last_err);
-            }
-        }
-    }
-
-    let response = response_opt.ok_or_else(|| format!("所有下载源均失败: {}", last_err))?;
-
-    let total_size = response.content_length().unwrap_or(0);
+    // Re-fetch trusted metadata in the backend; frontend arguments are not a trust anchor.
+    let release = fetch_official_release().await?;
+    let (asset, expected_hash) = verified_asset(&release, &url, &version)?;
     let install_dir = get_install_dir();
-    std::fs::create_dir_all(&install_dir).map_err(|e| format!("创建安装目录失败: {}", e))?;
-
-    // 下载到临时文件，完成后再原子重命名到目标位置（避免覆盖运行中的 exe）
+    std::fs::create_dir_all(&install_dir).map_err(|e| e.to_string())?;
     let final_path = get_binary_path();
     let temp_path = install_dir.join(format!("{}.download", BINARY_NAME));
-    // 若已存在残留临时文件，先清理
-    if temp_path.exists() {
-        let _ = std::fs::remove_file(&temp_path);
-    }
-
-    let mut file =
-        std::fs::File::create(&temp_path).map_err(|e| format!("创建临时文件失败: {}", e))?;
-
-    let mut stream = response.bytes_stream();
-    let mut downloaded: u64 = 0;
-    let window = app_handle.get_webview_window("main");
-
-    while let Some(chunk) = stream.next().await {
-        let chunk = chunk.map_err(|e| format!("下载数据失败: {}", e))?;
-        std::io::Write::write_all(&mut file, &chunk).map_err(|e| format!("写入文件失败: {}", e))?;
-        downloaded += chunk.len() as u64;
-
-        if let Some(ref w) = window {
-            let progress = if total_size > 0 {
-                (downloaded as f64 / total_size as f64 * 100.0) as u32
-            } else {
-                0
-            };
-            let _ = w.emit(
+    let candidates = [DownloadCandidate {
+        name: "github",
+        url: url.clone(),
+    }];
+    let outcome = download_to_file_from_candidates(
+        DownloadRequest {
+            url: &url,
+            destination: &temp_path,
+            expected_size: Some(asset.size),
+            expected_sha256: Some(&expected_hash),
+            max_size: Some(MAX_DOWNLOAD_BYTES),
+            user_agent: "sunshine-control-panel",
+            connect_timeout: std::time::Duration::from_secs(10),
+            response_timeout: std::time::Duration::from_secs(30),
+            idle_timeout: std::time::Duration::from_secs(20),
+            overall_timeout: Some(std::time::Duration::from_secs(600)),
+        },
+        &candidates,
+        |progress| {
+            let _ = app_handle.emit(
                 DOWNLOAD_PROGRESS_EVENT,
                 serde_json::json!({
-                    "progress": progress,
-                    "downloaded": downloaded,
-                    "total": total_size,
+                    "progress": (progress.downloaded.saturating_mul(100) / asset.size).min(100),
+                    "downloaded": progress.downloaded,
+                    "total": asset.size,
                 }),
             );
-        }
-    }
-    drop(file);
-
-    info!("✅ 下载完成 ({} bytes)", downloaded);
+        },
+    )
+    .await
+    .map_err(|e| e.to_string())?;
+    info!(
+        "Verified ControllerMeta download ({} bytes)",
+        outcome.downloaded
+    );
 
     // 如果目标文件正在运行，重命名会失败；返回友好提示
     if final_path.exists() {
@@ -387,14 +340,7 @@ pub async fn controllermeta_launch() -> Result<String, String> {
     let install_dir = get_install_dir();
     info!("🎮 启动 ControllerMeta: {:?}", binary_path);
 
-    // 下载的 exe 会被 Windows 打上 Zone.Identifier（MOTW）标记，
-    // 某些场景下会导致运行时 UAC 拦截或被 SmartScreen 阻断，先清理掉
-    #[cfg(target_os = "windows")]
-    {
-        let zone_ads = format!("{}:Zone.Identifier", binary_path.to_string_lossy());
-        let _ = std::fs::remove_file(&zone_ads);
-    }
-
+    // Preserve Windows download-origin protections.
     #[cfg(target_os = "windows")]
     let child = {
         use std::os::windows::process::CommandExt;
@@ -437,4 +383,48 @@ pub async fn controllermeta_uninstall() -> Result<String, String> {
     std::fs::remove_dir_all(&install_dir).map_err(|e| format!("删除安装目录失败: {}", e))?;
     info!("🗑️ ControllerMeta 已卸载: {:?}", install_dir);
     Ok("uninstalled".to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn release() -> GitHubRelease {
+        GitHubRelease {
+            tag_name: "v1.0".into(), html_url: String::new(), body: None,
+            assets: vec![GitHubAsset {
+                name: "ControllerMeta.exe".into(), size: 100,
+                browser_download_url: "https://github.com/HK560/ControllerMeta/releases/download/v1.0/ControllerMeta.exe".into(),
+                digest: Some(format!("sha256:{}", "a".repeat(64))),
+            }],
+        }
+    }
+    #[test]
+    fn requires_official_asset_and_release_version() {
+        let r = release();
+        assert!(verified_asset(&r, &r.assets[0].browser_download_url, "1.0").is_ok());
+        assert!(verified_asset(&r, &r.assets[0].browser_download_url, "v2.0").is_err());
+        assert!(verified_asset(&r, "https://example.com/ControllerMeta.exe", "v1.0").is_err());
+    }
+    #[test]
+    fn rejects_missing_or_malformed_digest_and_oversized_assets() {
+        let mut r = release();
+        for digest in [
+            None,
+            Some("sha256:abc".into()),
+            Some(format!("sha256:{}", "z".repeat(64))),
+        ] {
+            r.assets[0].digest = digest;
+            assert!(verified_asset(&r, &r.assets[0].browser_download_url, "v1.0").is_err());
+        }
+        r.assets[0].digest = Some(format!("sha256:{}", "a".repeat(64)));
+        r.assets[0].size = MAX_DOWNLOAD_BYTES + 1;
+        assert!(verified_asset(&r, &r.assets[0].browser_download_url, "v1.0").is_err());
+    }
+    #[test]
+    fn rejects_asset_outside_the_expected_repository() {
+        let mut r = release();
+        r.assets[0].browser_download_url =
+            "https://github.com/other/repo/releases/download/v1/a.exe".into();
+        assert!(verified_asset(&r, &r.assets[0].browser_download_url, "v1.0").is_err());
+    }
 }

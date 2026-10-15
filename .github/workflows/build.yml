@@ -10,7 +10,7 @@ on:
       create_release:
         description: 'Create a GitHub Release'
         required: false
-        default: true
+        default: false
         type: boolean
 
 env:
@@ -137,6 +137,14 @@ jobs:
           ./scripts/package-gui-bundle.ps1 `
             -SourceDirectory $targetDir `
             -OutputPath (Join-Path $outDir 'sunshine-gui-windows-x64.zip')
+
+          $bundle = Join-Path $outDir 'sunshine-gui-windows-x64.zip'
+          @{
+            repository = $env:GITHUB_REPOSITORY
+            commit = $env:GITHUB_SHA
+            run_id = $env:GITHUB_RUN_ID
+            sha256 = (Get-FileHash -LiteralPath $bundle -Algorithm SHA256).Hash.ToLowerInvariant()
+          } | ConvertTo-Json | Set-Content (Join-Path $outDir 'gui-build.json') -Encoding utf8
 
           $componentInstaller = Get-ChildItem "src-tauri/installer/dist/Sunshine-GUI-Setup-*.exe" |
             Sort-Object LastWriteTime -Descending |
