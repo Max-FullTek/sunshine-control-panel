@@ -70,8 +70,8 @@
       </nav>
     </aside>
     <div class="main-content">
-      <div class="drag-region" data-tauri-drag-region @pointerdown="onTouchWindowDragStart"></div>
-      <div class="window-controls">
+      <div v-if="desktopAvailable" class="drag-region" data-tauri-drag-region @pointerdown="onTouchWindowDragStart"></div>
+      <div v-if="desktopAvailable" class="window-controls">
         <el-tooltip :content="t.sidebar.minimize" placement="bottom">
           <button type="button" class="control-btn minimize" :aria-label="t.sidebar.minimize" @click="minimizeWindow">
             <svg viewBox="0 0 12 12" class="window-button-icon" aria-hidden="true"><path d="M1 9h10" /></svg>
@@ -97,13 +97,11 @@
         </el-tooltip>
       </div>
       <div class="page-content">
-        <VddSettings v-if="router.isRoute(ROUTES.VDD_SETTINGS)" @close="goHome" />
+        <DesktopOnly v-if="router.isRoute(ROUTES.VDD_SETTINGS)"><VddSettings @close="goHome" /></DesktopOnly>
         <Welcome v-if="router.isRoute(ROUTES.WELCOME)" @close="goHome" />
-        <HdrEnhancedManager v-if="router.isRoute(ROUTES.HDR_ENHANCED)" />
-        <ControllersHub
-          v-if="[ROUTES.CONTROLLERS, ROUTES.DUALSENSE, ROUTES.CONTROLLERS_HUB].some(router.isRoute)"
-          @close="goHome"
-        />
+        <DesktopOnly v-if="[ROUTES.CONTROLLERS, ROUTES.DUALSENSE, ROUTES.CONTROLLERS_HUB].some(router.isRoute)">
+          <ControllersHub @close="goHome" />
+        </DesktopOnly>
         <ControlPanelPage
           v-if="[ROUTES.PANEL_SETTINGS, ROUTES.HELP].some(router.isRoute)"
           :page="router.currentRoute.value"
@@ -119,17 +117,24 @@
         />
         <slot v-if="router.isRoute(ROUTES.HOME)" />
       </div>
+      <footer class="host-status" role="status" aria-live="polite" :class="`is-${hostStatus.state}`">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>{{ t.hostStatus[hostStatus.state] || t.hostStatus.connecting }}</span>
+        <button v-if="['error', 'offline', 'logsUnavailable'].includes(hostStatus.state)" type="button" @click="openWebUi('/troubleshooting')">{{ t.hostStatus.details }}</button>
+      </footer>
     </div>
   </div>
 </template>
 
 <script setup>
 import { computed, toRef, watch, onMounted } from 'vue'
+import DesktopOnly from './DesktopOnly.vue'
+import { hasDesktopRuntime } from '../shared/runtime.js'
+const desktopAvailable = hasDesktopRuntime()
 import sunshineLogo from '../../assets/logo-sunshine-256.png?url'
 import VddSettings from './VddSettings.vue'
 import Welcome from './welcome.vue'
 import ControllersHub from './controllersHub/ControllersHub.vue'
-import HdrEnhancedManager from './HdrEnhancedManager.vue'
 import ControlPanelPage from './ControlPanelPage.vue'
 import { useSidebarState } from '../composables/useSidebarState.js'
 import { useWindowControls } from '../composables/useWindowControls.js'
@@ -138,12 +143,15 @@ import { useTouchWindowDrag } from '../composables/useTouchWindowDrag.js'
 import { createNavigationGroups, createFooterTools } from '../composables/toolsRegistry.js'
 import { ROUTES } from '../composables/useRouter.js'
 import { useI18n } from '../desktop/i18n/index.js'
-const props = defineProps({ webuiPath: { type: String, default: '/' } })
+const props = defineProps({
+  webuiPath: { type: String, default: '/' },
+  hostStatus: { type: Object, default: () => ({ state: 'connecting' }) },
+})
 const emit = defineEmits(['route-change', 'webui-navigate'])
 const { t, locale } = useI18n()
 const openAuthorRepo = () => {
   const url = 'https://github.com/AlkaidLab/foundation-sunshine'
-  if (import.meta.env.DEV && !window.__TAURI_INTERNALS__) {
+  if (!desktopAvailable) {
     window.open(url, '_blank', 'noopener,noreferrer')
     return
   }
@@ -163,10 +171,10 @@ const {
   openControllers,
   openDualSense,
   openControllersHub,
-  openRtxHdr,
 } = useSidebarState()
 const { minimizeWindow, toggleMaximize, closeWindow } = useWindowControls(isMaximized)
-const { onTouchWindowDragStart } = useTouchWindowDrag(isMaximized)
+const { onTouchWindowDragStart: startWindowDrag } = useTouchWindowDrag(isMaximized)
+const onTouchWindowDragStart = (event) => { if (desktopAvailable) startWindowDrag(event) }
 const {
   openUrl,
   cleanupCovers,
@@ -182,7 +190,7 @@ const openWebUi = (path) => {
   emit('webui-navigate', path)
   router.goHome()
 }
-const goHome = () => openWebUi('/')
+const goHome = () => openWebUi('/config')
 const toolsCtx = {
   t,
   router,
@@ -208,7 +216,6 @@ defineExpose({
   openControllers,
   openDualSense,
   openControllersHub,
-  openRtxHdr,
   goHome,
   router,
 })

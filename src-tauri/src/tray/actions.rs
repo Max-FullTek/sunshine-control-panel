@@ -44,12 +44,6 @@ pub fn handle_tray_menu_event<R: Runtime + 'static>(app: &AppHandle<R>, menu_id:
         ),
         #[cfg(target_os = "windows")]
         "restart_user_mode" => toggle_sunshine_mode(app),
-        "host_performance" => {
-            info!("📊 托盘菜单：打开主机性能监控");
-            if let Err(e) = tool_windows::create_tool_window_internal(app, "performance") {
-                error!("创建工具窗口失败: {}", e);
-            }
-        }
         "log_console" => windows::open_log_console(app),
         #[cfg(target_os = "windows")]
         "prevent_sleep" => toggle_prevent_sleep(app),

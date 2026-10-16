@@ -1,4 +1,11 @@
 export const zh = {
+  "runtime": { "desktopRequired": "此功能需要在 Foundation Sunshine Lite Desktop 中设置。", "matchingCoreRequired": "当前主机尚未提供共享界面，请使用与 Desktop 配套的 Sunshine Lite 版本。" },
+  "hostStatus": {
+    "preview": "界面预览：示例数据，非实际主机状态",
+    "connecting": "正在检查主机状态…", "online": "主机可连接", "offline": "无法连接主机",
+    "authentication": "需要登录主机", "error": "日志中存在严重错误，请查看详情",
+    "logsUnavailable": "主机可连接，但无法读取错误日志", "details": "查看详情"
+  },
   "lite": {
     "referenceDescription": "项目源码、文档与客户端参考资源。",
     "licenseNotice": "Foundation Desktop 基于 Foundation Sunshine 与 Sunshine。保留原项目的版权与许可声明。",

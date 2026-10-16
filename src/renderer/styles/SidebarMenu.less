@@ -318,6 +318,22 @@ button:focus-visible {
   min-height: 0;
   overflow: auto;
 }
+.host-status {
+  flex-shrink: 0;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  border-top: 1px solid var(--fd-border);
+  background: var(--fd-bg-secondary);
+  color: var(--fd-text-secondary);
+  font-size: 12px;
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  &.is-online .status-dot { background: #57a977; }
+  &.is-error, &.is-offline { color: var(--fd-status-danger, #d78282); }
+  button { margin-left: auto; border: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; font: inherit; }
+}
 [data-bs-theme='light'] {
   .sidebar-wrapper {
     --nav-text: #31425a;

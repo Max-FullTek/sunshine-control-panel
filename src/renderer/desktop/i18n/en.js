@@ -1,4 +1,11 @@
 export const en = {
+  "runtime": { "desktopRequired": "Configure this feature in Foundation Sunshine Lite Desktop.", "matchingCoreRequired": "This host does not provide the shared interface. Use the Sunshine Lite build paired with Desktop." },
+  "hostStatus": {
+    "preview": "Interface preview: sample data, not live host status",
+    "connecting": "Checking host…", "online": "Host reachable", "offline": "Host unreachable",
+    "authentication": "Host sign-in required", "error": "Fatal errors in logs; review details",
+    "logsUnavailable": "Host reachable; logs unavailable", "details": "View details"
+  },
   "lite": {
     "referenceDescription": "Project sources, documentation, and client references.",
     "licenseNotice": "Foundation Desktop is based on Foundation Sunshine and Sunshine. Original copyright and license notices remain applicable.",

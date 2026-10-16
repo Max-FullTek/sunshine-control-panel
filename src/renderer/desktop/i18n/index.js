@@ -5,6 +5,7 @@ import { zh_TW } from './zh_TW.js'
 import { normalizeLocale, documentLocale } from '../../shared/locale.js'
 
 const messages = { zh, zh_TW, en }
+export const setShellLocale = (value) => updateCurrentLocale(normalizeLocale(value), true)
 const LOCALE_REQUEST_KEY = 'foundation-desktop-locale-request'
 let localLocaleRequestId = null
 let latestBackendLocaleRevision = 0

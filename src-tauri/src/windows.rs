@@ -33,15 +33,6 @@ static HEARTBEAT_MAP: Lazy<Mutex<HashMap<String, HeartbeatState>>> =
 /// treat it as crashed while it sits in this set.
 static SUSPENDED_WEBVIEWS: Lazy<Mutex<HashSet<String>>> = Lazy::new(|| Mutex::new(HashSet::new()));
 
-#[derive(Default)]
-struct ToolWindowMoveSave {
-    version: u64,
-    position: Option<PhysicalPosition<i32>>,
-}
-
-static TOOL_WINDOW_MOVE_SAVE: Lazy<Mutex<ToolWindowMoveSave>> =
-    Lazy::new(|| Mutex::new(ToolWindowMoveSave::default()));
-
 /// 心跳超时阈值（秒）：超过此时间未收到心跳则认为渲染进程可能崩溃
 const HEARTBEAT_STALE_SECS: u64 = 30;
 /// Cold WebView2 startup and the first local-proxy navigation can be slower
@@ -52,7 +43,6 @@ const MAIN_WINDOW_ID: &str = "main";
 const ABOUT_WINDOW_ID: &str = "about";
 const LOG_CONSOLE_WINDOW_ID: &str = "log_console";
 const PIN_WINDOW_ID: &str = "pin_pairing";
-const TOOL_WINDOW_ID: &str = "tool_window";
 #[cfg(debug_assertions)]
 const DEBUG_PAGE_WINDOW_ID: &str = "debug_page";
 
@@ -84,35 +74,6 @@ pub fn unregister_agent_restart() {
 
 #[cfg(not(target_os = "windows"))]
 pub fn unregister_agent_restart() {}
-
-fn schedule_tool_window_position_save(app: AppHandle, position: PhysicalPosition<i32>) {
-    let version = {
-        let mut state = TOOL_WINDOW_MOVE_SAVE.lock().unwrap();
-        state.version = state.version.wrapping_add(1);
-        state.position = Some(position);
-        state.version
-    };
-
-    tauri::async_runtime::spawn(async move {
-        tokio::time::sleep(std::time::Duration::from_millis(350)).await;
-
-        let position = {
-            let state = TOOL_WINDOW_MOVE_SAVE.lock().unwrap();
-            if state.version != version {
-                return;
-            }
-            state.position
-        };
-
-        if let Some(position) = position {
-            crate::tool_windows::save_tool_window_position_internal(
-                &app,
-                position.x as f64,
-                position.y as f64,
-            );
-        }
-    });
-}
 
 fn clamp_axis(value: i32, min: i32, max: i32) -> i32 {
     if max < min {
@@ -344,89 +305,6 @@ pub fn resize_about_window(window: tauri::Window, height: f64) -> Result<(), Str
             target_height,
         )))
         .map_err(|e| format!("Failed to resize about window: {}", e))
-}
-
-/// Resize the floating tool window to match its web content size.
-// These synchronous commands execute on the GUI thread. Do not resize/reposition
-// a caption while Windows owns its native move loop (there are no DOM pointers).
-fn native_window_move_active(window: &tauri::Window) -> Result<bool, String> {
-    #[cfg(target_os = "windows")]
-    {
-        use windows::Win32::UI::WindowsAndMessaging::{
-            GUI_INMOVESIZE, GUITHREADINFO, GetGUIThreadInfo, GetWindowThreadProcessId,
-        };
-        let hwnd = window.hwnd().map_err(|e| e.to_string())?;
-        let mut info = GUITHREADINFO {
-            cbSize: std::mem::size_of::<GUITHREADINFO>() as u32,
-            ..Default::default()
-        };
-        unsafe {
-            GetGUIThreadInfo(
-                GetWindowThreadProcessId(windows::Win32::Foundation::HWND(hwnd.0), None),
-                &mut info,
-            )
-        }
-        .map_err(|e| e.to_string())?;
-        return Ok(info.flags.0 & GUI_INMOVESIZE.0 != 0);
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        let _ = window;
-        Ok(false)
-    }
-}
-
-#[tauri::command]
-pub fn resize_tool_window(window: tauri::Window, width: f64, height: f64) -> Result<bool, String> {
-    let nr = window.label() == "nr_overlay";
-    if window.label() != TOOL_WINDOW_ID && !nr {
-        return Err("resize_tool_window can only be called from an overlay".to_string());
-    }
-    if !width.is_finite() || !height.is_finite() {
-        return Err("Invalid tool window size".to_string());
-    }
-    if native_window_move_active(&window)? {
-        return Ok(false);
-    }
-    let scale_factor = window.scale_factor().map_err(|e| e.to_string())?;
-    let current_size = window.inner_size().map_err(|e| e.to_string())?;
-    let min_height: f64 = if nr { 32.0 } else { 180.0 };
-    let max_height = window
-        .current_monitor()
-        .ok()
-        .flatten()
-        .map(|monitor| (monitor.size().height as f64 / scale_factor - 32.0).max(min_height))
-        .unwrap_or(900.0);
-    let target_width = width.clamp(if nr { 120.0 } else { 320.0 }, 560.0);
-    let target_height = height.clamp(min_height, max_height);
-    if (current_size.width as f64 / scale_factor - target_width).abs() >= 1.0
-        || (current_size.height as f64 / scale_factor - target_height).abs() >= 1.0
-    {
-        // Read the current anchor here, not in an earlier frontend IPC request.
-        let position = window.outer_position().map_err(|e| e.to_string())?;
-        window
-            .set_size(tauri::Size::Logical(tauri::LogicalSize::new(
-                target_width,
-                target_height,
-            )))
-            .map_err(|e| e.to_string())?;
-        if nr {
-            window
-                .set_position(tauri::PhysicalPosition::new(
-                    position.x + current_size.width as i32
-                        - (target_width * scale_factor).round() as i32,
-                    position.y,
-                ))
-                .map_err(|e| e.to_string())?;
-        }
-    }
-    constrain_tool_window_to_visible_area(
-        &window,
-        target_width,
-        target_height,
-        if nr { 0.0 } else { 16.0 },
-    )?;
-    Ok(true)
 }
 
 /// 通过 WebView2 COM API 强制重新加载页面（在渲染进程崩溃后仍可工作）
@@ -803,7 +681,7 @@ fn create_main_window_internal<R: Runtime>(
         MAIN_WINDOW_ID,
         tauri::WebviewUrl::App("sunshine-frame.html".into()),
     )
-    .title("Foundation Desktop")
+    .title("Foundation Sunshine Lite Desktop")
     .inner_size(1600.0, 1000.0)
     .min_inner_size(1024.0, 600.0)
     .center()
@@ -941,10 +819,9 @@ fn navigate_to_url(window: &WebviewWindow, url: &str) {
     }
 
     let proxy_url = proxy_server::get_proxy_url();
-    let script = format!(
-        r#"(function(){{ const iframe = document.querySelector('.sunshine-iframe'); if (iframe) iframe.src = '{}{}'; }})();"#,
-        proxy_url, path
-    );
+    let destination = serde_json::to_string(&format!("{}{}", proxy_url, path))
+        .expect("navigation URL is serializable");
+    let script = format!("window.location.assign({destination});");
 
     let _ = window.eval(&script);
     debug!("✅ 已发送导航命令");
@@ -1154,11 +1031,6 @@ fn set_webview_window_visibility<R: Runtime>(ww: &WebviewWindow<R>, visible: boo
 /// 处理窗口事件
 pub fn handle_window_event(window: &tauri::Window, event: &tauri::WindowEvent) {
     match event {
-        tauri::WindowEvent::Moved(position) => {
-            if window.label() == TOOL_WINDOW_ID {
-                schedule_tool_window_position_save(window.app_handle().clone(), *position);
-            }
-        }
         tauri::WindowEvent::CloseRequested { .. } => {
             end_webview_heartbeat(window.label());
             // 窗口正在销毁：清掉挂起标记即可，无需 Resume。
@@ -1170,15 +1042,6 @@ pub fn handle_window_event(window: &tauri::Window, event: &tauri::WindowEvent) {
                     // the application event loop alive.
                     set_webview_visibility(window, false);
                     crate::tray::mark_main_panel_loading();
-                }
-                TOOL_WINDOW_ID => {
-                    if let Ok(position) = window.outer_position() {
-                        crate::tool_windows::save_tool_window_position_internal(
-                            &window.app_handle(),
-                            position.x as f64,
-                            position.y as f64,
-                        );
-                    }
                 }
                 _ => {}
             }

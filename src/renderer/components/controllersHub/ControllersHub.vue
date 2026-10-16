@@ -1,12 +1,6 @@
 <template>
   <section class="chub-page">
-    <header class="chub-header">
-      <span class="chub-header-icon" aria-hidden="true"><IconGamepad /></span>
-      <div class="chub-header-copy">
-        <h1>{{ t.controllers.title }}</h1>
-        <p class="chub-intro">{{ t.deviceHub.intro }}</p>
-      </div>
-    </header>
+    <PageHeading :title="t.controllers.title" :description="t.deviceHub.intro"><template #icon><IconGamepad /></template></PageHeading>
 
     <div class="chub-pane">
       <GamepadTypePicker />
@@ -17,6 +11,7 @@
 
 <script setup>
 import IconGamepad from '../../desktop/icons/IconGamepad.vue'
+import PageHeading from '../PageHeading.vue'
 import AdvancedControllerOptions from './AdvancedControllerOptions.vue'
 import GamepadTypePicker from './GamepadTypePicker.vue'
 import { useI18n } from '../../desktop/i18n/index.js'

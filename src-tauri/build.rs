@@ -10,14 +10,7 @@ const GENERATED_CAPABILITY_PATH: &str = "capabilities/app-commands.generated.jso
 
 /// Commands that must never be exposed to the Sunshine backend remote origin.
 /// Their local window-scoped grants live in hand-written capability files.
-const LOCAL_ONLY_COMMANDS: &[&str] = &[
-    "hdr_enhanced_select_backend",
-    "list_native_components",
-    "native_component_get_status",
-    "native_component_import",
-    "native_component_recover",
-    "native_component_remove",
-];
+const LOCAL_ONLY_COMMANDS: &[&str] = &[];
 
 /// 允许 sunshine backend remote origin 调用 app commands 的 URL 列表。
 ///

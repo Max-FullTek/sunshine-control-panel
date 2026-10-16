@@ -1,6 +1,10 @@
 # Foundation Desktop (Tauri)
 
-以原 Sunshine Control Panel 為基礎的單一 Windows 桌面設定程式，使用 Tauri 2 + Vue 3。主視窗維持 1600×1000，透過 Rust API 與本機代理連接 Sunshine 核心；部分設定頁仍沿用嵌入式 Web UI。
+以原 Sunshine Control Panel 為基礎的單一 Windows 桌面設定程式，使用 Tauri 2 + Vue 3。主視窗維持 1600×1000，透過 Rust API 與本機代理連接 Sunshine 核心。Desktop 連線入口確認代理與共用介面版本後，開啟核心提供的同一套 Vue 頁面；不再以 iframe 嵌入第二套導覽。
+
+共用前端由 Foundation Sunshine 根目錄的 `npm run build` 建置，重用此子模組的側欄、主題、語系與原生設定元件。瀏覽器會顯示原生功能需要 Desktop 的提示。核心與 Desktop 必須使用配對的原始碼版本；單獨建置此子模組只會產生連線入口與輔助視窗，無法代替核心前端建置。
+
+不連接實際主機的唯讀預覽：在 Sunshine 根目錄建置後執行 `node scripts/preview-webui.mjs --sample`，開啟 `http://127.0.0.1:8081/config`。此模式使用範例資料並拒絕寫入請求，不代表原生整合已驗證。
 
 ## 保留功能
 
@@ -73,7 +77,7 @@ src-tauri/           # Tauri 后端 (Rust)
   │   ├── proxy_server.rs    # Axum 本地代理 (Sunshine/Steam API/CORS)
   │   ├── sunshine.rs        # Sunshine 进程管理、路径工具
   │   ├── system.rs          # 系统信息 (WMI 进程查询、内存统计)
-  │   ├── fs_utils.rs        # 文件系统、游戏扫描、Steam 封面搜索/上传
+  │   ├── fs_utils.rs        # 基本檔案操作與捷徑解析
   │   ├── commands.rs        # HTTP 客户端、应用启动
   │   ├── vdd.rs             # VDD 驱动管理
   │   └── windows.rs         # Windows 注册表/autostart
@@ -81,11 +85,8 @@ src-tauri/           # Tauri 后端 (Rust)
   └── Cargo.toml
 
 src/renderer/        # 前端 (Vue 3)
-  ├── desktop/              # Desktop UI (独立 SPA)
-  │   ├── views/            # 页面视图 (Dashboard、Apps、Settings...)
-  │   ├── components/       # 组件 (AppGrid、ContextMenu、CoverPicker...)
-  │   ├── composables/      # 组合式函数 (useApps、useTauri...)
-  │   └── i18n/             # 国际化 (zh、en)
+  ├── desktop/              # 共用主題、設定元件、API 與語系
+  ├── sunshine-frame.html   # 驗證本機代理並進入共用前端
   ├── components/           # 共享组件
   └── styles/               # Less 样式
 

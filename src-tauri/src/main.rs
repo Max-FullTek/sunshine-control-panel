@@ -15,26 +15,19 @@ mod elevation;
 mod file_transfer;
 mod fs_utils;
 mod github_download;
-mod hwinfo;
 mod logger;
 mod power;
 mod proxy_server;
-use native_components::providers::nvidia_rtx_hdr as rtx_hdr;
-mod hdr_enhanced;
-mod native_components;
-mod nr_overlay;
 #[cfg(target_os = "windows")]
 mod shell_context_menu;
 mod sunshine;
 mod system;
 #[cfg(target_os = "windows")]
 mod text_context;
-mod tool_windows;
 mod tray;
 mod tray_config;
 mod utils;
 mod vdd;
-mod vdd_calibration;
 #[cfg(target_os = "windows")]
 mod vdd_ioctl;
 mod vigem;
@@ -111,16 +104,6 @@ fn main() {
     configure_loopback_proxy_bypass();
 
     #[cfg(target_os = "windows")]
-    if let Some(exit_code) =
-        native_components::providers::nvidia_dlssnr::try_handle_elevated_command()
-    {
-        std::process::exit(exit_code);
-    }
-    if let Some(exit_code) = rtx_hdr::try_handle_elevated_command() {
-        std::process::exit(exit_code);
-    }
-
-    #[cfg(target_os = "windows")]
     utils::wait_for_elevated_restart_handoff();
 
     #[cfg(target_os = "windows")]
@@ -143,8 +126,7 @@ fn main() {
     let builder = tauri::Builder::default()
         .manage(app::AppState {
             main_window: std::sync::Mutex::new(None),
-        })
-        .plugin(tauri_plugin_global_shortcut::Builder::new().build());
+        });
 
     let builder = if std::env::var_os("SUNSHINE_GUI_ALLOW_PARALLEL_INSTANCE").is_some() {
         builder
@@ -192,7 +174,6 @@ fn main() {
             vdd::start_vdd_trace,
             vdd::stop_vdd_trace,
             vdd::open_vdd_trace_folder,
-            vdd_calibration::launch_windows_hdr_calibration,
             system::get_gpus,
             system::get_monitors,
             system::get_system_info,
@@ -216,12 +197,6 @@ fn main() {
             proxy_server::get_proxy_health_check,
             proxy_server::refresh_sunshine_target,
             proxy_server::wait_for_proxy_ready,
-            native_components::native_component_get_status,
-            native_components::hdr_enhanced_select_backend,
-            native_components::list_native_components,
-            native_components::native_component_import,
-            native_components::native_component_remove,
-            native_components::native_component_recover,
             utils::open_external_url,
             utils::restart_graphics_driver,
             utils::restart_as_admin,
@@ -242,10 +217,6 @@ fn main() {
             fs_utils::copy_image_to_assets,
             fs_utils::cleanup_unused_covers,
             fs_utils::resolve_lnk_target,
-            fs_utils::scan_directory_for_apps,
-            fs_utils::scan_game_libraries,
-            fs_utils::search_steam_covers,
-            fs_utils::upload_steam_cover,
             fs_utils::save_text_file,
             logger::get_all_logs,
             logger::clear_logs,
@@ -254,19 +225,6 @@ fn main() {
             file_transfer::send_file_to_client,
             windows::webview_heartbeat,
             windows::resize_about_window,
-            windows::resize_tool_window,
-            hdr_enhanced::nr_live_status,
-            hdr_enhanced::nr_live_set_enabled,
-            hdr_enhanced::nr_live_remember,
-            nr_overlay::nr_overlay_capture_shortcut,
-            nr_overlay::nr_overlay_settings,
-            nr_overlay::nr_overlay_save_settings,
-            nr_overlay::nr_overlay_select_session,
-            nr_overlay::nr_overlay_set_visible,
-            nr_overlay::nr_overlay_is_visible,
-            hwinfo::hwinfo_get_sensors,
-            hwinfo::hwinfo_get_readings,
-            hwinfo::hwinfo_check_available,
             tray::set_locale_preferences,
             tray::get_tray_locale,
             tray::main_panel_loading,

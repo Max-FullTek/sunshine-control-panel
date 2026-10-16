@@ -69,7 +69,6 @@ export const vdd = {
   startTrace: () => wrapResult('start_vdd_trace'),
   stopTrace: () => wrapResult('stop_vdd_trace'),
   openTraceFolder: () => wrapResult('open_vdd_trace_folder'),
-  launchHdrCalibration: () => wrapResult('launch_windows_hdr_calibration'),
 
   async execVddCmd(command) {
     try {
@@ -116,29 +115,6 @@ export const controllerHub = {
 }
 
 
-export const rtxHdr = {
-  recover: () => wrapResult('native_component_recover', { componentId: 'alkaidlab.nvidia_rtx_video' }),
-  setEnabled: (enabled) => wrapResult('hdr_enhanced_select_backend', { componentId: 'alkaidlab.nvidia_rtx_video', enabled }),
-  getStatus: () => wrapResult('native_component_get_status', { componentId: 'alkaidlab.nvidia_rtx_video' }),
-  install: (runtimePath) => wrapResult('native_component_import', {
-    componentId: 'alkaidlab.nvidia_rtx_video',
-    sources: { 'nvngx_truehdr.dll': runtimePath },
-  }),
-  uninstall: () => wrapResult('native_component_remove', { componentId: 'alkaidlab.nvidia_rtx_video' }),
-}
-
-export const dlssNr = {
-  recover: () => wrapResult('native_component_recover', { componentId: 'alkaidlab.nvidia_dlssnr' }),
-  setEnabled: (enabled) => wrapResult('hdr_enhanced_select_backend', { componentId: 'alkaidlab.nvidia_dlssnr', enabled }),
-  getStatus: () => wrapResult('native_component_get_status', { componentId: 'alkaidlab.nvidia_dlssnr' }),
-  install: (runtimePath) => wrapResult('native_component_import', {
-    componentId: 'alkaidlab.nvidia_dlssnr', sources: { 'nvngx_dlssnr.dll': runtimePath },
-  }),
-  uninstall: () => wrapResult('native_component_remove', { componentId: 'alkaidlab.nvidia_dlssnr' }),
-}
-
-// ─── Sunshine 配置 ───────────────────────────────────────
-
 export const sunshine = {
   getVersion: () => wrapDefault('get_sunshine_version', 'Unknown'),
   parseConfig: () => wrapDefault('parse_sunshine_config', {}),
@@ -184,7 +160,6 @@ export default {
   vmouse,
   vigem,
   controllerHub,
-  rtxHdr,
   sunshine,
   tools,
   readDirectory,

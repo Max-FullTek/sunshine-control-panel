@@ -51,7 +51,6 @@ pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>
     if let Err(e) = crate::shell_context_menu::install_file_transfer_menu() {
         warn!("⚠️  安装文件传输右键菜单失败: {}", e);
     }
-    crate::nr_overlay::initialize(&app_handle);
 
     // 剪贴板同步：用户会话 agent 默认随面板启动；服务端如果禁用了则 SSE 自然失败，
     // 不需要额外开关。

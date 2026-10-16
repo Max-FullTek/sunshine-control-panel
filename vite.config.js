@@ -43,7 +43,6 @@ export default defineConfig(() => ({
         console: resolve(rendererSrcPath, 'console/index.html'),
         about: resolve(rendererSrcPath, 'about/index.html'),
         pin: resolve(rendererSrcPath, 'pin/index.html'),
-        toolWindow: resolve(rendererSrcPath, 'tool-window/index.html'),
       },
     },
   },

@@ -1,9 +1,8 @@
 <template>
   <div class="panel-page">
-    <header class="panel-heading">
-      <h1>{{ heading.title }}</h1>
-      <p>{{ heading.description }}</p>
-    </header>
+    <PageHeading :title="heading.title" :description="heading.description">
+      <template #icon><el-icon><Setting v-if="page === ROUTES.PANEL_SETTINGS" /><QuestionFilled v-else /></el-icon></template>
+    </PageHeading>
     <template v-if="page === ROUTES.PANEL_SETTINGS">
       <section class="panel-section">
         <h2>{{ t.sidebar.appearanceLanguage }}</h2>
@@ -25,19 +24,8 @@
           </div>
         </div>
       </section>
-      <DesktopPreferences />
-      <section class="panel-section">
-        <h2>{{ t.sidebar.softwareUpdate }}</h2>
-        <div class="settings-card">
-          <div class="settings-row">
-            <div>
-              <strong>{{ t.sidebar.currentVersion }}</strong>
-              <p>{{ currentVersion }}</p>
-            </div>
-            <span>{{ t.sidebar.manualUpdates }}</span>
-          </div>
-        </div>
-      </section>
+      <DesktopOnly><DesktopPreferences /></DesktopOnly>
+      <DesktopOnly>
       <section class="panel-section">
         <h2>{{ t.sidebar.syncFeatures }}</h2>
         <div class="settings-card">
@@ -55,6 +43,7 @@
           </div>
         </div>
       </section>
+      </DesktopOnly>
       <section class="panel-section">
         <h2>{{ t.sidebar.accountSettings }}</h2>
         <div class="settings-card">
@@ -76,21 +65,7 @@
           </div>
         </div>
       </section>
-      <section class="panel-section">
-        <h2>{{ t.sidebar.maintenance }}</h2>
-        <div class="settings-card">
-          <div class="settings-row">
-            <div>
-              <strong>{{ t.sidebar.coverCache }}</strong>
-              <p>{{ t.sidebar.coverCacheDescription }}</p>
-            </div>
-            <el-button @click="actions.cleanupCovers">{{ t.sidebar.clean }}</el-button>
-          </div>
-          <div v-if="!isAdmin" class="settings-row">
-            <el-button @click="actions.restartAsAdmin">{{ t.sidebar.restartAsAdmin }}</el-button>
-          </div>
-        </div>
-      </section>
+      <DesktopOnly v-if="!isAdmin"><el-button @click="actions.restartAsAdmin">{{ t.sidebar.restartAsAdmin }}</el-button></DesktopOnly>
     </template>
     <template v-else>
       <div class="settings-card">
@@ -111,6 +86,9 @@
   </div>
 </template>
 <script setup>
+import PageHeading from './PageHeading.vue'
+import DesktopOnly from './DesktopOnly.vue'
+import { Setting, QuestionFilled } from '@element-plus/icons-vue'
 import { computed } from 'vue'
 import DesktopPreferences from '../desktop/views/SettingsView.vue'
 import { TopRight } from '@element-plus/icons-vue'
@@ -141,9 +119,9 @@ const heading = computed(() => {
   --panel-muted: var(--fd-text-secondary);
   --panel-border: rgba(var(--fd-text-primary-rgb), .16);
   --panel-accent: var(--fd-accent);
-  max-width: 1100px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 30px;
+  padding: 52px 24px 32px;
   color: var(--panel-text);
   font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
 }

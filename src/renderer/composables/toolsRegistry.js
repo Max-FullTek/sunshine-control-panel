@@ -32,7 +32,7 @@ export function createNavigationGroups(ctx) {
     {
       id: 'stream',
       label: labels.sectionStream,
-      items: [...WEBUI_PAGES.map((page) => ({
+      items: [...WEBUI_PAGES.filter((page) => page.id !== 'overview').map((page) => ({
         id: page.id,
         icon: WEBUI_ICONS[page.id],
         label: labels[page.label],

@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { hasDesktopRuntime } from '../shared/runtime.js'
 import { ElMessage, ElMessageBox, ElLoading, ElNotification } from 'element-plus'
 import { openExternalUrl, tools } from '@/tauri-adapter.js'
 import { useI18n } from '../desktop/i18n/index.js'
@@ -19,6 +20,10 @@ export function useTools() {
    * 打开串流计时器
    */
   const openUrl = async (url) => {
+    if (!hasDesktopRuntime()) {
+      if (/^https?:\/\//i.test(url)) window.open(url, '_blank', 'noopener,noreferrer')
+      return
+    }
     await openExternalUrl(url)
   }
 
@@ -176,6 +181,7 @@ export function useTools() {
 
   /** Load status once for the panel, then keep the settings page up to date. */
   const initClipboardSyncStatus = async () => {
+    if (!hasDesktopRuntime()) return
     if (clipboardSyncInitialised) return
     clipboardSyncInitialised = true
     await refreshClipboardSyncStatus()

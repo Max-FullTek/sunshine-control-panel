@@ -13,7 +13,6 @@ export const ROUTES = {
   DUALSENSE: 'dualsense',
   // Compatibility alias for the device hub's original page id.
   CONTROLLERS_HUB: 'controllers-hub',
-  HDR_ENHANCED: 'hdr-enhanced',
   PANEL_SETTINGS: 'panel-settings',
   HELP: 'help',
 }
@@ -51,11 +50,6 @@ const routeConfig = {
     name: ROUTES.CONTROLLERS_HUB,
     component: 'ControllersHub',
     titleKey: 'deviceHub',
-  },
-  [ROUTES.HDR_ENHANCED]: {
-    name: ROUTES.HDR_ENHANCED,
-    component: 'HdrEnhancedManager',
-    titleKey: 'hdrEnhanced',
   },
   [ROUTES.PANEL_SETTINGS]: { name: ROUTES.PANEL_SETTINGS, component: 'ControlPanelPage', titleKey: 'panelSettings' },
   [ROUTES.HELP]: { name: ROUTES.HELP, component: 'ControlPanelPage', titleKey: 'helpAbout' },

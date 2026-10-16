@@ -1,4 +1,4 @@
-use crate::{tool_windows, windows};
+use crate::windows;
 use log::info;
 use std::sync::OnceLock;
 use tauri::{AppHandle, Emitter, Manager};
@@ -46,10 +46,6 @@ pub async fn open_tool_window(app: AppHandle, tool_name: String) -> Result<(), S
         }
         "logs" | "log_console" => {
             windows::open_log_console(&app);
-        }
-        "nr" => tool_windows::create_tool_window_internal(&app, "nr")?,
-        "performance" | "host_performance" => {
-            tool_windows::create_tool_window_internal(&app, "performance")?;
         }
         _ => return Err(format!("Unknown tool name: {}", tool_name)),
     }

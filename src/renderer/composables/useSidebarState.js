@@ -1,4 +1,5 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { hasDesktopRuntime } from '../shared/runtime.js'
 import { useTheme } from '../desktop/composables/useTheme.js'
 import { useRouter, ROUTES } from './useRouter.js'
 import { useI18n } from '../desktop/i18n/index.js'
@@ -10,23 +11,6 @@ const STORAGE_KEYS = {
 const THEME = {
   DARK: 'dark',
   LIGHT: 'light',
-}
-
-/**
- * 规范化版本号（移除 v/V 前缀）
- */
-
-/**
- * 向 iframe 发送消息
- */
-const postMessageToIframes = (message) => {
-  document.querySelectorAll('iframe').forEach((iframe) => {
-    try {
-      iframe.contentWindow?.postMessage(message, '*')
-    } catch {
-      // 跨域限制，忽略错误
-    }
-  })
 }
 
 /**
@@ -76,7 +60,6 @@ export function useSidebarState() {
   const setTheme = (mode) => setSharedTheme(mode)
   watch(themeMode, () => {
     syncTheme()
-    postMessageToIframes({ type: 'theme-sync', theme: currentTheme.value })
   }, { immediate: true })
 
   /**
@@ -92,8 +75,6 @@ export function useSidebarState() {
   const openControllers = () => router.navigate(ROUTES.CONTROLLERS)
   const openDualSense = openControllers
   const openControllersHub = () => router.navigate(ROUTES.CONTROLLERS_HUB)
-  // RTX HDR 的定向入口也进入公共 HDR 管理页；具体实现由页面内的组件卡片负责。
-  const openRtxHdr = () => router.navigate(ROUTES.HDR_ENHANCED)
 
   /**
    * 初始化管理员状态
@@ -141,27 +122,16 @@ export function useSidebarState() {
   /**
    * 初始化事件监听
    */
-  const initEventListeners = async () => {
-    // iframe 主题请求监听
-    const handleMessage = ({ origin, data }) => {
-      const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1')
-      if (isLocalhost && data.type === 'request-theme') {
-        postMessageToIframes({ type: 'theme-sync', theme: currentTheme.value })
-      }
-    }
-    window.addEventListener('message', handleMessage)
-    cleanupFns.push(() => window.removeEventListener('message', handleMessage))
-
-  }
 
   /**
    * 初始化状态
    */
   const initState = async () => {
     initTheme()
+    if (!hasDesktopRuntime()) return
     // 优先初始化偏好设置，确保后端在检查更新前能读取到正确的偏好
     // 然后并行初始化其他状态
-    await Promise.all([initAdminStatus(), initWindowState(), initVersion(), initEventListeners()])
+    await Promise.all([initAdminStatus(), initWindowState(), initVersion()])
 
   }
 
@@ -189,6 +159,5 @@ export function useSidebarState() {
     openControllers,
     openDualSense,
     openControllersHub,
-    openRtxHdr,
   }
 }

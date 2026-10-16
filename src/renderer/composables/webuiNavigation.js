@@ -22,6 +22,7 @@ export function getWebuiPage(path) {
 export function isWebuiNavigationPath(path) {
   return (
     WEBUI_PAGES.some((page) => page.path === path) ||
+    (typeof path === 'string' && /^\/config#[a-z0-9_-]+$/i.test(path)) ||
     path === '/password' ||
     path === '/password#logout' ||
     path === '/troubleshooting'

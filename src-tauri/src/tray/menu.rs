@@ -179,13 +179,6 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
         core_connected,
         None::<&str>,
     )?;
-    let interfaces_submenu = Submenu::with_id_and_items(
-        app,
-        "interfaces",
-        s.interfaces_menu,
-        true,
-        &[&open_sunshine],
-    )?;
 
     let vdd_settings = MenuItem::with_id(app, "vdd_settings", s.vdd_settings, true, None::<&str>)?;
     let display_separator = PredefinedMenuItem::separator(app)?;
@@ -242,22 +235,12 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
         ],
     )?;
 
-    let host_performance = MenuItem::with_id(
-        app,
-        "host_performance",
-        s.host_performance,
-        true,
-        None::<&str>,
-    )?;
-    let tools_separator = PredefinedMenuItem::separator(app)?;
     let log_console = MenuItem::with_id(app, "log_console", s.log_console, true, None::<&str>)?;
     #[cfg(debug_assertions)]
     let debug_page = MenuItem::with_id(app, "debug_page", s.debug_page, true, None::<&str>)?;
 
     #[allow(unused_mut)]
-    let mut tools_items: Vec<&dyn tauri::menu::IsMenuItem<R>> = vec![&host_performance];
-    tools_items.push(&tools_separator);
-    tools_items.push(&log_console);
+    let mut tools_items: Vec<&dyn tauri::menu::IsMenuItem<R>> = vec![&log_console];
     #[cfg(debug_assertions)]
     tools_items.push(&debug_page);
     let tools_submenu = Submenu::with_id_and_items(app, "tools", s.tools_menu, true, &tools_items)?;
@@ -400,7 +383,7 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
     items.push(&open_main_panel);
     #[cfg(target_os = "windows")]
     items.push(&auto_start);
-    items.push(&interfaces_submenu);
+    items.push(&open_sunshine);
     items.push(&display_submenu);
     items.push(&tools_submenu);
     items.push(&settings_submenu);
