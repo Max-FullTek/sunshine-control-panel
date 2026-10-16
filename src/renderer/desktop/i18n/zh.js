@@ -1,4 +1,19 @@
 export const zh = {
+  "pageNotes": {
+  "apps": "管理 Moonlight 可启动的应用程序，拖动调整顺序后会自动保存。",
+  "pairing": "先在 Moonlight 发起配对，再输入 PIN 码；已配对设备可在下方管理。",
+  "stream-settings": "调整串流画面、音频与输入设置；保存后按提示应用，必要时重新启动。",
+  "virtualDisplay": "保存会写入虚拟显示器设置，并通知驱动重新加载。",
+  "deviceHub": "管理手柄模拟与输入设备；需要原生操作的功能请使用 Desktop。",
+  "interfaceSettings": "调整界面外观、语言与 Desktop 偏好；更改按各项设置的提示应用。",
+  "help": "了解 Foundation Sunshine Lite，查看上游项目、支持作者与诊断入口。"
+},
+  "appsGuide": {
+  "title": "这份列表如何使用？",
+  "body": "这里管理 Moonlight 客户端看到的串流应用程序。Desktop 用于串流整个桌面；其他项目可设置游戏或程序的启动命令、封面及结束后的动作。新增或编辑后请保存，客户端便能从列表选择要启动的项目。搜索可快速筛选，拖动卡片右上角的手柄可调整顺序，顺序更改会自动保存。",
+  "restore": "“还原内置应用程序”会立即保存：补回缺少的内置项目，并将同名内置项目的设置重置为默认值。自行新增且不同名的项目会保留；若曾修改内置项目，请先记下设置。",
+  "qr": "QR Code 配对（实验性）"
+},
   "aboutLite": {
   "introTitle": "关于 Foundation Sunshine Lite",
   "introSections": [

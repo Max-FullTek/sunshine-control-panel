@@ -1,6 +1,6 @@
 <template>
   <section class="chub-page">
-    <PageHeading :title="t.sidebar.deviceHub" :description="t.deviceHub.intro"><template #icon><IconGamepad /></template></PageHeading>
+    <PageHeading :title="t.sidebar.deviceHub" :description="t.pageNotes.deviceHub"><template #icon><IconGamepad /></template></PageHeading>
 
     <div class="chub-pane">
       <GamepadTypePicker />

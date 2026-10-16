@@ -1,4 +1,19 @@
 export const en = {
+  "pageNotes": {
+  "apps": "Manage the apps Moonlight can launch. Reordering saves automatically.",
+  "pairing": "Start pairing in Moonlight, then enter its PIN. Manage paired devices below.",
+  "stream-settings": "Configure video, audio and input; save and follow the prompts to apply or restart.",
+  "virtualDisplay": "Saving writes virtual display settings and asks the driver to reload.",
+  "deviceHub": "Manage controller emulation and input devices. Native operations require Desktop.",
+  "interfaceSettings": "Adjust appearance, language and Desktop preferences; follow each setting’s apply instructions.",
+  "help": "Learn about Foundation Sunshine Lite, support upstream authors and find diagnostics."
+},
+  "appsGuide": {
+  "title": "How does this list work?",
+  "body": "Manage the streaming apps shown in Moonlight. Desktop streams the whole desktop; other entries can specify launch commands, artwork and cleanup actions. Save new or edited entries to make them available to clients. Search filters the list. Drag the handle at the top right of a card to reorder it; changed order saves automatically.",
+  "restore": "Restore built-in apps saves immediately: it adds missing defaults and resets settings on built-in entries with matching names. Custom entries with other names are kept. Record any customized built-in settings first.",
+  "qr": "QR code pairing (experimental)"
+},
   "aboutLite": {
   "introTitle": "About Foundation Sunshine Lite",
   "introSections": [

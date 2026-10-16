@@ -131,8 +131,8 @@ const { t } = useI18n()
 const displayVersion = computed(() => isNativeUiPreview() ? t.value.aboutLite.previewVersion : props.currentVersion)
 const heading = computed(() => {
   const s = t.value.sidebar
-  if (props.page === ROUTES.PANEL_SETTINGS) return { title: s.panelSettings, description: s.panelSettingsDescription }
-  return { title: s.helpAbout, description: 'Foundation Sunshine Lite Desktop' }
+  if (props.page === ROUTES.PANEL_SETTINGS) return { title: s.panelSettings, description: t.value.pageNotes.interfaceSettings }
+  return { title: s.helpAbout, description: t.value.pageNotes.help }
 })
 </script>
 <style scoped lang="less">

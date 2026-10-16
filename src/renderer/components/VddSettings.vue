@@ -1,7 +1,7 @@
 <template>
   <div class="vdd-settings-wrapper">
     <div class="vdd-content">
-      <PageHeading :title="t.sidebar.virtualDisplay">
+      <PageHeading :title="t.sidebar.virtualDisplay" :description="t.pageNotes.virtualDisplay">
         <template #icon><Monitor /></template>
         <template #meta>
             <div v-if="!isDriverCheckPending && hasUnsavedChanges" class="page-header-meta">
@@ -25,7 +25,6 @@
         </div>
         </template>
       </PageHeading>
-      <p class="save-behavior-note">{{ t.vddSettings.unsavedDesc }}</p>
 
       <div
         v-if="!isDriverCheckPending && vddReady && vddStatus.state === 'degraded'"
