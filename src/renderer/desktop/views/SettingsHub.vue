@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section>
     <h1 class="page-title">{{ t.nav.settings }}</h1>
     <div class="settings-tabs" role="tablist" :aria-label="t.nav.settings">
@@ -34,4 +34,3 @@ const sections = computed(() => [
 <style scoped>
 .settings-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 28px; }
 </style>
-
