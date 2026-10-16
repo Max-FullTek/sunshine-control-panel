@@ -1,4 +1,16 @@
 export const en = {
+  "pairingCopy": {
+  "description": [
+    "Generate a QR code for quick pairing.",
+    "Scan it with Moonlight to pair automatically."
+  ],
+  "warning": [
+    "This is an experimental feature.",
+    "If it fails, close this dialog and pair using a PIN.",
+    "Available only on the local network."
+  ],
+  "verify": "Verify and pair"
+},
   "pageNotes": {
   "apps": "Manage the apps Moonlight can launch. Reordering saves automatically.",
   "pairing": "Start pairing in Moonlight, then enter its PIN. Manage paired devices below.",
@@ -9,9 +21,10 @@ export const en = {
   "help": "Learn about Foundation Sunshine Lite, support upstream authors and find diagnostics."
 },
   "appsGuide": {
+  "restoreLabel": "Restore default apps",
   "title": "How does this list work?",
   "body": "Manage the streaming apps shown in Moonlight. Desktop streams the whole desktop; other entries can specify launch commands, artwork and cleanup actions. Save new or edited entries to make them available to clients. Search filters the list. Drag the handle at the top right of a card to reorder it; changed order saves automatically.",
-  "restore": "Restore built-in apps saves immediately: it adds missing defaults and resets settings on built-in entries with matching names. Custom entries with other names are kept. Record any customized built-in settings first.",
+  "restore": "Restore default apps saves immediately: it adds missing defaults and resets settings on built-in entries with matching names. Custom entries with other names are kept. Record any customized built-in settings first.",
   "qr": "QR code pairing (experimental)"
 },
   "aboutLite": {
