@@ -1,5 +1,5 @@
 // Read-only status polling through the existing trusted loopback proxy.
-// Keep log contents out of the shell; details remain on the diagnostics page.
+// Show only a bounded summary of the latest error; full logs stay in diagnostics.
 export async function readHostStatus(proxyBase, request = fetch) {
   try {
     const config = await request(`${proxyBase}/api/config`, { signal: AbortSignal.timeout(5000) })
@@ -11,7 +11,15 @@ export async function readHostStatus(proxyBase, request = fetch) {
       headers: { 'X-Log-Offset': '0' }, signal: AbortSignal.timeout(5000),
     })
     if (!logs.ok) return { state: 'logsUnavailable' }
-    return { state: /\]:\s*(?:Fatal|Error):/i.test(await logs.text()) ? 'error' : 'online' }
+    const lines = (await logs.text()).split(/\r?\n/)
+    for (let index = lines.length - 1; index >= 0; index--) {
+      const error = lines[index].match(/\]:\s*(?:Fatal|Error):\s*(.*)/i)
+      if (error) {
+        const message = error[1].replace(/[\u0000-\u001f\u007f]/g, ' ').trim()
+        return { state: 'error', message: message.length > 320 ? `${message.slice(0, 319)}…` : message }
+      }
+    }
+    return { state: 'online' }
   } catch {
     return { state: 'offline' }
   }

@@ -67,7 +67,7 @@ export const zh_TW = {
     "online": "主機可連線",
     "offline": "無法連線至主機",
     "authentication": "需要登入主機",
-    "error": "記錄中有錯誤，請查看詳細資訊",
+    "error": "記錄中的最新錯誤",
     "logsUnavailable": "主機可連線，但無法讀取錯誤記錄",
     "details": "查看詳細資訊"
   },

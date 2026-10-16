@@ -365,10 +365,11 @@ button:focus-visible {
   background: var(--fd-bg-secondary);
   color: var(--fd-text-secondary);
   font-size: 12px;
-  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .status-dot { flex-shrink: 0; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .host-status-message { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   &.is-online .status-dot { background: #57a977; }
   &.is-error, &.is-offline { color: var(--fd-status-danger, #d78282); }
-  button { margin-left: auto; border: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; font: inherit; }
+  button { flex-shrink: 0; margin-left: auto; border: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; font: inherit; }
 }
 [data-bs-theme='light'] {
   .sidebar-wrapper {

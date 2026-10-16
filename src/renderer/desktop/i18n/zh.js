@@ -64,7 +64,7 @@ export const zh = {
   "hostStatus": {
     "preview": "界面预览：示例数据，非实际主机状态",
     "connecting": "正在检查主机状态…", "online": "主机可连接", "offline": "无法连接主机",
-    "authentication": "需要登录主机", "error": "日志中存在严重错误，请查看详情",
+    "authentication": "需要登录主机", "error": "日志中的最新错误",
     "logsUnavailable": "主机可连接，但无法读取错误日志", "details": "查看详情"
   },
   "lite": {

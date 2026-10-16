@@ -14,3 +14,16 @@ test('status distinguishes unavailable hosts, authentication, and fatal log entr
     ? Response.json({ platform: 'windows' }) : new Response('', { status: 500 })
   assert.equal((await readHostStatus('', request)).state, 'logsUnavailable')
 })
+
+test('status shows the latest error rather than later info and bounds its plain-text summary', async () => {
+  let log = '[time]: Fatal: old failure\r\n[time]: Error: capture <failed>\r\n[time]: Info: ready'
+  const request = async (url) => url.endsWith('/api/config')
+    ? Response.json({ platform: 'windows' }) : new Response(log)
+  assert.deepEqual(await readHostStatus('', request), { state: 'error', message: 'capture <failed>' })
+  log = `[time]: Error: ${'x'.repeat(400)}`
+  const status = await readHostStatus('', request)
+  assert.equal(status.message.length, 320)
+  assert.ok(status.message.endsWith('…'))
+  log = '[time]: Info: ready'
+  assert.deepEqual(await readHostStatus('', request), { state: 'online' })
+})

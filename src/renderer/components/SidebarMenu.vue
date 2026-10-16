@@ -7,7 +7,6 @@
         </a>
         <h3 v-if="!isCollapsed" class="app-name">
           <span>Foundation Sunshine Lite</span>
-          <span>Desktop</span>
         </h3>
       </div>
       <el-scrollbar class="menu-scrollbar">
@@ -116,7 +115,7 @@
       </div>
       <footer class="host-status" role="status" aria-live="polite" :class="`is-${hostStatus.state}`">
         <span class="status-dot" aria-hidden="true"></span>
-        <span>{{ t.hostStatus[hostStatus.state] || t.hostStatus.connecting }}</span>
+        <span class="host-status-message" :title="hostStatus.message">{{ t.hostStatus[hostStatus.state] || t.hostStatus.connecting }}<template v-if="hostStatus.message">: {{ hostStatus.message }}</template></span>
         <button v-if="['error', 'offline', 'logsUnavailable'].includes(hostStatus.state)" type="button" @click="openWebUi('/troubleshooting')">{{ t.hostStatus.details }}</button>
       </footer>
     </div>

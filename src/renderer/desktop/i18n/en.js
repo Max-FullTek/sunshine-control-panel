@@ -64,7 +64,7 @@ export const en = {
   "hostStatus": {
     "preview": "Interface preview: sample data, not live host status",
     "connecting": "Checking host…", "online": "Host reachable", "offline": "Host unreachable",
-    "authentication": "Host sign-in required", "error": "Fatal errors in logs; review details",
+    "authentication": "Host sign-in required", "error": "Latest logged error",
     "logsUnavailable": "Host reachable; logs unavailable", "details": "View details"
   },
   "lite": {
