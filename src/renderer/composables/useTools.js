@@ -18,63 +18,6 @@ export function useTools() {
   /**
    * 打开串流计时器
    */
-  const openTimer = async () => {
-    await createWindow('/stop-clock-canvas/index.html', t.value.sidebar.streamTimer, {
-      prefix: 'timer',
-      width: 1080,
-      height: 600,
-    })
-  }
-
-  /**
-   * 按需加载并打开随 GUI 安装的手写笔输入检测插件。
-   * 后端只返回稳定错误码，避免在界面中暴露本地安装路径。
-   */
-  const openStylusInputProbe = async () => {
-    try {
-      await tools.openNativeTool('alkaidlab.stylus')
-      ElMessage.success(t.value.tools.stylusInputProbeStarted)
-    } catch (error) {
-      const errorCode = String(error || '')
-      const missing = errorCode.includes('NATIVE_PLUGIN_NOT_FOUND')
-      const cleanupPending = errorCode.includes('NATIVE_PLUGIN_CLEANUP_PENDING')
-      const incompatible = [
-        'NATIVE_PLUGIN_PATH_INVALID',
-        'NATIVE_PLUGIN_LOAD_FAILED',
-        'NATIVE_PLUGIN_ENTRY_MISSING',
-        'NATIVE_PLUGIN_ABI_MISMATCH',
-        'NATIVE_PLUGIN_ID_MISMATCH',
-        'NATIVE_PLUGIN_INIT_FAILED',
-      ].some((code) => errorCode.includes(code))
-      console.error('[StylusInputProbe] launch failed:', errorCode)
-      try {
-        await ElMessageBox.alert(
-          missing
-            ? t.value.tools.stylusInputProbeMissing
-            : cleanupPending
-              ? t.value.tools.stylusInputProbeCleanupPending
-              : incompatible
-                ? t.value.tools.stylusInputProbeUntrusted
-                : t.value.tools.stylusInputProbeLaunchFailed,
-          t.value.tools.stylusInputProbeErrorTitle,
-          {
-            confirmButtonText: t.value.systemTools.confirm,
-            type: 'error',
-            showClose: false,
-            closeOnClickModal: false,
-            closeOnPressEscape: false,
-          },
-        )
-      } catch {
-        // The launch failure has already been handled and must not escape the UI action.
-      }
-    }
-  }
-
-  /**
-   * 打开外部 URL
-   * @param {string} url - 要打开的URL
-   */
   const openUrl = async (url) => {
     await openExternalUrl(url)
   }
@@ -192,39 +135,6 @@ export function useTools() {
    * @param {string} title - 窗口标题
    * @param {object} options - 窗口配置选项
    */
-  const createWindow = async (url, title, options = {}) => {
-    try {
-      const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow')
-      const baseUrl = window.location.origin
-      const windowId = `${options.prefix || 'window'}_${Date.now()}`
-
-      const newWindow = new WebviewWindow(windowId, {
-        url: `${baseUrl}${url}`,
-        title,
-        width: options.width || 1080,
-        height: options.height || 800,
-        decorations: options.decorations !== false,
-        center: true,
-      })
-
-      // 等待窗口创建完成后显示
-      newWindow.once('tauri://created', async () => {
-        console.log(`✅ ${title}窗口已创建`)
-        await newWindow.show()
-        await newWindow.setFocus()
-        console.log(`✅ ${title}窗口已显示`)
-      })
-
-      newWindow.once('tauri://error', (e) => {
-        console.error(`❌ ${title}窗口创建失败:`, e)
-        ElMessage.error(formatMessage(t.value.toolActions.windowCreateFailed, { title }))
-      })
-    } catch (error) {
-      console.error(`❌ 打开${title}失败:`, error)
-      ElMessage.error(formatMessage(t.value.toolActions.windowOpenFailed, { title }))
-    }
-  }
-
   /**
    * Clipboard sync is enabled by default whenever the user-session agent is
    * alive. Panel settings show connection status; the action reports details.
@@ -281,8 +191,6 @@ export function useTools() {
   }
 
   return {
-    openTimer,
-    openStylusInputProbe,
     openUrl,
     cleanupCovers,
     restartAsAdmin,

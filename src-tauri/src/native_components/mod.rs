@@ -21,7 +21,6 @@ pub enum ComponentHost {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ComponentCategory {
-    InputDiagnostics,
     HdrEnhanced,
 }
 
@@ -45,18 +44,6 @@ pub struct ComponentDescriptor {
 }
 
 pub const COMPONENTS: &[ComponentDescriptor] = &[
-    ComponentDescriptor {
-        id: "alkaidlab.stylus",
-        category: ComponentCategory::InputDiagnostics,
-        host: ComponentHost::Gui,
-        files: &["alkaidlab-plugin-stylus.dll"],
-        distribution: DistributionPolicy {
-            bundled: true,
-            download: false,
-            local_import: false,
-        },
-        install_subdirectory: None,
-    },
     ComponentDescriptor {
         id: NVIDIA_RTX_VIDEO_ID,
         category: ComponentCategory::HdrEnhanced,
@@ -199,10 +186,7 @@ mod tests {
     fn only_fixed_components_can_be_resolved() {
         assert!(descriptor("unknown.dll").is_none());
         assert!(descriptor("../alkaidlab.nvidia_rtx_video").is_none());
-        assert_eq!(
-            descriptor("alkaidlab.stylus").unwrap().host,
-            ComponentHost::Gui
-        );
+        assert!(descriptor("alkaidlab.stylus").is_none());
     }
 
     #[test]

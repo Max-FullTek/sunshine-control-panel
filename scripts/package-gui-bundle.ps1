@@ -11,8 +11,7 @@ $source = (Resolve-Path -LiteralPath $SourceDirectory).Path
 $output = [System.IO.Path]::GetFullPath($OutputPath)
 $outputDirectory = Split-Path -Parent $output
 $requiredFiles = @(
-    'sunshine-gui.exe',
-    'alkaidlab-plugin-stylus.dll'
+    'sunshine-gui.exe'
 )
 
 foreach ($name in $requiredFiles) {

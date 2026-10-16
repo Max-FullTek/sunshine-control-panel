@@ -1,6 +1,5 @@
 export const WEBUI_PAGES = Object.freeze([
   { id: 'overview', path: '/', label: 'overview' },
-  { id: 'downloads', path: '/downloads', label: 'clientDownloads' },
   { id: 'pairing', path: '/pin', label: 'clientPairing' },
   { id: 'apps', path: '/apps', label: 'applications' },
   { id: 'stream-settings', path: '/config', label: 'streamSettings' },

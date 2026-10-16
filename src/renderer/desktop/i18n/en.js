@@ -215,7 +215,7 @@ export const en = {
     gamepadCursor: 'Gamepad cursor mode',
     gamepadCursorDesc: 'Click the left stick to drive a virtual pointer, covering pages that spatial navigation does not reach yet',
     oskAutoOpen: 'Auto-open on-screen keyboard',
-    oskAutoOpenDesc: 'Press A on a focused text field to open the on-screen keyboard',
+    oskAutoOpenDesc: 'Press A on a focused text field to open the on-screen keyboard',
     navSounds: 'Gamepad navigation sounds',
     navSoundsDesc: 'Subtle ticks for focus moves, confirm and back',
     launchAssistant: 'Launch Assistant',

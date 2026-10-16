@@ -1,7 +1,7 @@
 use crate::device_config::{DEVICE_CONFIG_LOCK, read_device_api_response};
 use crate::sunshine;
 use log::{debug, info};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 /// 控制器中心相关的 sunshine.conf 配置（仿真模式 / DS4 行为 / DSU 体感服务器）
 #[derive(Debug, Serialize, Clone)]
@@ -14,63 +14,12 @@ pub struct ControllerHubConfig {
     pub dsu_server_port: u16,
 }
 
-#[derive(Debug, Default, Deserialize, Serialize, Clone)]
-#[serde(default)]
-pub struct MicrophoneStatus {
-    pub success: bool,
-    pub configured_backend: String,
-    pub active_backend: String,
-    pub fallback_reason: String,
-    pub component_available: bool,
-    pub online: bool,
-    pub device_created: bool,
-    pub host_streaming: bool,
-    pub generation: u32,
-    pub state: String,
-    pub buffered_bytes: u32,
-    pub underruns: u32,
-    pub dropped_frames: u32,
-    pub submit_errors: u32,
-    pub last_error: i32,
-    pub error_code: String,
-}
-
-#[derive(Debug, Default, Deserialize, Serialize, Clone)]
-#[serde(default)]
-pub struct MicrophoneTestResult {
-    pub success: bool,
-    pub error_code: String,
-    pub backend: String,
-}
-
 async fn device_api_url(path: &str) -> Result<String, String> {
     let base_url = sunshine::get_sunshine_url().await?;
     Ok(format!("{}{}", base_url.trim_end_matches('/'), path))
 }
 
-#[tauri::command]
-pub async fn get_virtual_microphone_status() -> Result<MicrophoneStatus, String> {
-    let endpoint = device_api_url("/api/microphone/status").await?;
-    let response = sunshine::create_https_client()?
-        .get(endpoint)
-        .send()
-        .await
-        .map_err(|error| format!("Unable to query virtual microphone status: {error}"))?;
-    read_device_api_response(response, "virtual microphone status").await
-}
-
-#[tauri::command]
-pub async fn test_virtual_microphone() -> Result<MicrophoneTestResult, String> {
-    let endpoint = device_api_url("/api/microphone/test").await?;
-    let response = sunshine::create_https_client()?
-        .post(endpoint)
-        .send()
-        .await
-        .map_err(|error| format!("Unable to test the virtual microphone: {error}"))?;
-    read_device_api_response(response, "virtual microphone test").await
-}
-
-const GAMEPAD_MODES: [&str; 4] = ["auto", "x360", "ds4", "ds5"];
+const GAMEPAD_MODES: [&str; 3] = ["auto", "x360", "ds4"];
 
 /// 对齐 Sunshine 核心 to_bool 的接受列表（大小写不敏感）
 fn parse_bool(value: &str) -> Option<bool> {
@@ -141,7 +90,7 @@ pub async fn save_controller_hub_config(
     if let Some(mode) = gamepad.as_deref()
         && !GAMEPAD_MODES.contains(&mode)
     {
-        return Err(format!("无效的仿真模式: {mode}（可选: auto/x360/ds4/ds5）"));
+        return Err(format!("无效的仿真模式: {mode}（可选: auto/x360/ds4）"));
     }
     if let Some(port) = dsu_server_port
         && !(1024..=65535).contains(&port)

@@ -10,7 +10,6 @@ mod controller_hub;
 mod controller_input;
 mod desktop_settings;
 mod device_config;
-mod dualsense;
 #[cfg(target_os = "windows")]
 mod elevation;
 mod file_transfer;
@@ -19,12 +18,9 @@ mod game_session;
 mod github_download;
 mod hwinfo;
 mod logger;
-mod native_tools;
 mod power;
 mod proxy_server;
 use native_components::providers::nvidia_rtx_hdr as rtx_hdr;
-#[path = "update/metadata.rs"]
-mod component_releases;
 mod hdr_enhanced;
 mod native_components;
 mod nr_overlay;
@@ -37,7 +33,6 @@ mod text_context;
 mod toolbar;
 mod tray;
 mod tray_config;
-mod usbip;
 mod utils;
 mod vdd;
 mod vdd_calibration;
@@ -130,16 +125,6 @@ fn main() {
     utils::wait_for_elevated_restart_handoff();
 
     #[cfg(target_os = "windows")]
-    if let Some(exit_code) = dualsense::try_handle_elevated_command() {
-        std::process::exit(exit_code);
-    }
-
-    #[cfg(target_os = "windows")]
-    if let Some(exit_code) = usbip::try_handle_elevated_command() {
-        std::process::exit(exit_code);
-    }
-
-    #[cfg(target_os = "windows")]
     if let Some(exit_code) = vdd::try_handle_elevated_ioctl_command() {
         std::process::exit(exit_code);
     }
@@ -193,7 +178,6 @@ fn main() {
             toolbar::set_toolbar_window_expanded,
             system::get_current_dpi,
             system::set_desktop_dpi,
-            native_tools::open_native_tool,
             commands::open_tool_window,
             game_session::launch_game,
             game_session::get_running_game,
@@ -265,26 +249,9 @@ fn main() {
             vmouse::set_vmouse_config,
             controller_hub::get_controller_hub_config,
             controller_hub::save_controller_hub_config,
-            controller_hub::get_virtual_microphone_status,
-            controller_hub::test_virtual_microphone,
             vigem::get_vigem_status,
             vigem::install_vigem_driver,
             vigem::uninstall_vigem_driver,
-            dualsense::dualsense_get_status,
-            dualsense::dualsense_log_panel_opened,
-            dualsense::dualsense_install,
-            dualsense::dualsense_uninstall,
-            dualsense::dualsense_set_config,
-            dualsense::dualsense_set_haptics_tuning,
-            dualsense::dualsense_self_test,
-            usbip::usbip_get_status,
-            usbip::usbip_get_forwarding_config,
-            usbip::usbip_save_forwarding_config,
-            usbip::usbip_install_transport,
-            usbip::usbip_cleanup_transport,
-            usbip::usbip_list_remote,
-            usbip::usbip_attach,
-            usbip::usbip_detach,
             fs_utils::get_icc_file_list,
             fs_utils::read_directory,
             fs_utils::read_image_as_data_url,
@@ -329,7 +296,6 @@ fn main() {
             code: None, api, ..
         } => api.prevent_exit(),
         tauri::RunEvent::Exit => {
-            native_tools::shutdown_all();
             app::shutdown_application();
         }
         _ => {}

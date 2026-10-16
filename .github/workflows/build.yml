@@ -83,23 +83,13 @@ jobs:
           # src-tauri/Cargo.toml (replace version in [package] section)
           sed -i '0,/^version = ".*"/s//version = "'"$VERSION"'"/' src-tauri/Cargo.toml
 
-          # Built-in native tool plugin
-          sed -i '0,/^version = ".*"/s//version = "'"$VERSION"'"/' native-plugins/stylus/Cargo.toml
-
-          echo "Version injected into GUI and native plugin manifests"
+          echo "Version injected into GUI manifests"
 
       - name: Build frontend
         run: npm run build:renderer
 
       - name: Test renderer logic
         run: npm run test:renderer
-
-      - name: Build native tool plugins
-        shell: pwsh
-        run: ./scripts/build-native-plugins.ps1 -Configuration Release -Target x86_64-pc-windows-msvc
-
-      - name: Test native tool plugin crates
-        run: cargo test --release --manifest-path native-plugins/Cargo.toml --target x86_64-pc-windows-msvc
 
       - name: Test Tauri backend
         run: cargo test --release --manifest-path src-tauri/Cargo.toml --target x86_64-pc-windows-msvc
@@ -127,7 +117,6 @@ jobs:
 
           $targetDir = "src-tauri/target/x86_64-pc-windows-msvc/release"
           Copy-Item "$targetDir/sunshine-gui.exe" "$outDir/"
-          Copy-Item "$targetDir/alkaidlab-plugin-stylus.dll" "$outDir/"
 
           # WebView2Loader.dll (if exists — Tauri 2 may embed it)
           if (Test-Path "$targetDir/WebView2Loader.dll") {

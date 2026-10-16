@@ -83,13 +83,12 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { controllerHub, sunshine } from '../../tauri-adapter.js'
 import { useI18n } from '../../desktop/i18n/index.js'
 
 const { t } = useI18n()
-const emit = defineEmits(['ds5-selection-change'])
 
 const APPS_TIMEOUT_MS = 8000
 
@@ -112,7 +111,6 @@ const modeOptions = computed(() => {
     { value: 'auto', label: e.familyAuto, hint: e.familyAutoHint },
     { value: 'x360', label: e.xbox360, hint: e.xbox360Hint },
     { value: 'ds4', label: 'DualShock 4', hint: e.ds4ModeHint },
-    { value: 'ds5', label: e.ds5Variant, hint: e.ds5ModeHint },
   ]
 })
 
@@ -128,14 +126,8 @@ const appModeOptions = computed(() => {
     { value: 'auto', label: e.familyAuto },
     { value: 'x360', label: e.xbox360 },
     { value: 'ds4', label: 'DualShock 4' },
-    { value: 'ds5', label: e.ds5Variant },
   ]
 })
-
-const hasDs5Selection = computed(() =>
-  config.value.gamepad === 'ds5' || apps.value.some((app) => app.gamepad === 'ds5'))
-
-watch(hasDs5Selection, (selected) => emit('ds5-selection-change', selected), { immediate: true })
 
 async function loadConfig() {
   loading.value = true

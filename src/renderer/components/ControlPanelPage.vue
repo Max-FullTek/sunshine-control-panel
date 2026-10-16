@@ -4,17 +4,7 @@
       <h1>{{ heading.title }}</h1>
       <p>{{ heading.description }}</p>
     </header>
-    <div v-if="page === ROUTES.TOOLBOX" class="tool-grid">
-      <button v-for="tool in tools" :key="tool.id" type="button" class="tool-card" @click="tool.action">
-        <el-icon :size="23" aria-hidden="true"><component :is="tool.icon" /></el-icon>
-        <span>
-          <strong>{{ tool.label }}</strong>
-          <small>{{ tool.description }}</small>
-        </span>
-        <el-icon v-if="tool.external" class="external-icon" aria-hidden="true"><TopRight /></el-icon>
-      </button>
-    </div>
-    <template v-else-if="page === ROUTES.PANEL_SETTINGS">
+    <template v-if="page === ROUTES.PANEL_SETTINGS">
       <section class="panel-section">
         <h2>{{ t.sidebar.appearanceLanguage }}</h2>
         <div class="settings-card">
@@ -115,13 +105,6 @@
         </div>
         <div class="settings-row">
           <div>
-            <strong>{{ t.sidebar.clientDownloads }}</strong>
-            <p>Moonlight / VoidLink</p>
-          </div>
-          <el-button @click="emit('webui-navigate', '/')">{{ t.sidebar.view }}</el-button>
-        </div>
-        <div class="settings-row">
-          <div>
             <strong>{{ t.sidebar.diagnostics }}</strong>
             <p>{{ t.sidebar.diagnosticsDescription }}</p>
           </div>
@@ -139,7 +122,6 @@ import { useI18n } from '../desktop/i18n/index.js'
 import { ROUTES } from '../composables/useRouter.js'
 const props = defineProps({
   page: { type: String, required: true },
-  tools: { type: Array, default: () => [] },
   themeMode: { type: String, default: 'system' },
   locale: { type: String, default: 'en' },
   currentVersion: { type: String, default: '' },
@@ -151,7 +133,6 @@ const emit = defineEmits(['theme-change', 'locale-change', 'webui-navigate'])
 const { t } = useI18n()
 const heading = computed(() => {
   const s = t.value.sidebar
-  if (props.page === ROUTES.TOOLBOX) return { title: s.toolbox, description: s.toolboxDescription }
   if (props.page === ROUTES.PANEL_SETTINGS) return { title: s.panelSettings, description: s.panelSettingsDescription }
   return { title: s.helpAbout, description: 'Foundation Sunshine' }
 })

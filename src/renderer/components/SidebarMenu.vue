@@ -140,12 +140,10 @@
         <ControllersHub
           v-if="[ROUTES.CONTROLLERS, ROUTES.DUALSENSE, ROUTES.CONTROLLERS_HUB].some(router.isRoute)"
           @close="goHome"
-          @open-stylus-input-probe="openStylusInputProbe"
         />
         <ControlPanelPage
-          v-if="[ROUTES.TOOLBOX, ROUTES.PANEL_SETTINGS, ROUTES.HELP].some(router.isRoute)"
+          v-if="[ROUTES.PANEL_SETTINGS, ROUTES.HELP].some(router.isRoute)"
           :page="router.currentRoute.value"
-          :tools="toolsMenuItems"
           :theme-mode="themeMode"
           :locale="locale"
           :current-version="currentVersion"
@@ -173,7 +171,7 @@ import { useSidebarState } from '../composables/useSidebarState.js'
 import { useWindowControls } from '../composables/useWindowControls.js'
 import { useTools } from '../composables/useTools.js'
 import { useTouchWindowDrag } from '../composables/useTouchWindowDrag.js'
-import { createNavigationGroups, createUtilityTools, createFooterTools } from '../composables/toolsRegistry.js'
+import { createNavigationGroups, createFooterTools } from '../composables/toolsRegistry.js'
 import { ROUTES } from '../composables/useRouter.js'
 import { useI18n } from '../desktop/i18n/index.js'
 const props = defineProps({ webuiPath: { type: String, default: '/' } })
@@ -198,11 +196,9 @@ const {
 const { minimizeWindow, toggleMaximize, closeWindow } = useWindowControls(isMaximized)
 const { onTouchWindowDragStart } = useTouchWindowDrag(isMaximized)
 const {
-  openTimer,
   openUrl,
   cleanupCovers,
   restartAsAdmin,
-  openStylusInputProbe,
   showClipboardSyncStatus,
   initClipboardSyncStatus,
   clipboardSyncEnabled,
@@ -221,15 +217,12 @@ const toolsCtx = {
   webuiPath: toRef(props, 'webuiPath'),
   openWebUi,
   openControllers,
-  openTimer,
   openUrl,
-  openStylusInputProbe,
   cleanupCovers,
   restartAsAdmin,
   showClipboardSyncStatus,
 }
 const navigationGroups = computed(() => createNavigationGroups(toolsCtx))
-const toolsMenuItems = computed(() => createUtilityTools(toolsCtx))
 const footerMenuItems = computed(() => createFooterTools(toolsCtx))
 watch(
   () => router.currentRoute.value,

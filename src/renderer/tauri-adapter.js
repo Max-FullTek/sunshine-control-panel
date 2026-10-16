@@ -115,45 +115,6 @@ export const controllerHub = {
   }),
 }
 
-export const virtualMicrophone = {
-  getStatus: () => wrapResult('get_virtual_microphone_status'),
-  test: () => wrapResult('test_virtual_microphone'),
-}
-
-export const dualsense = {
-  getStatus: () => wrapResult('dualsense_get_status'),
-  logPanelOpened: () => wrapResult('dualsense_log_panel_opened'),
-  install: (packagePaths = []) => wrapResult('dualsense_install', { packagePaths }),
-  uninstall: () => wrapResult('dualsense_uninstall'),
-  setConfig: (audioHaptics, genshinCompatibility) => wrapResult('dualsense_set_config', {
-    audioHaptics: !!audioHaptics,
-    genshinCompatibility: !!genshinCompatibility,
-  }),
-  setHapticsTuning: (strength, curve, noiseGate) => wrapResult('dualsense_set_haptics_tuning', {
-    strength,
-    curve,
-    noiseGate,
-  }),
-  selfTest: (profile) => wrapResult('dualsense_self_test', { profile }),
-}
-
-export const usbip = {
-  getForwardingConfig: () => wrapResult('usbip_get_forwarding_config'),
-  saveForwardingConfig: (enabled, port) => wrapResult('usbip_save_forwarding_config', { enabled, port }),
-  getStatus: () => wrapResult('usbip_get_status'),
-  installTransport: () => wrapResult('usbip_install_transport'),
-  cleanupTransport: () => wrapResult('usbip_cleanup_transport'),
-  listRemote: (remote, tcpPort = 3240) => wrapResult('usbip_list_remote', {
-    remote,
-    tcpPort,
-  }),
-  attach: (remote, busId, tcpPort = 3240) => wrapResult('usbip_attach', {
-    remote,
-    busId,
-    tcpPort,
-  }),
-  detach: (port) => wrapResult('usbip_detach', { port }),
-}
 
 export const rtxHdr = {
   recover: () => wrapResult('native_component_recover', { componentId: 'alkaidlab.nvidia_rtx_video' }),
@@ -200,7 +161,6 @@ export const tools = {
   restartSunshineService: () => invoke('restart_sunshine_service'),
   restartSunshineInUserMode: () => invoke('restart_sunshine_in_user_mode'),
   uninstallVddDriver: () => invoke('uninstall_vdd_driver'),
-  openNativeTool: (toolId) => invoke('open_native_tool', { toolId }),
 }
 
 
@@ -224,9 +184,6 @@ export default {
   vmouse,
   vigem,
   controllerHub,
-  virtualMicrophone,
-  dualsense,
-  usbip,
   rtxHdr,
   sunshine,
   tools,

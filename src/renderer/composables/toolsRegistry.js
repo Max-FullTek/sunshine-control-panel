@@ -2,23 +2,17 @@ import {
   Monitor,
   Setting,
   Operation,
-  Timer,
-  DataLine,
   Connection,
-  Brush,
   House,
   Grid,
   QuestionFilled,
-  Download,
 } from '@element-plus/icons-vue'
 import IconGamepad from '../desktop/icons/IconGamepad.vue'
-import IconTools from '../desktop/icons/IconTools.vue'
 import { ROUTES } from './useRouter.js'
 import { WEBUI_PAGES, getWebuiPage } from './webuiNavigation.js'
 
 const WEBUI_ICONS = {
   overview: House,
-  downloads: Download,
   apps: Grid,
   pairing: Connection,
   'stream-settings': Operation,
@@ -60,41 +54,6 @@ export function createNavigationGroups(ctx) {
             [ROUTES.CONTROLLERS, ROUTES.DUALSENSE, ROUTES.CONTROLLERS_HUB].some((route) => ctx.router.isRoute(route)),
         },
       ],
-    },
-    {
-      id: 'assist',
-      label: labels.sectionAssist,
-      items: [
-        routeItem('toolbox', IconTools, labels.toolbox, ROUTES.TOOLBOX),
-      ],
-    },
-  ]
-}
-
-export function createUtilityTools(ctx) {
-  const labels = ctx.t.value.sidebar
-  return [
-    {
-      id: 'stream-timer',
-      icon: Timer,
-      label: labels.streamTimer,
-      description: labels.timerDescription,
-      action: ctx.openTimer,
-    },
-    {
-      id: 'latency-test',
-      icon: DataLine,
-      label: labels.latencyTest,
-      description: labels.latencyDescription,
-      external: true,
-      action: () => ctx.openUrl('https://yangkile.github.io/D-lay/'),
-    },
-    {
-      id: 'stylus-input-probe',
-      icon: Brush,
-      label: ctx.t.value.tools.stylusInputProbe,
-      description: labels.stylusDescription,
-      action: ctx.openStylusInputProbe,
     },
   ]
 }
