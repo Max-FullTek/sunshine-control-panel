@@ -1,6 +1,6 @@
 <template>
   <span class="settings-select-wrapper">
-  <select class="settings-select" :value="modelValue" @change="handleChange">
+  <select class="settings-select" :aria-label="ariaLabel" :value="modelValue" @change="handleChange">
     <option
       v-for="option in options"
       :key="String(option.value)"
@@ -15,6 +15,7 @@
 
 <script setup>
 const props = defineProps({
+  ariaLabel: { type: String, default: undefined },
   modelValue: {
     type: [String, Number],
     required: true,

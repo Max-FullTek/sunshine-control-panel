@@ -2,6 +2,7 @@
   <SettingsCard :title="t.settings.advanced" :icon="Setting">
     <SettingsRow :name="t.settings.devMode" :description="t.settings.devModeDesc">
       <SettingsSwitch
+        :label="t.settings.devMode"
         :model-value="Boolean(values.devMode)"
         @update:model-value="emit('update-value', 'devMode', $event)"
       />
@@ -12,6 +13,7 @@
       :description="t.settings.textContextEnabledDesc"
     >
       <SettingsSwitch
+        :label="t.settings.textContextEnabled"
         :model-value="Boolean(values.textContextEnabled)"
         @update:model-value="emit('update-value', 'textContextEnabled', $event)"
       />
@@ -19,6 +21,7 @@
 
     <SettingsRow :name="t.settings.logLevel" :description="t.settings.logLevelDesc">
       <SettingsSelect
+        :aria-label="t.settings.logLevel"
         :model-value="values.logLevel"
         :options="logLevelOptions"
         @update:model-value="emit('update-value', 'logLevel', $event)"
@@ -51,5 +54,6 @@ const logLevelOptions = computed(() => [
   { value: 'warn', label: t.value.settings.logLevels.warn },
   { value: 'info', label: t.value.settings.logLevels.info },
   { value: 'debug', label: t.value.settings.logLevels.debug },
+  { value: 'trace', label: t.value.settings.logLevels.trace },
 ])
 </script>

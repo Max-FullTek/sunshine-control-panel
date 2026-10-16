@@ -103,7 +103,7 @@
         <p>{{ t.aboutLite.forkBody }}</p>
         <a :href="liteRepositoryUrl" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(liteRepositoryUrl)">{{ t.aboutLite.forkLink }} ↗</a>
       </section>
-      <p class="version-note">Foundation Sunshine Lite Desktop · {{ displayVersion }}</p>
+      <p class="version-note">Foundation Sunshine Lite · {{ displayVersion }}</p>
     </template>
   </div>
 </template>
