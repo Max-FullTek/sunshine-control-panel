@@ -2,7 +2,7 @@
   <header class="page-heading">
     <div class="page-heading-title">
       <span class="page-heading-icon" aria-hidden="true"><slot name="icon" /></span>
-      <div><h1>{{ title }}</h1><p v-if="description">{{ description }}</p></div>
+      <div><h1>{{ title }}</h1><p v-if="description">{{ description }}</p><slot name="meta" /></div>
     </div>
     <div v-if="$slots.actions" class="page-heading-actions"><slot name="actions" /></div>
   </header>
