@@ -14,7 +14,6 @@ pub struct AppState {
 /// 应用程序初始化设置
 pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = std::env::args().collect();
-    let show_desktop = args.iter().any(|arg| arg == "--desktop" || arg == "-d");
     let agent_only = args.iter().any(|arg| arg == "--hidden");
     let explicit_minimized = args.iter().any(|arg| arg == "--minimized");
     let desktop_settings = crate::desktop_settings::load_desktop_settings_from_disk();
@@ -38,14 +37,6 @@ pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>
     // allocating a hidden WebView. UI windows are created on demand.
     if agent_only {
         info!("Starting Sunshine user agent without WebView windows");
-    } else if show_desktop {
-        info!("🖥️ 检测到 --desktop 参数，启动桌面 UI 模式");
-        if start_minimized {
-            windows::create_desktop_window_hidden(&app_handle)?;
-        } else {
-            windows::create_desktop_window(&app_handle)?;
-        }
-        windows::create_main_window_hidden(&app_handle)?;
     } else if !url_contains_pin && !is_send_to_client {
         if start_minimized {
             windows::create_main_window_hidden(&app_handle)?;
@@ -120,10 +111,8 @@ pub fn handle_single_instance(app: &AppHandle, args: Vec<String>) {
 
     // 检查是否要打开桌面 UI
     if args.iter().any(|arg| arg == "--desktop" || arg == "-d") {
-        info!("🖥️ 检测到 --desktop 参数，打开桌面 UI");
-        if let Err(e) = windows::open_desktop_window(app) {
-            error!("❌ 打开桌面 UI 失败: {}", e);
-        }
+        // Legacy --desktop links now open the single configuration window.
+        windows::activate_main_window(app, None);
         return;
     }
 

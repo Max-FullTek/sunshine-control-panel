@@ -1,81 +1,17 @@
-# Sunshine Control Panel (Tauri)
+# Foundation Desktop (Tauri)
 
-基于 Tauri 2 + Vue 3 的 Sunshine Foundation 大屏桌面管理器，提供游戏库管理、系统监控、AI 助手等功能。
+以原 Sunshine Control Panel 為基礎的單一 Windows 桌面設定程式，使用 Tauri 2 + Vue 3。主視窗維持 1600×1000，透過 Rust API 與本機代理連接 Sunshine 核心；部分設定頁仍沿用嵌入式 Web UI。
 
-## 架构
+## 保留功能
 
-```mermaid
-flowchart LR
-    subgraph Client["WebView2 Client"]
-        direction TB
-        Vue["Vue 3 + Vite"]
-        Composables["Composables<br/>useApps · useTauri · useTheme"]
-        Vue --> Composables
-    end
+- 串流設定、應用程式設定與用戶端配對。
+- 虛擬顯示器、虛擬滑鼠與控制器設定。
+- 托盤代理、剪貼簿同步、日誌與必要診斷。
+- 開機啟動、通知、繁體中文／簡體中文／英文，以及純色淺色／深色主題。
 
-    subgraph Core["Tauri 2 · Rust"]
-        direction TB
-        IPC["IPC Bridge<br/>invoke · events"]
-        Axum["Axum Proxy :48081"]
-        Sys["WMI COM · winreg"]
-        AI["AI Proxy · reqwest"]
-        IPC --> Axum & Sys & AI
-    end
+原全螢幕遊戲型 Desktop 已移除，包括遊戲庫、主機本地啟動遊戲、遊玩時間統計、介面手把導覽與螢幕鍵盤。這不影響 Sunshine 核心的串流手把與鍵鼠輸入。舊 `--desktop` 捷徑統一開啟主設定視窗。
 
-    subgraph Services["External Services"]
-        direction TB
-        Sunshine["☀️ Sunshine<br/>HTTPS :47990"]
-        Steam["Steam Store API"]
-        LLM["LLM API · OpenAI"]
-        GitHub["GitHub Releases"]
-        VDD["IddCx VDD Driver"]
-    end
-
-    Composables -- "Tauri invoke()" --> IPC
-    Axum -- "HTTPS · reqwest" --> Sunshine
-    Sys -. "WMI Query" .-> Sunshine
-    Sys -. "Registry" .-> VDD
-    AI -- "HTTP" --> LLM
-    AI -- "HTTP" --> Steam & GitHub
-```
-
-## 功能特性
-
-### 核心能力
-
-- 🔄 **更新管理** — 自动检查更新、下载进度、一键安装，支持 Beta/预发布版本切换
-- ⚡ **运行模式切换** — 服务模式 ↔ 用户模式一键切换
-- 🔌 **服务管理** — Sunshine 启停、重启、运行状态监控、配对设备管理
-- 📊 **内存监控** — 进程内存/工作集实时趋势图、子进程列表、运行时间统计
-
-### 游戏库
-
-- 🎮 **应用管理** — 网格/列表视图、搜索过滤、收藏置顶、最近使用、排序
-- 🖼️ **Steam 封面搜索** — 右键更新封面，Steam Store API 搜索候选，一键上传
-- 🚀 **一键启动** — 右键启动游戏/应用，支持管理员权限、工作目录
-- 🔧 **启动助手** — 为应用配置前置/后置脚本（虚拟显示器、分辨率切换等）
-- 📚 **游戏库扫描** — 自动扫描 Steam/Epic 已安装游戏
-
-### 串流与驱动
-
-- 🎬 **串流配置** — 编码器选择 (H.264/H.265/AV1)、码率调节、HDR 自动切换
-- 📺 **VDD 驱动管理** — 虚拟显示驱动安装/配置/EDID 管理
-- 🖱️ **虚拟鼠标** — 驱动安装与状态管理
-- 🌙 **Moonlight Web** — 浏览器串流服务管理
-
-### 智能与工具
-
-- 🤖 **米塔 AI** — 为 Sunshine 及客户端提供大模型能力，多模型配置、桌面宠物
-- 🛠️ **工具箱** — 码率调节器、DPI 缩放、键盘快捷键指南、系统诊断
-- 📋 **日志管理** — 实时日志查看、导出、过滤
-
-### 桌面体验
-
-- 🎨 **主题切换** — 亮色/暗色/自定义背景
-- 🌍 **中英双语** — 即时切换
-- 🪟 **多窗口** — 主窗口 + 浮动工具栏 + 日志控制台
-- ☀️ **防休眠** — 串流期间保持屏幕/系统唤醒
-- 🔑 **全局快捷键** — Ctrl+Shift+Alt+T 切换工具栏
+主入口為 `src/renderer/sunshine-frame.html`；共用介面說明見 [desktop/README.md](src/renderer/desktop/README.md)。
 
 ## 前置要求
 

@@ -25,6 +25,7 @@
           </div>
         </div>
       </section>
+      <DesktopPreferences />
       <section class="panel-section">
         <h2>{{ t.sidebar.softwareUpdate }}</h2>
         <div class="settings-card">
@@ -105,12 +106,13 @@
           <el-button @click="emit('webui-navigate', '/troubleshooting')">{{ t.sidebar.open }}</el-button>
         </div>
       </div>
-      <p class="version-note">Foundation Sunshine · {{ currentVersion }}</p>
+      <p class="version-note">Foundation Desktop · {{ currentVersion }}</p>
     </template>
   </div>
 </template>
 <script setup>
 import { computed } from 'vue'
+import DesktopPreferences from '../desktop/views/SettingsView.vue'
 import { TopRight } from '@element-plus/icons-vue'
 import { useI18n } from '../desktop/i18n/index.js'
 import { referenceLinks } from '../shared/referenceLinks.js'

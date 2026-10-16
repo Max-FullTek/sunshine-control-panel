@@ -1,6 +1,6 @@
 //! Windows 效率模式（EcoQoS）状态开关。
 //!
-//! 仅在「完全托盘常驻」时启用：所有 WebView 窗口已关闭、无游戏会话、
+//! 仅在「完全托盘常驻」时启用：所有 WebView 窗口已关闭、
 //! Sunshine 核心未处于推流/暂停状态。任何窗口打开或会话活跃都会立即退出
 //! 效率模式。WebView2 子进程会继承宿主进程的节流状态，因此只要还有一个
 //! 可见面板/工具窗，就不能节流宿主进程。
@@ -19,9 +19,7 @@ pub fn refresh_ecoqos_state<R: Runtime>(app: &AppHandle<R>) {
     #[cfg(target_os = "windows")]
     {
         let mut enabled = ECOQOS_ENABLED.lock().unwrap_or_else(|e| e.into_inner());
-        let enable = app.webview_windows().is_empty()
-            && !crate::game_session::is_game_session_active()
-            && !crate::tray::is_tray_session_active();
+        let enable = app.webview_windows().is_empty() && !crate::tray::is_tray_session_active();
 
         if *enabled != enable {
             *enabled = enable;

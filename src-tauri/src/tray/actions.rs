@@ -9,10 +9,6 @@ pub fn handle_tray_menu_event<R: Runtime + 'static>(app: &AppHandle<R>, menu_id:
         "open_main_panel" => open_main_panel_from_tray(app, "menu"),
         "open_sunshine" => open_sunshine_web_ui(app),
         "tray_notification_action" => handle_tray_notification_action(app),
-        "open_desktop" => {
-            info!("🖥️ 托盘菜单：打开桌面 UI");
-            open_desktop_gui_from_tray(app, "menu");
-        }
         #[cfg(target_os = "windows")]
         "auto_start" => toggle_auto_start(app),
         #[cfg(target_os = "windows")]

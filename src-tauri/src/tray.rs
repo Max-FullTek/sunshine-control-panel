@@ -249,7 +249,7 @@ pub(crate) fn emit_message<R: Runtime>(app: &AppHandle<R>, msg_type: &str, messa
     });
     let mut has_visible_window = false;
 
-    for label in ["main", "desktop"] {
+    for label in ["main"] {
         if let Some(window) = app.get_webview_window(label) {
             has_visible_window |= window.is_visible().unwrap_or(false);
             let _ = window.emit("show-message", &payload);
@@ -316,7 +316,6 @@ struct TrayStrings {
     prevent_sleep: &'static str,
     host_performance: &'static str,
     log_console: &'static str,
-    open_desktop: &'static str,
     #[cfg(target_os = "windows")]
     auto_start: &'static str,
     #[cfg(debug_assertions)]
@@ -352,7 +351,7 @@ const ZH_STRINGS: TrayStrings = TrayStrings {
     pairing_instruction: "点击此通知，输入 Moonlight 上显示的 4 位 PIN。",
     pairing_menu_instruction: "打开 Sunshine 托盘菜单中的“完成配对”，输入 Moonlight 上显示的 4 位 PIN。",
     complete_pairing: "完成配对",
-    open_main_panel: "打开主面板",
+    open_main_panel: "Foundation Desktop",
     interfaces_menu: "其他界面",
     display_menu: "显示",
     tools_menu: "工具",
@@ -380,7 +379,6 @@ const ZH_STRINGS: TrayStrings = TrayStrings {
     prevent_sleep: "阻止系统休眠",
     host_performance: "主机性能",
     log_console: "日志控制台",
-    open_desktop: "大屏模式",
     #[cfg(target_os = "windows")]
     auto_start: "开机运行",
     #[cfg(debug_assertions)]
@@ -416,7 +414,7 @@ const ZH_TW_STRINGS: TrayStrings = TrayStrings {
     pairing_instruction: "點擊此通知，輸入 Moonlight 上顯示的 4 位 PIN。",
     pairing_menu_instruction: "打開 Sunshine 托盤菜單中的“完成配對”，輸入 Moonlight 上顯示的 4 位 PIN。",
     complete_pairing: "完成配對",
-    open_main_panel: "打開主面板",
+    open_main_panel: "Foundation Desktop",
     interfaces_menu: "其他界面",
     display_menu: "顯示",
     tools_menu: "工具",
@@ -444,7 +442,6 @@ const ZH_TW_STRINGS: TrayStrings = TrayStrings {
     prevent_sleep: "阻止系統休眠",
     host_performance: "主機性能",
     log_console: "日誌控制臺",
-    open_desktop: "大屏模式",
     #[cfg(target_os = "windows")]
     auto_start: "開機運行",
     #[cfg(debug_assertions)]
@@ -480,7 +477,7 @@ const EN_STRINGS: TrayStrings = TrayStrings {
     pairing_instruction: "Click this notification to enter the 4-digit PIN shown in Moonlight.",
     pairing_menu_instruction: "Open Complete Pairing from the Sunshine tray menu and enter the 4-digit PIN shown in Moonlight.",
     complete_pairing: "Complete pairing",
-    open_main_panel: "Open Main Panel",
+    open_main_panel: "Foundation Desktop",
     interfaces_menu: "Other Interfaces",
     display_menu: "Display",
     tools_menu: "Tools",
@@ -508,7 +505,6 @@ const EN_STRINGS: TrayStrings = TrayStrings {
     prevent_sleep: "Prevent System Sleep",
     host_performance: "Host Performance",
     log_console: "Log Console",
-    open_desktop: "Large Screen Mode",
     #[cfg(target_os = "windows")]
     auto_start: "Run at Startup",
     #[cfg(debug_assertions)]
@@ -544,7 +540,7 @@ const JA_STRINGS: TrayStrings = TrayStrings {
     pairing_instruction: "この通知をクリックし、Moonlight に表示された 4 桁の PIN を入力してください。",
     pairing_menu_instruction: "Sunshine のトレイメニューから「ペアリングを完了」を開き、Moonlight に表示された 4 桁の PIN を入力してください。",
     complete_pairing: "ペアリングを完了",
-    open_main_panel: "メインパネルを開く",
+    open_main_panel: "Foundation Desktop",
     interfaces_menu: "その他のインターフェース",
     display_menu: "ディスプレイ",
     tools_menu: "ツール",
@@ -572,7 +568,6 @@ const JA_STRINGS: TrayStrings = TrayStrings {
     prevent_sleep: "システムのスリープを防止",
     host_performance: "ホストパフォーマンス",
     log_console: "ログコンソール",
-    open_desktop: "大画面モード",
     #[cfg(target_os = "windows")]
     auto_start: "起動時に実行",
     #[cfg(debug_assertions)]
@@ -765,12 +760,6 @@ fn build_owned_system_tray<R: Runtime + 'static>(app: &AppHandle<R>) -> tauri::R
     info!("GUI tray created for the current user session");
 
     Ok(())
-}
-
-fn open_desktop_gui_from_tray<R: Runtime>(app: &AppHandle<R>, source: &str) {
-    if let Err(e) = windows::open_desktop_window(app) {
-        error!("Failed to open desktop GUI from tray {}: {}", source, e);
-    }
 }
 
 fn open_main_panel_from_tray<R: Runtime>(app: &AppHandle<R>, source: &str) {
@@ -1016,10 +1005,8 @@ mod tests {
 
     #[test]
     fn primary_desktop_actions_have_clear_localized_labels() {
-        assert_eq!(ZH_STRINGS.open_desktop, "大屏模式");
         #[cfg(target_os = "windows")]
         assert_eq!(ZH_STRINGS.auto_start, "开机运行");
-        assert_eq!(EN_STRINGS.open_desktop, "Large Screen Mode");
         #[cfg(target_os = "windows")]
         assert_eq!(EN_STRINGS.auto_start, "Run at Startup");
         assert_eq!(ZH_STRINGS.shutdown, "退出 Sunshine");

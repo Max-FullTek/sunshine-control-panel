@@ -4,7 +4,7 @@
       <div class="sidebar-header" data-tauri-drag-region @pointerdown="onTouchWindowDragStart">
         <h3 v-if="!isCollapsed" class="app-name">
           <span>Foundation</span>
-          <span>Lite</span>
+          <span>Desktop</span>
         </h3>
       </div>
       <el-tooltip :content="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" placement="right">
@@ -72,14 +72,7 @@
       <div class="window-controls">
         <el-tooltip :content="t.sidebar.minimize" placement="bottom">
           <button type="button" class="control-btn minimize" :aria-label="t.sidebar.minimize" @click="minimizeWindow">
-            <img
-              class="control-icon"
-              src="../public/icons/btn-minimize-buoy.svg"
-              alt=""
-              width="20"
-              height="20"
-              aria-hidden="true"
-            />
+            <svg viewBox="0 0 12 12" class="window-button-icon" aria-hidden="true"><path d="M1 9h10" /></svg>
           </button>
         </el-tooltip>
         <el-tooltip :content="isMaximized ? t.sidebar.restore : t.sidebar.maximize" placement="bottom">
@@ -89,36 +82,15 @@
             :aria-label="isMaximized ? t.sidebar.restore : t.sidebar.maximize"
             @click="toggleMaximize"
           >
-            <img
-              v-if="isMaximized"
-              class="control-icon"
-              src="../public/icons/btn-restore-buoy.svg"
-              alt=""
-              width="20"
-              height="20"
-              aria-hidden="true"
-            />
-            <img
-              v-else
-              class="control-icon"
-              src="../public/icons/btn-maximize-buoy.svg"
-              alt=""
-              width="20"
-              height="20"
-              aria-hidden="true"
-            />
+            <svg viewBox="0 0 12 12" class="window-button-icon" aria-hidden="true">
+              <path v-if="isMaximized" d="M4 1h7v7M1 4h7v7H1z" />
+              <rect v-else x="1" y="1" width="10" height="10" />
+            </svg>
           </button>
         </el-tooltip>
         <el-tooltip :content="t.sidebar.hideWindow" placement="bottom">
           <button type="button" class="control-btn close" :aria-label="t.sidebar.hideWindow" @click="closeWindow">
-            <img
-              class="control-icon"
-              src="../public/icons/btn-close-buoy.svg"
-              alt=""
-              width="20"
-              height="20"
-              aria-hidden="true"
-            />
+            <svg viewBox="0 0 12 12" class="window-button-icon" aria-hidden="true"><path d="m1 1 10 10M11 1 1 11" /></svg>
           </button>
         </el-tooltip>
       </div>
@@ -232,4 +204,13 @@ defineExpose({
 </script>
 <style scoped lang="less">
 @import '../styles/SidebarMenu.less';
+.window-controls .control-btn {
+  width: 46px;
+  height: 36px;
+  color: var(--fd-text-primary);
+  border-left: 1px solid var(--fd-border);
+}
+.window-controls .control-btn:hover { background: var(--fd-bg-tertiary); }
+.window-controls .control-btn.close:hover { background: #c42b1c; color: white; }
+.window-button-icon { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.5; }
 </style>

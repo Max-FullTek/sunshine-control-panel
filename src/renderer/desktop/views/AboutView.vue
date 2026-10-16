@@ -1,7 +1,7 @@
 <template>
   <section class="about-view">
     <h1 class="page-title">{{ t.lite.about }}</h1>
-    <p class="about-summary">Foundation Lite · {{ version }}</p>
+    <p class="about-summary">Foundation Desktop · {{ version }}</p>
     <p>{{ t.lite.referenceDescription }}</p>
     <ul class="reference-list">
       <li v-for="link in referenceLinks" :key="link.url">

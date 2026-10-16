@@ -10,7 +10,7 @@
 
     <div class="container">
       <div class="welcome-header">
-        <span class="welcome-name">Foundation Lite</span>
+        <span class="welcome-name">Foundation Desktop</span>
         <h1 class="welcome-title">{{ t('greeting') }}</h1>
       </div>
 

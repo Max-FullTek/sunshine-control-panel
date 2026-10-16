@@ -17,7 +17,6 @@ const LOCAL_ONLY_COMMANDS: &[&str] = &[
     "native_component_import",
     "native_component_recover",
     "native_component_remove",
-    "open_local_path",
 ];
 
 /// 允许 sunshine backend remote origin 调用 app commands 的 URL 列表。

@@ -1,11 +1,5 @@
 <template>
   <div class="settings-view">
-    <div class="page-header fade-in">
-      <h1 class="page-title">{{ t.settings.pageTitle }}</h1>
-      <p class="page-subtitle">{{ t.settings.pageSubtitle }}</p>
-    </div>
-
-    <SettingsAppearanceCard />
 
     <SettingsToggleSection
       :title="t.settings.startup"
@@ -14,17 +8,6 @@
       :values="settings"
       @update-value="setSettingValue"
     />
-
-    <SettingsToggleSection
-      :title="t.settings.bigScreen"
-      :icon="Monitor"
-      :items="bigScreenItems"
-      :values="bigScreenSettings"
-      @update-value="setBigScreenSetting"
-    />
-
-    <SettingsLaunchAssistantCard :has-tauri="hasTauri" />
-
 
     <SettingsToggleSection
       :title="t.settings.notifications"
@@ -39,8 +22,6 @@
       @update-value="setSettingValue"
     />
 
-
-
     <SettingsNotice :notice="statusNotice" />
 
     <SettingsActions @reset="resetSettings" @save="saveSettings" />
@@ -49,21 +30,17 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted } from 'vue'
-import { Bell, Monitor, Promotion } from '@element-plus/icons-vue'
+import { Bell, Promotion } from '@element-plus/icons-vue'
 import { useSettingsState } from '../composables/useSettingsState'
-import { bigScreenSettings, setBigScreenSetting } from '../composables/useBigScreenSettings.js'
 import { useI18n } from '../i18n/index.js'
 import SettingsActions from '../components/settings/SettingsActions.vue'
 import SettingsAdvancedCard from '../components/settings/SettingsAdvancedCard.vue'
-import SettingsAppearanceCard from '../components/settings/SettingsAppearanceCard.vue'
-import SettingsLaunchAssistantCard from '../components/settings/SettingsLaunchAssistantCard.vue'
 import SettingsNotice from '../components/settings/SettingsNotice.vue'
 import SettingsToggleSection from '../components/settings/SettingsToggleSection.vue'
 
 const { t } = useI18n()
 
 const {
-  hasTauri,
   settings,
   statusNotice,
   disposeSettingsState,
@@ -90,24 +67,6 @@ const startupSettings = computed(() => [
   },
 ])
 
-const bigScreenItems = computed(() => [
-  {
-    key: 'autoYieldOnLaunch',
-    name: t.value.settings.autoYield,
-    description: t.value.settings.autoYieldDesc,
-  },
-  {
-    key: 'gamepadCursorEnabled',
-    name: t.value.settings.gamepadCursor,
-    description: t.value.settings.gamepadCursorDesc,
-  },
-  {
-    key: 'oskAutoOpen',
-    name: t.value.settings.oskAutoOpen,
-    description: t.value.settings.oskAutoOpenDesc,
-  },
-])
-
 const notificationSettings = computed(() => [  {
     key: 'notifications',
     name: t.value.settings.desktopNotifications,
@@ -127,7 +86,6 @@ function setSettingValue(key, value) {
     [key]: value,
   }
 }
-
 
 onMounted(async () => {
   await initializeSettingsState()

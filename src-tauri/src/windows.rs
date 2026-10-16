@@ -52,7 +52,6 @@ const MAIN_WINDOW_ID: &str = "main";
 const ABOUT_WINDOW_ID: &str = "about";
 const LOG_CONSOLE_WINDOW_ID: &str = "log_console";
 const PIN_WINDOW_ID: &str = "pin_pairing";
-const DESKTOP_WINDOW_ID: &str = "desktop";
 const TOOL_WINDOW_ID: &str = "tool_window";
 #[cfg(debug_assertions)]
 const DEBUG_PAGE_WINDOW_ID: &str = "debug_page";
@@ -487,8 +486,8 @@ pub fn start_heartbeat_monitor(app: AppHandle) {
         loop {
             tokio::time::sleep(std::time::Duration::from_secs(30)).await;
 
-            // 只检查可见的主要窗口（main / desktop）
-            for label in &[MAIN_WINDOW_ID, DESKTOP_WINDOW_ID] {
+            // 只检查可见的主要窗口（main）
+            for label in &[MAIN_WINDOW_ID] {
                 // 挂起中的 WebView JS 定时器被冻结，心跳缺失是预期行为，
                 // 不能按崩溃恢复（否则会在挂起期间强制重载页面）。
                 if SUSPENDED_WEBVIEWS.lock().unwrap().contains(*label) {
@@ -659,7 +658,7 @@ pub fn open_about_window<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
             ABOUT_WINDOW_ID,
             tauri::WebviewUrl::App("about/index.html".into()),
         )
-        .title("关于 Sunshine Control Panel")
+        .title("About Foundation Desktop")
         .inner_size(540.0, 620.0)
         .resizable(false)
         .maximizable(false)
@@ -804,8 +803,8 @@ fn create_main_window_internal<R: Runtime>(
         MAIN_WINDOW_ID,
         tauri::WebviewUrl::App("sunshine-frame.html".into()),
     )
-    .title("Sunshine Control Panel")
-    .inner_size(1280.0, 800.0)
+    .title("Foundation Desktop")
+    .inner_size(1600.0, 1000.0)
     .min_inner_size(1024.0, 600.0)
     .center()
     .decorations(false)
@@ -844,76 +843,6 @@ fn create_main_window_internal<R: Runtime>(
     disable_context_menu(&window);
     info!("✅ {}主窗口创建成功", visibility_desc);
     crate::power::refresh_ecoqos_state(app);
-    Ok(())
-}
-
-/// 创建桌面 UI 窗口
-pub fn create_desktop_window<R: Runtime>(
-    app: &AppHandle<R>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    create_desktop_window_internal(app, true)
-}
-
-pub fn create_desktop_window_hidden<R: Runtime>(
-    app: &AppHandle<R>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    create_desktop_window_internal(app, false)
-}
-
-fn create_desktop_window_internal<R: Runtime>(
-    app: &AppHandle<R>,
-    visible: bool,
-) -> Result<(), Box<dyn std::error::Error>> {
-    info!("🖥️ 创建桌面 UI 窗口...");
-
-    begin_webview_heartbeat(DESKTOP_WINDOW_ID);
-
-    let window = tauri::WebviewWindowBuilder::new(
-        app,
-        DESKTOP_WINDOW_ID,
-        tauri::WebviewUrl::App("desktop/index.html".into()),
-    )
-    .title("Sunshine Desktop")
-    .inner_size(1600.0, 900.0)
-    .min_inner_size(1024.0, 600.0)
-    .center()
-    .decorations(false)
-    .transparent(false)
-    .shadow(false)
-    .visible(visible)
-    .fullscreen(true)
-    .disable_drag_drop_handler()
-    .initialization_script(WEBVIEW_VISIBILITY_INIT_SCRIPT)
-    .build()
-    .map_err(|e| {
-        end_webview_heartbeat(DESKTOP_WINDOW_ID);
-        format!("创建桌面窗口失败: {}", e)
-    })?;
-
-    #[cfg(target_os = "windows")]
-    apply_dwm_rounded_corners(&window);
-
-    // 禁用自动填充和密码保存提示
-    #[cfg(target_os = "windows")]
-    configure_webview_security(&window);
-
-    disable_context_menu(&window);
-    info!("✅ 桌面 UI 窗口创建成功");
-    crate::power::refresh_ecoqos_state(app);
-    Ok(())
-}
-
-/// 打开桌面 UI 窗口（单例模式）
-pub fn open_desktop_window<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
-    if let Some(window) = app.get_webview_window(DESKTOP_WINDOW_ID) {
-        let _ = window.unminimize();
-        let _ = window.show();
-        let _ = window.set_focus();
-        debug!("✅ 桌面 UI 窗口已激活");
-        crate::power::refresh_ecoqos_state(app);
-    } else {
-        create_desktop_window(app).map_err(|e| e.to_string())?;
-    }
     Ok(())
 }
 
@@ -1255,9 +1184,9 @@ pub fn handle_window_event(window: &tauri::Window, event: &tauri::WindowEvent) {
             }
         }
         tauri::WindowEvent::Focused(focused) => {
-            // 仅对有 visibility init script 的窗口处理（main 和 desktop）
+            // 仅对有 visibility init script 的窗口处理（main）
             let label = window.label();
-            if label != MAIN_WINDOW_ID && label != DESKTOP_WINDOW_ID {
+            if label != MAIN_WINDOW_ID {
                 return;
             }
 

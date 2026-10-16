@@ -44,7 +44,6 @@ export default defineConfig(() => ({
         about: resolve(rendererSrcPath, 'about/index.html'),
         pin: resolve(rendererSrcPath, 'pin/index.html'),
         toolWindow: resolve(rendererSrcPath, 'tool-window/index.html'),
-        desktop: resolve(rendererSrcPath, 'desktop/index.html'),
       },
     },
   },

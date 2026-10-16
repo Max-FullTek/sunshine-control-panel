@@ -63,7 +63,7 @@ test('cleanup formats counters locally instead of displaying backend Chinese tex
 })
 
 test('new translations have matching keys and placeholder names in both supported locales', () => {
-  for (const section of ['toolActions', 'coverPicker', 'windowActions', 'routeTitles']) {
+  for (const section of ['toolActions', 'windowActions', 'routeTitles']) {
     assert.deepEqual(Object.keys(en[section]).sort(), Object.keys(zh[section]).sort())
     for (const key of Object.keys(en[section])) {
       assert.deepEqual(en[section][key].match(/\{\w+\}/g), zh[section][key].match(/\{\w+\}/g))

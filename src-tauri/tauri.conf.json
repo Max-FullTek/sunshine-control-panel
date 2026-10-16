@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Sunshine GUI",
+  "productName": "Foundation Desktop",
   "version": "0.0.0-dev",
   "identifier": "com.212333.app",
   "build": {

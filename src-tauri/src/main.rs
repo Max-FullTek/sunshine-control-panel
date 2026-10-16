@@ -14,7 +14,6 @@ mod device_config;
 mod elevation;
 mod file_transfer;
 mod fs_utils;
-mod game_session;
 mod github_download;
 mod hwinfo;
 mod logger;
@@ -175,11 +174,6 @@ fn main() {
             system::get_current_dpi,
             system::set_desktop_dpi,
             commands::open_tool_window,
-            game_session::launch_game,
-            game_session::get_running_game,
-            game_session::stop_running_game,
-            game_session::get_game_stats,
-            game_session::focus_running_game,
             desktop_settings::get_desktop_settings,
             desktop_settings::save_desktop_settings,
             vdd::get_vdd_status,
@@ -229,7 +223,6 @@ fn main() {
             native_components::native_component_remove,
             native_components::native_component_recover,
             utils::open_external_url,
-            utils::open_local_path,
             utils::restart_graphics_driver,
             utils::restart_as_admin,
             utils::is_running_as_admin,

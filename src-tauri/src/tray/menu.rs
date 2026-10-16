@@ -163,7 +163,6 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
     )?;
     let primary_separator = PredefinedMenuItem::separator(app)?;
 
-    let open_desktop = MenuItem::with_id(app, "open_desktop", s.open_desktop, true, None::<&str>)?;
     #[cfg(target_os = "windows")]
     let auto_start = CheckMenuItem::with_id(
         app,
@@ -399,7 +398,6 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
     }
     items.push(&primary_separator);
     items.push(&open_main_panel);
-    items.push(&open_desktop);
     #[cfg(target_os = "windows")]
     items.push(&auto_start);
     items.push(&interfaces_submenu);
