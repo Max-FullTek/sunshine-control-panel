@@ -32,18 +32,13 @@ export function createNavigationGroups(ctx) {
     {
       id: 'stream',
       label: labels.sectionStream,
-      items: WEBUI_PAGES.map((page) => ({
+      items: [...WEBUI_PAGES.map((page) => ({
         id: page.id,
         icon: WEBUI_ICONS[page.id],
         label: labels[page.label],
         action: () => ctx.openWebUi(page.path),
         isActive: () => ctx.router.isRoute(ROUTES.HOME) && getWebuiPage(ctx.webuiPath.value)?.id === page.id,
       })),
-    },
-    {
-      id: 'devices',
-      label: labels.sectionDevices,
-      items: [
         routeItem('vdd', Monitor, labels.virtualDisplay, ROUTES.VDD_SETTINGS),
         {
           id: 'device-hub',

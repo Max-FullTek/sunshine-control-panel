@@ -545,14 +545,14 @@ export const zh_TW = {
   },
   "sidebar": {
     "expand": "展開選單",
-    "mainNavigation": "主導航",
+    "mainNavigation": "主要導覽",
     "sectionStream": "串流",
     "sectionDevices": "裝置與顯示",
     "sectionAssist": "工具與助手",
     "overview": "概覽",
     "clientDownloads": "下載用戶端",
     "applications": "串流應用程式",
-    "clientPairing": "用戶端配對",
+    "clientPairing": "裝置配對",
     "streamSettings": "串流設定",
     "toolbox": "工具箱",
     "panelSettings": "介面設定",
@@ -608,7 +608,7 @@ export const zh_TW = {
     "clipboardSync": "剪貼簿同步",
     "lightMode": "淺色模式",
     "darkMode": "深色模式",
-    "hideWindow": "隱藏到托盤",
+    "hideWindow": "隱藏到系統匣",
     "restartAsAdmin": "以管理員重啟"
   },
   "controllers": {

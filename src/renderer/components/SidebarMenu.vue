@@ -2,12 +2,13 @@
   <div class="sidebar-wrapper">
     <aside class="sidebar" :class="{ collapsed: isCollapsed }">
       <div class="sidebar-header" data-tauri-drag-region @pointerdown="onTouchWindowDragStart">
-        <img :src="sunshineLogo" class="brand-logo" alt="Foundation Sunshine" />
+        <a class="brand-link" href="https://github.com/AlkaidLab/foundation-sunshine" target="_blank" rel="noopener noreferrer" aria-label="Foundation Sunshine GitHub" @pointerdown.stop @click.prevent="openAuthorRepo">
+          <img :src="sunshineLogo" class="brand-logo" alt="Foundation Sunshine" />
+        </a>
         <h3 v-if="!isCollapsed" class="app-name">
-          <span>Foundation Sunshine</span>
+          <span>Foundation Sunshine Lite</span>
           <span>Desktop</span>
         </h3>
-      </div>
       <el-tooltip :content="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" placement="right">
         <button
           type="button"
@@ -20,10 +21,10 @@
 <span aria-hidden="true">☰</span>
         </button>
       </el-tooltip>
+      </div>
       <el-scrollbar class="menu-scrollbar">
         <nav :aria-label="t.sidebar.mainNavigation">
           <section v-for="group in navigationGroups" :key="group.id" class="menu-section" :aria-label="group.label">
-            <p v-if="!isCollapsed" class="section-title">{{ group.label }}</p>
             <el-tooltip
               v-for="item in group.items"
               :key="item.id"
@@ -140,6 +141,14 @@ import { useI18n } from '../desktop/i18n/index.js'
 const props = defineProps({ webuiPath: { type: String, default: '/' } })
 const emit = defineEmits(['route-change', 'webui-navigate'])
 const { t, locale } = useI18n()
+const openAuthorRepo = () => {
+  const url = 'https://github.com/AlkaidLab/foundation-sunshine'
+  if (import.meta.env.DEV && !window.__TAURI_INTERNALS__) {
+    window.open(url, '_blank', 'noopener,noreferrer')
+    return
+  }
+  openUrl(url)
+}
 const {
   isCollapsed,
   isMaximized,
