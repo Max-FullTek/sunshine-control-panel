@@ -42,8 +42,8 @@
   position: relative;
   z-index: 1000;
   background: @morandi-mid-bg;
-  border-right: 1px solid var(--nav-line);
-  transition: width @transition-smooth;
+  border-right: 0;
+  transition: width 650ms cubic-bezier(.19, 1, .22, 1);
   &.collapsed {
     width: @sidebar-collapsed-width;
   }
@@ -259,24 +259,37 @@ button:focus-visible {
   position: relative;
   overflow: hidden;
 }
+.sidebar-edge {
+  position: absolute;
+  left: calc(100% - 1px);
+  top: 0;
+  width: 64px;
+  height: 100%;
+  pointer-events: none;
+  fill: var(--fd-bg-secondary, @morandi-mid-bg);
+}
 .sidebar-collapse {
-  position:absolute;
-  top:10px;
-  right:-25px;
-  width:32px;
-  height:38px;
-  z-index:1001;
-  border:0;
-  border-radius:0 65% 55% 0 / 0 55% 45% 0;
-  background:var(--fd-bg-secondary, @morandi-mid-bg);
-  color:var(--nav-text);
-  transform-origin:left center;
-  box-shadow:3px 1px 5px rgba(0,0,0,.12);
-  transition:transform 260ms cubic-bezier(.2,.8,.2,1), border-radius 300ms ease, background 200ms ease, color 200ms ease;
-  svg { width:18px; height:18px; transition:transform 280ms cubic-bezier(.22,1,.36,1); }
-  &:hover, &:focus-visible { color:var(--nav-active); background:var(--fd-bg-tertiary); border-radius:0 80% 45% 0 / 0 45% 65% 0; transform:scale(1.16,1.08); }
-  &:focus-visible { outline:2px solid var(--nav-active); outline-offset:2px; }
-  &:active { transform:scale(.88,1.1); border-radius:0 40% 80% 0 / 0 65% 40% 0; }
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 36px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  z-index: 1001;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--nav-text);
+  cursor: pointer;
+  app-region: no-drag;
+  -webkit-app-region: no-drag;
+  transition: color 180ms ease;
+  svg { width:18px; height:18px; transition:transform 420ms cubic-bezier(.19,1,.22,1); }
+  &:hover, &:focus-visible { color:var(--nav-active); }
+  &:focus-visible { outline:2px solid var(--nav-active); outline-offset:-6px; }
+  &:active svg { scale:.8; }
 }
 .sidebar.collapsed .sidebar-collapse svg { transform:rotate(180deg); }
 .drag-region {
@@ -423,7 +436,7 @@ button:focus-visible {
   .main-content { background: var(--fd-bg-primary); box-shadow: none; }
   .sidebar-header { min-height: 76px; }
   .app-name { color: var(--fd-text-primary); font-size: 16px; }
-  .collapse-btn { color: var(--fd-text-secondary); background: var(--fd-bg-secondary); }
+  .collapse-btn { color: var(--fd-text-secondary); background: transparent; }
   .menu-item, .section-title { font-family: inherit; }
   .window-controls .control-icon { filter: none; transform: none; }
 }

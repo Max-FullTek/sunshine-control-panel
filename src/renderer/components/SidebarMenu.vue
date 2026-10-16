@@ -1,6 +1,6 @@
 <template>
-  <div class="sidebar-wrapper">
-    <aside class="sidebar" :class="{ collapsed: isCollapsed }">
+  <div class="sidebar-wrapper" @pointermove="onEdgePointerMove" @pointerleave="resetEdge">
+    <aside ref="sidebarElement" class="sidebar" :class="{ collapsed: isCollapsed }">
       <div class="sidebar-header" data-tauri-drag-region @pointerdown="onTouchWindowDragStart">
         <a class="brand-link" href="https://github.com/AlkaidLab/foundation-sunshine" target="_blank" rel="noopener noreferrer" aria-label="Foundation Sunshine GitHub" @pointerdown.stop @click.prevent="openAuthorRepo">
           <img :src="sunshineLogo" class="brand-logo" alt="Foundation Sunshine" />
@@ -56,7 +56,10 @@
           </button>
         </el-tooltip>
       </nav>
-      <button type="button" class="collapse-btn sidebar-collapse" :aria-label="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" :aria-expanded="!isCollapsed" @pointerdown.stop @click="toggleCollapse">
+      <svg class="sidebar-edge" :viewBox="`0 0 64 ${edgeHeight}`" preserveAspectRatio="none" aria-hidden="true">
+        <path :d="edgePath" />
+      </svg>
+      <button type="button" class="collapse-btn sidebar-collapse" :style="edgeButtonStyle" @focus="focusEdge" @blur="blurEdge" @pointerdown="pressEdge" @pointerup="releaseEdge" @pointercancel="releaseEdge" :aria-label="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" :aria-expanded="!isCollapsed" @click="toggleCollapse">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="m15 6-6 6 6 6" />
         </svg>
@@ -133,6 +136,7 @@ import Welcome from './welcome.vue'
 import ControllersHub from './controllersHub/ControllersHub.vue'
 import ControlPanelPage from './ControlPanelPage.vue'
 import { useSidebarState } from '../composables/useSidebarState.js'
+import { useSidebarEdge } from '../composables/useSidebarEdge.js'
 import { useWindowControls } from '../composables/useWindowControls.js'
 import { useTools } from '../composables/useTools.js'
 import { useTouchWindowDrag } from '../composables/useTouchWindowDrag.js'
@@ -168,6 +172,7 @@ const {
   openDualSense,
   openControllersHub,
 } = useSidebarState()
+const { sidebarElement, edgeHeight, edgePath, edgeButtonStyle, onEdgePointerMove, resetEdge, focusEdge, blurEdge, pressEdge, releaseEdge } = useSidebarEdge(isCollapsed)
 const { minimizeWindow, toggleMaximize, closeWindow } = useWindowControls(isMaximized)
 const { onTouchWindowDragStart: startWindowDrag } = useTouchWindowDrag(isMaximized)
 const onTouchWindowDragStart = (event) => { if (desktopAvailable) startWindowDrag(event) }
