@@ -1,3 +1,4 @@
+import { normalizeLocale, documentLocale } from '../renderer/shared/locale.js'
 import { watch } from 'vue'
 import { createI18n } from 'vue-i18n'
 
@@ -77,7 +78,8 @@ export const i18n = createI18n({
 })
 
 function setDocumentLanguage(locale) {
-  document.documentElement.lang = String(locale || '').startsWith('zh') ? 'zh-CN' : 'en'
+  const tag = String(locale || 'en').replaceAll('_', '-')
+  document.documentElement.lang = tag.startsWith('zh') ? documentLocale(tag) : tag
 }
 
 watch(i18n.global.locale, setDocumentLanguage, { immediate: true })
@@ -92,8 +94,12 @@ export function getDefaultLocale() {
 
   // 尝试从浏览器语言获取
   const browserLang = navigator.language || navigator.userLanguage
-  const langCode = browserLang.split('-')[0]
-  const locale = supportedLocales.find((l) => l.code === langCode || l.code === browserLang)
+  const exactCode = browserLang.replaceAll('-', '_')
+  const langCode = browserLang.toLowerCase().startsWith('zh')
+    ? normalizeLocale(browserLang)
+    : browserLang.split('-')[0]
+  const locale = supportedLocales.find((l) => l.code === exactCode)
+    || supportedLocales.find((l) => l.code === langCode)
   if (locale) {
     return locale.code
   }

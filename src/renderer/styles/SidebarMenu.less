@@ -347,3 +347,21 @@ button:focus-visible {
     transition: none;
   }
 }
+
+:global(html[data-fd-theme]) .sidebar-wrapper {
+  --nav-text: var(--fd-text-primary);
+  --nav-muted: var(--fd-text-secondary);
+  --nav-active: var(--fd-accent);
+  --nav-selected: rgba(var(--fd-accent-rgb), .1);
+  --nav-line: var(--fd-border, rgba(var(--fd-text-primary-rgb), .16));
+  background: var(--fd-bg-primary);
+  font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+  border-radius: 0;
+  .sidebar { background: var(--fd-bg-secondary); box-shadow: none; }
+  .main-content { background: var(--fd-bg-primary); box-shadow: none; }
+  .sidebar-header { min-height: 76px; }
+  .app-name { color: var(--fd-text-primary); font-size: 16px; }
+  .collapse-btn { color: var(--fd-text-secondary); background: transparent; }
+  .menu-item, .section-title { font-family: inherit; }
+  .window-controls .control-icon { filter: none; transform: none; }
+}

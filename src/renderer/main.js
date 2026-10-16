@@ -1,3 +1,4 @@
+import './desktop/composables/useTheme.js'
 import { createApp } from 'vue'
 import './styles/global.less'
 import './styles/dialog.less'  // 导入对话框样式

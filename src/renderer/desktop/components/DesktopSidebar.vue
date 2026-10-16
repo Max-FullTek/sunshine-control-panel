@@ -1,39 +1,41 @@
 <template>
   <nav class="desktop-sidebar" :class="{ 'collapsed': collapsed }">
     <div class="sidebar-content">
-      <div 
-        v-for="item in items" 
+      <button type="button"
+        v-for="item in items"
         :key="item.id"
         class="nav-item"
         :class="{ active: activeItem === item.id, disabled: item.disabled }"
         tabindex="0"
         @click="handleItemClick(item)"
-        @keydown.enter="handleItemClick(item)"
         :title="item.label"
+        :disabled="item.disabled"
+        :aria-current="activeItem === item.id ? 'page' : undefined"
       >
         <component v-if="item.icon" :is="item.icon" class="nav-icon" />
         <span v-if="!collapsed" class="nav-label">{{ item.label }}</span>
         <span v-if="item.badge && !collapsed" class="nav-badge">{{ item.badge }}</span>
-      </div>
-      
+      </button>
+
       <div v-if="items.length > 0 && showDivider" class="nav-divider"></div>
-      
-      <div 
-        v-for="item in bottomItems" 
+
+      <button type="button"
+        v-for="item in bottomItems"
         :key="item.id"
         class="nav-item"
         :class="{ active: activeItem === item.id, disabled: item.disabled }"
         tabindex="0"
         @click="handleItemClick(item)"
-        @keydown.enter="handleItemClick(item)"
         :title="item.label"
+        :disabled="item.disabled"
+        :aria-current="activeItem === item.id ? 'page' : undefined"
       >
         <component v-if="item.icon" :is="item.icon" class="nav-icon" />
         <span v-if="!collapsed" class="nav-label">{{ item.label }}</span>
         <span v-if="item.badge && !collapsed" class="nav-badge">{{ item.badge }}</span>
-      </div>
+      </button>
     </div>
-    
+
     <div v-if="collapsible" class="sidebar-toggle" @click="collapsed = !collapsed">
       <svg :class="{ 'rotated': !collapsed }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M9 18l6-6-6-6"/>
@@ -77,7 +79,7 @@ const emit = defineEmits(['item-click', 'update:collapsed', 'update:activeItem']
 function handleItemClick(item) {
   if (item.disabled) return
   emit('item-click', item)
-  emit('update:activeItem', item.id)
+  if (item.id !== 'exit') emit('update:activeItem', item.id)
 }
 </script>
 
@@ -116,6 +118,9 @@ function handleItemClick(item) {
   }
 
   .nav-item {
+    border: 0;
+    background: transparent;
+    font: inherit;
     width: 60px;
     min-height: 60px;
     border-radius: 14px;

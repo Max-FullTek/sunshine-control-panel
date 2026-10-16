@@ -17,7 +17,7 @@
     </template>
 
     <template #default>
-      <component :is="currentView" @openThemeEditor="themeEditorOpen = true" />
+      <component :is="currentView" @navigate="activeNav = $event" />
     </template>
 
     <template #footer>
@@ -38,24 +38,6 @@
     </template>
   </DesktopWindow>
 
-  <ThemeEditor
-    :open="themeEditorOpen"
-    :vars="themeVars"
-    :activePreset="activePreset"
-    :presets="presets"
-    :wallpaper="wallpaper"
-    :wallpaperColors="wallpaperColors"
-    :wallpaperSeeds="wallpaperSeeds"
-    :activeWallpaperSeed="activeWallpaperSeed"
-    @close="themeEditorOpen = false"
-    @setVar="setVar"
-    @applyPreset="applyPreset"
-    @export="handleThemeExport"
-    @import="handleThemeImport"
-    @setWallpaper="setWallpaper"
-    @applySeed="applySeedColor"
-    @removeWallpaper="removeWallpaper"
-  />
 
   <OnScreenKeyboard />
 
@@ -80,10 +62,6 @@
     </svg>
   </div>
 
-  <SplashScreen
-    :visible="showSplash"
-    @done="showSplash = false"
-  />
 </template>
 
 <script setup>
@@ -92,8 +70,6 @@ import { defineAsyncComponent, ref, computed, nextTick, onMounted, onUnmounted, 
 // 桌面 UI 组件
 import DesktopWindow from './components/DesktopWindow.vue'
 import DesktopSidebar from './components/DesktopSidebar.vue'
-import ThemeEditor from './components/ThemeEditor.vue'
-import SplashScreen from './components/SplashScreen.vue'
 import OnScreenKeyboard from './components/OnScreenKeyboard.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
 import LaunchOverlay from './components/LaunchOverlay.vue'
@@ -103,7 +79,6 @@ import BackHoldRing from './components/BackHoldRing.vue'
 
 // 手柄 / 焦点 / 屏幕键盘
 import { backHoldProgress, emitGamepadAction, gamepadActive, gamepadConnected, useGamepad } from './composables/useGamepad.js'
-import { playNavSound } from './composables/useNavSound.js'
 import {
   collectFocusables,
   confirmFocused,
@@ -118,7 +93,6 @@ import {
   cancelOsk,
   editInputWithOsk,
   isTextEntryElement,
-  openOsk,
   oskOpen,
 } from './composables/useOsk.js'
 import { confirmOpen, rejectConfirm, requestConfirm } from './composables/useConfirm.js'
@@ -158,64 +132,47 @@ import { useI18n } from './i18n/index.js'
 import IconApps from './icons/IconApps.vue'
 import IconDashboard from './icons/IconDashboard.vue'
 import IconDevices from './icons/IconDevices.vue'
-import IconStream from './icons/IconStream.vue'
+import IconHelp from './icons/IconLang.vue'
 import IconTools from './icons/IconTools.vue'
 import IconSettings from './icons/IconSettings.vue'
 import IconPower from './icons/IconPower.vue'
-import IconPalette from './icons/IconPalette.vue'
-import IconLang from './icons/IconLang.vue'
 
 // 视图组件
 const AppsView = defineAsyncComponent(() => import('./views/AppsView.vue'))
 const DashboardView = defineAsyncComponent(() => import('./views/DashboardView.vue'))
 const DevicesView = defineAsyncComponent(() => import('./views/DevicesView.vue'))
-const StreamView = defineAsyncComponent(() => import('./views/StreamView.vue'))
 const ToolsView = defineAsyncComponent(() => import('./views/ToolsView.vue'))
-const SettingsView = defineAsyncComponent(() => import('./views/SettingsView.vue'))
+const SettingsView = defineAsyncComponent(() => import('./views/SettingsHub.vue'))
+const AboutView = defineAsyncComponent(() => import('./views/AboutView.vue'))
 
 // 导入图标资源
 import sunshineIcon from '../../assets/sunshine.ico'
 
 // i18n
-const { t, locale, toggleLocale } = useI18n()
+const { t } = useI18n()
 
 // 应用配置
-const appTitle = 'FOUNDATION DESKTOP'
+const appTitle = 'Foundation Lite'
 
 // 主题
-const { themeVars, activePreset, presets, setVar, applyPreset, exportTheme, importTheme, wallpaper, wallpaperColors, wallpaperSeeds, activeWallpaperSeed, setWallpaper, applySeedColor, removeWallpaper } = useTheme()
-const themeEditorOpen = ref(false)
-const showSplash = ref(true)
+useTheme()
 const { helperPanelOpen } = useLaunchHelpers(t)
 
-function handleThemeExport() {
-  const json = exportTheme()
-  navigator.clipboard.writeText(json).catch(() => {})
-}
-
-async function handleThemeImport() {
-  // 用屏幕键盘而不是 prompt()：原生弹窗接不到手柄输入
-  const json = await openOsk({ title: `${t.value.nav.theme} JSON` })
-  if (json) importTheme(json)
-}
-
 // 导航状态 - 默认进入应用库页面
-const activeNav = ref('apps')
+const activeNav = ref('dashboard')
 
 // 主导航项
 const navItems = computed(() => [
+  { id: 'dashboard', label: t.value.lite.overview, icon: IconDashboard, disabled: false },
   { id: 'apps', label: t.value.nav.apps, icon: IconApps, disabled: false },
-  { id: 'dashboard', label: t.value.nav.dashboard, icon: IconDashboard, disabled: false },
   { id: 'devices', label: t.value.nav.devices, icon: IconDevices, disabled: false },
-  { id: 'stream', label: t.value.nav.stream, icon: IconStream, disabled: false },
-  { id: 'tools', label: t.value.nav.tools, icon: IconTools, disabled: false },
+  { id: 'tools', label: t.value.lite.diagnostics, icon: IconTools, disabled: false },
 ])
 
 // 底部导航项
 const bottomNavItems = computed(() => [
-  { id: 'lang', label: locale.value === 'zh' ? 'EN' : '中文', icon: IconLang, disabled: false },
-  { id: 'theme', label: t.value.nav.theme, icon: IconPalette, disabled: false },
   { id: 'settings', label: t.value.nav.settings, icon: IconSettings, disabled: false },
+  { id: 'about', label: t.value.lite.about, icon: IconHelp, disabled: false },
   { id: 'exit', label: t.value.nav.exit, icon: IconPower, disabled: false },
 ])
 
@@ -224,9 +181,9 @@ const viewMap = {
   apps: AppsView,
   dashboard: DashboardView,
   devices: DevicesView,
-  stream: StreamView,
   tools: ToolsView,
   settings: SettingsView,
+  about: AboutView,
 }
 
 const currentView = computed(() => viewMap[activeNav.value] || DashboardView)
@@ -249,7 +206,8 @@ async function setupDesktopNavigationEvents() {
   try {
     const { listen } = await import('@tauri-apps/api/event')
     desktopNavigateUnlisten = await listen('desktop-navigate', (event) => {
-      const target = String(event.payload || '')
+      const requested = String(event.payload || '')
+      const target = requested === 'stream' ? 'settings' : requested
       if (viewMap[target]) {
         activeNav.value = target
       }
@@ -262,7 +220,7 @@ async function setupDesktopNavigationEvents() {
 onMounted(async () => {
   try {
     const tauri = await import('@tauri-apps/api/core')
-    invoke.value = tauri.invoke
+    invoke.value = tauri.isTauri() ? tauri.invoke : null
   } catch (e) {
     console.log('Tauri invoke not available:', e)
   }
@@ -292,14 +250,6 @@ async function handleNavClick(item) {
         window.close()
       }
     }
-    return
-  }
-  if (item.id === 'theme') {
-    themeEditorOpen.value = !themeEditorOpen.value
-    return
-  }
-  if (item.id === 'lang') {
-    toggleLocale()
     return
   }
   activeNav.value = item.id
@@ -366,7 +316,6 @@ function hasOverlay() {
     oskOpen.value ||
     confirmOpen.value ||
     focusScopeStack.value.length > 0 ||
-    themeEditorOpen.value ||
     helperPanelOpen.value
   )
 }
@@ -426,12 +375,8 @@ function handleBack(deep) {
     dismissLaunchState()
     return
   }
-  if (focusScopeStack.value.length > 0 || themeEditorOpen.value || helperPanelOpen.value) {
+  if (focusScopeStack.value.length > 0 || helperPanelOpen.value) {
     // DesktopApp 只关自己拥有的面板，其余转发给视图（右键菜单、封面选择器）
-    if (themeEditorOpen.value) {
-      themeEditorOpen.value = false
-      return
-    }
     if (helperPanelOpen.value) {
       helperPanelOpen.value = false
       return
@@ -481,15 +426,12 @@ async function requestExitShell() {
 function handleAction(action) {
   switch (action) {
     case 'confirm':
-      playNavSound('confirm')
       handleConfirm()
       return
     case 'back':
-      playNavSound('back')
       handleBack(false)
       return
     case 'backRoot':
-      playNavSound('home')
       handleBack(true)
       return
     case 'cursorToggle':
@@ -526,8 +468,7 @@ function handleAction(action) {
 // 手柄状态是模块级单例，这里只负责驱动它
 useGamepad({
   onNavigate(direction) {
-    const moved = navigateFocus(direction)
-    if (moved) playNavSound('tick')
+    navigateFocus(direction)
   },
   onScroll(deltaY, deltaX) {
     if (cursorEnabled.value) scrollAtCursor(deltaY, deltaX)

@@ -172,12 +172,20 @@
       ::selection {
         background: rgba(255, 255, 255, 0.3);
       }
+      body { background: rgba(0,0,0,.5); backdrop-filter: none; animation: none; }
+      .pin-container { background: var(--fd-bg-secondary); color: var(--fd-text-primary); border: 1px solid rgba(var(--fd-text-primary-rgb),.18); border-radius: 8px; box-shadow: none; animation: none; padding: 32px; }
+      .pin-container h1, .pin-container .subtitle { color: var(--fd-text-primary); }
+      .pin-input { background: var(--fd-bg-primary); color: var(--fd-text-primary); border: 1px solid var(--fd-text-muted); border-radius: 6px; caret-color: var(--fd-accent); }
+      .pin-input:focus { transform: none; border-color: var(--fd-accent); box-shadow: none; outline: 2px solid var(--fd-accent); }
+      .status.success { color: var(--fd-status-success); background: var(--fd-bg-primary); }
+      .status.error { color: var(--fd-status-danger); background: var(--fd-bg-primary); }
+      .status.loading { color: var(--fd-text-primary); background: var(--fd-bg-primary); }
     </style>
   </head>
   <body>
     <div class="pin-container">
-      <h1 id="page-title">🔐 PIN 配对</h1>
-      <p class="subtitle" id="subtitle">输入 Moonlight 上显示的 4 位 PIN 来配对这个客户端，别输错啦~</p>
+      <h1 id="page-title">PIN 配對</h1>
+      <p class="subtitle" id="subtitle">輸入用戶端上顯示的 4 位 PIN。</p>
 
       <div class="pin-inputs">
         <input type="text" class="pin-input" maxlength="1" inputmode="numeric" pattern="\d" data-index="0" autofocus />
@@ -190,6 +198,8 @@
     </div>
 
     <script type="module">
+      import { useTheme } from '../desktop/composables/useTheme.js'
+      useTheme()
       import {
         getInitialSimpleLocale,
         pickSimpleMessages,
@@ -200,24 +210,41 @@
       const MESSAGES = {
         zh: {
           title: 'PIN 配对',
-          heading: '🔐 PIN 配对',
-          subtitle: '输入 Moonlight 上显示的 4 位 PIN 来配对这个客户端，别输错啦~',
+          heading: 'PIN 配对',
+          subtitle: '输入客户端上显示的 4 位 PIN。',
           defaultClientName: 'Moonlight Client',
-          startingService: '正在启动服务，别急嘛...',
-          startingServiceProgress: '正在启动服务，别急嘛... ({progress}%)',
-          cannotConnect: '连接不上服务，请确认 Sunshine 正在运行，杂鱼~',
-          serviceNotReady: '服务还没准备好，再等一下嘛...',
+          startingService: '正在启动服务...',
+          startingServiceProgress: '正在启动服务... ({progress}%)',
+          cannotConnect: '无法连接服务，请确认 Sunshine 正在运行。',
+          serviceNotReady: '服务尚未就绪，请稍候。',
           pairing: '正在配对...',
           pairSuccess: '配对成功！',
-          pairIncorrect: '配对失败：PIN 不对哦',
+          pairIncorrect: '配对失败：PIN 不正确',
           requestFailed: '请求失败',
           requestTimeout: '请求超时，请检查网络后再试一次',
           requestTimeoutShort: '请求超时',
           networkError: '网络错误',
         },
+        zh_TW: {
+          title: 'PIN 配對',
+          heading: 'PIN 配對',
+          subtitle: '輸入用戶端上顯示的 4 位 PIN。',
+          defaultClientName: 'Moonlight Client',
+          startingService: '正在啟動服務…',
+          startingServiceProgress: '正在啟動服務… ({progress}%)',
+          cannotConnect: '無法連線至服務，請確認 Sunshine 正在執行。',
+          serviceNotReady: '服務尚未就緒，請稍候。',
+          pairing: '正在配對…',
+          pairSuccess: '配對成功！',
+          pairIncorrect: '配對失敗：PIN 不正確',
+          requestFailed: '請求失敗',
+          requestTimeout: '請求逾時，請檢查網路後重試。',
+          requestTimeoutShort: '請求逾時',
+          networkError: '網路錯誤',
+        },
         en: {
           title: 'PIN Pairing',
-          heading: '🔐 PIN Pairing',
+          heading: 'PIN Pairing',
           subtitle: 'Enter the 4-digit PIN shown in Moonlight to pair this client.',
           defaultClientName: 'Moonlight Client',
           startingService: 'Starting service...',

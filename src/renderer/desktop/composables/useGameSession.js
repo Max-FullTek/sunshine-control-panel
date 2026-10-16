@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue'
-import { tauriInvoke } from './useTauri.js'
+import { isTauriRuntime, tauriInvoke } from './useTauri.js'
 
 /**
  * 受跟踪的游戏会话（前端侧）。
@@ -163,6 +163,7 @@ export async function stopTrackedGame() {
 }
 
 export async function initGameSession() {
+  if (!(await isTauriRuntime())) return
   await Promise.all([refreshRunningGame(), refreshGameStats()])
   if (listenersReady) return
 

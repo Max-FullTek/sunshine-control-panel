@@ -106,7 +106,7 @@ fn schedule_tool_window_position_save(app: AppHandle, position: PhysicalPosition
         };
 
         if let Some(position) = position {
-            crate::toolbar::save_tool_window_position_internal(
+            crate::tool_windows::save_tool_window_position_internal(
                 &app,
                 position.x as f64,
                 position.y as f64,
@@ -1144,11 +1144,7 @@ fn suspend_webview<R: Runtime>(ww: &WebviewWindow<R>) {
                                 // 异步失败时外层闭包已返回，必须在此自行还原
                                 // controller 可见性，否则面板会停留在隐形状态。
                                 if let Err(e) = cb_controller.SetIsVisible(true) {
-                                    log::warn!(
-                                        "⚠️ 挂起失败后恢复可见性失败 [{}]: {}",
-                                        cb_label,
-                                        e
-                                    );
+                                    log::warn!("⚠️ 挂起失败后恢复可见性失败 [{}]: {}", cb_label, e);
                                 }
                             }
                             Ok(())
@@ -1246,18 +1242,9 @@ pub fn handle_window_event(window: &tauri::Window, event: &tauri::WindowEvent) {
                     set_webview_visibility(window, false);
                     crate::tray::mark_main_panel_loading();
                 }
-                "toolbar" => {
-                    if let Ok(position) = window.outer_position() {
-                        crate::toolbar::save_toolbar_position_internal(
-                            &window.app_handle(),
-                            position.x as f64,
-                            position.y as f64,
-                        );
-                    }
-                }
                 TOOL_WINDOW_ID => {
                     if let Ok(position) = window.outer_position() {
-                        crate::toolbar::save_tool_window_position_internal(
+                        crate::tool_windows::save_tool_window_position_internal(
                             &window.app_handle(),
                             position.x as f64,
                             position.y as f64,

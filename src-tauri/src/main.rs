@@ -30,7 +30,7 @@ mod sunshine;
 mod system;
 #[cfg(target_os = "windows")]
 mod text_context;
-mod toolbar;
+mod tool_windows;
 mod tray;
 mod tray_config;
 mod utils;
@@ -172,10 +172,6 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::toggle_dark_mode,
-            toolbar::handle_toolbar_menu_action,
-            toolbar::save_toolbar_position,
-            toolbar::is_primary_mouse_button_pressed,
-            toolbar::set_toolbar_window_expanded,
             system::get_current_dpi,
             system::set_desktop_dpi,
             commands::open_tool_window,
@@ -184,13 +180,8 @@ fn main() {
             game_session::stop_running_game,
             game_session::get_game_stats,
             game_session::focus_running_game,
-            toolbar::create_toolbar_window,
-            commands::fetch_speech_phrases,
-            commands::fetch_remote_bytes,
             desktop_settings::get_desktop_settings,
             desktop_settings::save_desktop_settings,
-            desktop_settings::load_toolbar_shortcut_status,
-            desktop_settings::set_toolbar_shortcut_enabled,
             vdd::get_vdd_status,
             vdd::install_vdd_driver,
             vdd::set_vdd_keep_enabled,

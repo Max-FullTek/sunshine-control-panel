@@ -5,7 +5,7 @@
       <p class="page-subtitle">{{ t.settings.pageSubtitle }}</p>
     </div>
 
-    <SettingsAppearanceCard @open-theme-editor="emit('openThemeEditor')" />
+    <SettingsAppearanceCard />
 
     <SettingsToggleSection
       :title="t.settings.startup"
@@ -40,10 +40,6 @@
     />
 
 
-    <SettingsAboutCard
-      :app-version="appVersion"
-      @open-link="openLink"
-    />
 
     <SettingsNotice :notice="statusNotice" />
 
@@ -58,7 +54,6 @@ import { useSettingsState } from '../composables/useSettingsState'
 import { bigScreenSettings, setBigScreenSetting } from '../composables/useBigScreenSettings.js'
 import { useI18n } from '../i18n/index.js'
 import SettingsActions from '../components/settings/SettingsActions.vue'
-import SettingsAboutCard from '../components/settings/SettingsAboutCard.vue'
 import SettingsAdvancedCard from '../components/settings/SettingsAdvancedCard.vue'
 import SettingsAppearanceCard from '../components/settings/SettingsAppearanceCard.vue'
 import SettingsLaunchAssistantCard from '../components/settings/SettingsLaunchAssistantCard.vue'
@@ -68,13 +63,11 @@ import SettingsToggleSection from '../components/settings/SettingsToggleSection.
 const { t } = useI18n()
 
 const {
-  appVersion,
   hasTauri,
   settings,
   statusNotice,
   disposeSettingsState,
   initializeSettingsState,
-  openLink,
   resetSettings,
   saveSettings,
 } = useSettingsState(t)
@@ -113,11 +106,6 @@ const bigScreenItems = computed(() => [
     name: t.value.settings.oskAutoOpen,
     description: t.value.settings.oskAutoOpenDesc,
   },
-  {
-    key: 'navSounds',
-    name: t.value.settings.navSounds,
-    description: t.value.settings.navSoundsDesc,
-  },
 ])
 
 const notificationSettings = computed(() => [  {
@@ -140,7 +128,6 @@ function setSettingValue(key, value) {
   }
 }
 
-const emit = defineEmits(['openThemeEditor'])
 
 onMounted(async () => {
   await initializeSettingsState()

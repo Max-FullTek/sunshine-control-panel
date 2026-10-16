@@ -17,15 +17,14 @@ export const defaultBigScreenSettings = {
   gamepadCursorEnabled: true,
   /** 焦点在文本框上按 A 时自动弹出屏幕键盘。 */
   oskAutoOpen: true,
-  /** 手柄导航音效（tick/确认/返回）。 */
-  navSounds: true,
 }
 
 function load() {
   try {
     const saved = localStorage.getItem(BIG_SCREEN_SETTINGS_KEY)
     if (!saved) return { ...defaultBigScreenSettings }
-    return { ...defaultBigScreenSettings, ...JSON.parse(saved) }
+    const parsed = JSON.parse(saved)
+    return Object.fromEntries(Object.entries(defaultBigScreenSettings).map(([key, value]) => [key, parsed[key] ?? value]))
   } catch {
     return { ...defaultBigScreenSettings }
   }

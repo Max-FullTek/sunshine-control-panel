@@ -1,6 +1,8 @@
+import { normalizeLocale, documentLocale } from './locale.js'
+
 export function normalizeSimpleLocale(locale) {
   if (!locale || typeof locale !== 'string') return null
-  return locale.toLowerCase().startsWith('zh') ? 'zh' : 'en'
+  return normalizeLocale(locale)
 }
 
 export function getStoredSimpleLocale() {
@@ -21,11 +23,12 @@ export function getInitialSimpleLocale() {
 }
 
 export function setDocumentLocale(locale) {
-  document.documentElement.lang = locale === 'zh' ? 'zh-CN' : 'en'
+  document.documentElement.lang = documentLocale(locale)
 }
 
 export function pickSimpleMessages(messages, locale = getInitialSimpleLocale()) {
-  return messages[normalizeSimpleLocale(locale) || 'en'] || messages.en
+  const normalized = normalizeSimpleLocale(locale) || 'en'
+  return messages[normalized] || (normalized === 'zh_TW' ? messages.zh : null) || messages.en
 }
 
 export async function syncSimpleLocaleFromSunshine(messages, apply) {

@@ -9,7 +9,7 @@
       <transition name="fade-loading">
         <div v-if="loading" class="loading-overlay">
           <div class="loading-container">
-            <img src="../public/gura-pix.png" class="loading-image" alt="Loading" />
+
             <div class="loading-text">
               <template v-if="proxyHealthFailed">
                 <p class="proxy-health-error">{{ t.sunshineFrame.proxyUnavailable }}</p>
@@ -545,145 +545,15 @@ const onLoad = () => {
 }
 </script>
 
-<style scoped lang="less">
-@import '../styles/theme.less';
-
-.iframe-container {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-}
-
-.sunshine-iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  transition: opacity 0.3s ease;
-}
-
-.loading-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, @morandi-dark-bg 0%, @morandi-mid-bg 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  backdrop-filter: blur(10px);
-}
-
-.loading-container {
-  text-align: center;
-  padding: 20px;
-  max-width: 400px;
-}
-
-.loading-image {
-  width: 60%;
-  max-width: 180px;
-  opacity: 0.85;
-  margin-bottom: 24px;
-  animation: gura 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  position: relative;
-  left: -20%;
-  transform-style: preserve-3d;
-  filter: drop-shadow(0 4px 12px rgba(212, 165, 165, 0.3));
-}
-
-@keyframes gura {
-  0% {
-    transform: translateX(-100%) rotate(-5deg) translateY(-5px) scale(0.9);
-  }
-  40% {
-    transform: translateX(0%) rotate(0deg) translateY(2px) scale(1.1);
-  }
-  50% {
-    transform: translateX(10%) rotate(3deg) translateY(-10px) scale(0.95);
-  }
-  60% {
-    transform: translateX(20%) rotate(-3deg) translateY(5px) scale(1.05);
-  }
-  100% {
-    transform: translateX(100%) rotate(5deg) translateY(-5px) scale(0.9);
-  }
-}
-
-.loading-text {
-  color: @morandi-yellow;
-  font-size: 18px;
-  line-height: 1.6;
-  font-family: 'PixelMplus12', 'YouYuan', cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
-  letter-spacing: 0.5px;
-  font-weight: 500;
-  transform: skew(-3deg);
-
-  p {
-    margin: 12px 0;
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  .proxy-health-error {
-    animation: none;
-    color: #f2c8c8;
-    font-size: 15px;
-    transform: none;
-  }
-}
-
-.proxy-health-retry {
-  margin-top: 12px;
-  padding: 8px 18px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 6px;
-  color: inherit;
-  background: rgba(255, 255, 255, 0.08);
-  cursor: pointer;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.16);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  50% {
-    opacity: 0.7;
-    transform: translateY(-2px);
-  }
-}
-
-.fade-loading-enter-active,
-.fade-loading-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-loading-enter-from,
-.fade-loading-leave-to {
-  opacity: 0;
-}
-
-:global(html[data-bs-theme='light'] .loading-overlay) {
-  background: linear-gradient(135deg, @gura-bg-light 0%, @gura-bg-mid 100%);
-}
-
-:global(html[data-bs-theme='light'] .loading-image) {
-  filter: drop-shadow(0 4px 12px rgba(74, 158, 255, 0.3));
-}
-
-:global(html[data-bs-theme='light'] .loading-text) {
-  color: @gura-blue;
-  text-shadow: 1px 1px 3px rgba(74, 158, 255, 0.2);
-}
-
-:global(html[data-bs-theme='light'] .proxy-health-error) {
-  color: #8f3434;
-}
+<style scoped>
+.iframe-container { width: 100%; height: 100%; position: relative; overflow: hidden; }
+.sunshine-iframe { width: 100%; height: 100%; border: none; }
+.loading-overlay { position: absolute; inset: 0; background: var(--fd-bg-primary); color: var(--fd-text-primary); display: flex; align-items: center; justify-content: center; z-index: 10; }
+.loading-container { text-align: center; padding: 24px; max-width: 440px; }
+.loading-text { font-size: 16px; line-height: 1.6; }
+.loading-text p { margin: 12px 0; color: inherit; }
+.proxy-health-error { color: var(--fd-status-danger) !important; }
+.proxy-health-retry { margin-top: 12px; padding: 8px 18px; border: 1px solid var(--fd-border); border-radius: 6px; color: var(--fd-text-primary); background: var(--fd-bg-secondary); cursor: pointer; }
 </style>
 
 <style>

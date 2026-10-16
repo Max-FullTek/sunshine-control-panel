@@ -48,10 +48,9 @@ pub fn handle_tray_menu_event<R: Runtime + 'static>(app: &AppHandle<R>, menu_id:
         ),
         #[cfg(target_os = "windows")]
         "restart_user_mode" => toggle_sunshine_mode(app),
-        "show_toolbar" => toggle_toolbar(app),
         "host_performance" => {
             info!("📊 托盘菜单：打开主机性能监控");
-            if let Err(e) = toolbar::create_tool_window_internal(app, "performance") {
+            if let Err(e) = tool_windows::create_tool_window_internal(app, "performance") {
                 error!("创建工具窗口失败: {}", e);
             }
         }
@@ -69,15 +68,9 @@ pub fn handle_tray_menu_event<R: Runtime + 'static>(app: &AppHandle<R>, menu_id:
         }
         "shutdown" => shutdown_sunshine(app),
         "lang_zh" => switch_tray_locale(app, "zh"),
+        "lang_zh_tw" => switch_tray_locale(app, "zh_TW"),
         "lang_en" => switch_tray_locale(app, "en"),
         "lang_ja" => switch_tray_locale(app, "ja"),
-        "star_project" => utils::open_url_in_browser("https://www.alkaidlab.com/"),
-        "visit_project_sunshine" => {
-            utils::open_url_in_browser("https://github.com/AlkaidLab/foundation-sunshine")
-        }
-        "visit_project_moonlight" => {
-            utils::open_url_in_browser("https://github.com/qiin2333/moonlight-vplus")
-        }
         "restart" => restart_sunshine(app),
         _ => warn!("⚠️ 未知的托盘菜单事件: {}", menu_id),
     }
@@ -506,17 +499,6 @@ fn toggle_sunshine_mode<R: Runtime>(app: &AppHandle<R>) {
             }
         }
     });
-}
-
-/// 切换工具栏显示/隐藏
-fn toggle_toolbar<R: Runtime>(app: &AppHandle<R>) {
-    info!("🔧 托盘菜单：切换工具栏显示/隐藏");
-
-    if let Some(toolbar_window) = app.get_webview_window("toolbar") {
-        let _ = toolbar_window.close();
-    } else if let Err(e) = toolbar::create_toolbar_window_internal(app) {
-        error!("❌ 创建工具栏失败: {}", e);
-    }
 }
 
 /// 检查更新（托盘菜单触发，`manual = true`）

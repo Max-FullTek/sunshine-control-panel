@@ -1,7 +1,7 @@
 <template>
   <div class="chub-subsection">
     <div class="chub-section-head">
-      <span class="chub-section-label">◈ {{ t.controllersHub.emulation.dsuTitle }}</span>
+      <span class="chub-section-label">{{ t.controllersHub.emulation.dsuTitle }}</span>
       <span class="chub-section-rule"></span>
     </div>
     <p class="chub-hint">{{ t.controllersHub.emulation.dsuHint }}</p>
@@ -26,7 +26,7 @@
 
     <div class="chub-subsection" style="margin-top: 20px">
       <div class="chub-section-head">
-        <span class="chub-section-label">◈ {{ t.controllersHub.emulation.ds4Title }}</span>
+        <span class="chub-section-label">{{ t.controllersHub.emulation.ds4Title }}</span>
         <span class="chub-section-rule"></span>
       </div>
       <p class="chub-hint">{{ t.controllersHub.emulation.ds4Hint }}</p>

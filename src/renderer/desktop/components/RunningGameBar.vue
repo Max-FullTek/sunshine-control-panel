@@ -75,7 +75,7 @@ const totalLabel = computed(() => {
   border-radius: 14px;
   background: rgba(var(--fd-bg-secondary-rgb, 26, 26, 46), 0.94);
   border: 1px solid rgba(var(--fd-status-success-rgb, 0, 255, 136), 0.3);
-  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.5);
+  box-shadow: none;
 }
 
 .running-pulse {
@@ -84,8 +84,8 @@ const totalLabel = computed(() => {
   border-radius: 50%;
   flex-shrink: 0;
   background: var(--fd-status-success, #00ff88);
-  box-shadow: 0 0 12px rgba(var(--fd-status-success-rgb, 0, 255, 136), 0.8);
-  animation: running-pulse 1.8s ease-in-out infinite;
+  box-shadow: none;
+  animation: none;
 }
 
 @keyframes running-pulse {

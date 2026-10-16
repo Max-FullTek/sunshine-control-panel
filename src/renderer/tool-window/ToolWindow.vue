@@ -74,9 +74,6 @@ onMounted(async () => {
       case 'performance':
         currentTool.value = defineAsyncComponent(() => import('./tools/HostPerformanceTool.vue'))
         break
-      case 'pet':
-        currentTool.value = defineAsyncComponent(() => import('./tools/PetSettingsTool.vue'))
-        break
       default:
         console.error('未知的工具类型:', toolType.value)
     }

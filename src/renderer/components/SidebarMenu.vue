@@ -1,14 +1,10 @@
 <template>
   <div class="sidebar-wrapper">
     <aside class="sidebar" :class="{ collapsed: isCollapsed }">
-      <div class="gura-background" aria-hidden="true">
-        <img src="../public/gura-pix.png" alt="" class="gura-bg-img" />
-      </div>
       <div class="sidebar-header" data-tauri-drag-region @pointerdown="onTouchWindowDragStart">
-        <div class="logo"><img src="../public/gura-pix.png" alt="" class="logo-img" /></div>
         <h3 v-if="!isCollapsed" class="app-name">
           <span>Foundation</span>
-          <span>Sunshine</span>
+          <span>Lite</span>
         </h3>
       </div>
       <el-tooltip :content="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" placement="right">
@@ -20,14 +16,7 @@
           @pointerdown.stop
           @click="toggleCollapse"
         >
-          <img
-            :class="['clip-icon', { collapsed: isCollapsed }]"
-            src="../public/gura-clip.svg"
-            alt=""
-            width="24"
-            height="24"
-            aria-hidden="true"
-          />
+<span aria-hidden="true">☰</span>
         </button>
       </el-tooltip>
       <el-scrollbar class="menu-scrollbar">

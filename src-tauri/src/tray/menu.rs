@@ -243,7 +243,6 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
         ],
     )?;
 
-    let show_toolbar = MenuItem::with_id(app, "show_toolbar", s.show_toolbar, true, None::<&str>)?;
     let host_performance = MenuItem::with_id(
         app,
         "host_performance",
@@ -257,8 +256,7 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
     let debug_page = MenuItem::with_id(app, "debug_page", s.debug_page, true, None::<&str>)?;
 
     #[allow(unused_mut)]
-    let mut tools_items: Vec<&dyn tauri::menu::IsMenuItem<R>> =
-        vec![&show_toolbar, &host_performance];
+    let mut tools_items: Vec<&dyn tauri::menu::IsMenuItem<R>> = vec![&host_performance];
     tools_items.push(&tools_separator);
     tools_items.push(&log_console);
     #[cfg(debug_assertions)]
@@ -271,6 +269,14 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
         "中文",
         true,
         current_locale == "zh",
+        None::<&str>,
+    )?;
+    let lang_zh_tw = CheckMenuItem::with_id(
+        app,
+        "lang_zh_tw",
+        "繁體中文",
+        true,
+        current_locale == "zh_TW",
         None::<&str>,
     )?;
     let lang_en = CheckMenuItem::with_id(
@@ -294,7 +300,7 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
         "language",
         s.language,
         true,
-        &[&lang_zh, &lang_en, &lang_ja],
+        &[&lang_zh_tw, &lang_en, &lang_zh, &lang_ja],
     )?;
 
     #[cfg(target_os = "windows")]
@@ -365,35 +371,7 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
         Submenu::with_id_and_items(app, "settings", s.settings_menu, true, &settings_items)?;
 
     let about = MenuItem::with_id(app, "about", s.about, true, None::<&str>)?;
-    let help_separator = PredefinedMenuItem::separator(app)?;
-    let star_project = MenuItem::with_id(app, "star_project", s.star_project, true, None::<&str>)?;
-    let visit_project_sunshine = MenuItem::with_id(
-        app,
-        "visit_project_sunshine",
-        s.visit_project_sunshine,
-        true,
-        None::<&str>,
-    )?;
-    let visit_project_moonlight = MenuItem::with_id(
-        app,
-        "visit_project_moonlight",
-        s.visit_project_moonlight,
-        true,
-        None::<&str>,
-    )?;
-    let help_submenu = Submenu::with_id_and_items(
-        app,
-        "help",
-        s.help_menu,
-        true,
-        &[
-            &about,
-            &help_separator,
-            &star_project,
-            &visit_project_sunshine,
-            &visit_project_moonlight,
-        ],
-    )?;
+    let help_submenu = Submenu::with_id_and_items(app, "help", s.help_menu, true, &[&about])?;
 
     let final_separator = PredefinedMenuItem::separator(app)?;
     let restart = MenuItem::with_id(

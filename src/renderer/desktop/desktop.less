@@ -1,107 +1,12 @@
-// Desktop UI 专用样式
-// 深色赛博朋克风格主题
-
-// 主题色彩 - 赛博朋克风格
-@desktop-bg-primary: #0f0f23;
-@desktop-bg-secondary: #1a1a2e;
-@desktop-bg-tertiary: #16213e;
-@desktop-bg-card: rgba(26, 26, 46, 0.8);
-
-@desktop-accent-cyan: #00fff5;
-@desktop-accent-magenta: #ff00ff;
-@desktop-accent-yellow: #ffd700;
-@desktop-accent-green: #00ff88;
-@desktop-accent-orange: #ff6b35;
-
-@desktop-text-primary: #ffffff;
-@desktop-text-secondary: rgba(255, 255, 255, 0.7);
-@desktop-text-muted: rgba(255, 255, 255, 0.4);
-
-@desktop-border-color: rgba(0, 255, 245, 0.2);
-@desktop-border-glow: rgba(0, 255, 245, 0.5);
-
-// 渐变
-@desktop-gradient-bg: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-@desktop-gradient-accent: linear-gradient(135deg, @desktop-accent-cyan 0%, @desktop-accent-magenta 100%);
-@desktop-gradient-card: linear-gradient(145deg, rgba(26, 26, 46, 0.9) 0%, rgba(22, 33, 62, 0.9) 100%);
-
-// 发光效果
-@desktop-glow-cyan: 0 0 20px rgba(0, 255, 245, 0.3), 0 0 40px rgba(0, 255, 245, 0.1);
-@desktop-glow-magenta: 0 0 20px rgba(255, 0, 255, 0.3), 0 0 40px rgba(255, 0, 255, 0.1);
-
-// 全局样式
-.desktop-app {
-  width: 100vw;
-  height: 100vh;
-  background: linear-gradient(135deg, var(--fd-bg-primary, #0f0f23) 0%, var(--fd-bg-secondary, #1a1a2e) 50%, var(--fd-bg-tertiary, #16213e) 100%);
-  color: var(--fd-text-primary, #ffffff);
-  font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
-  font-size: var(--fd-font-size, 14px);
-  overflow: hidden;
-  position: relative;
-
-  // 壁纸层
-  .wallpaper-layer {
-    position: absolute;
-    inset: 0;
-    background-image: var(--fd-wallpaper, none);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: 0;
-    transition: opacity 0.5s ease;
-    opacity: 1;
-
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(var(--fd-bg-primary-rgb, 15, 15, 35), 0.55);
-    }
-
-    &:empty:not([style*="--fd-wallpaper"]) {
-      display: none;
-    }
-  }
-
-  // 背景网格效果
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      linear-gradient(rgba(var(--fd-accent-rgb, 0, 255, 245), 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(var(--fd-accent-rgb, 0, 255, 245), 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    pointer-events: none;
-    z-index: 0;
-    opacity: var(--fd-grid-visible, 1);
-  }
-
-  // 扫描线效果
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.03) 2px,
-      rgba(0, 0, 0, 0.03) 4px
-    );
-    pointer-events: none;
-    z-index: 1;
-    opacity: var(--fd-scanline-visible, 1);
-  }
-}
-
+// Foundation Lite shared control styles.
+@desktop-text-primary: var(--fd-text-primary);
+@desktop-text-secondary: var(--fd-text-secondary);
+@desktop-border-color: rgba(var(--fd-text-primary-rgb), .16);
+@desktop-gradient-card: var(--fd-bg-secondary);
+@desktop-accent-cyan: var(--fd-accent);
+@desktop-accent-orange: var(--fd-status-danger);
+@desktop-accent-green: var(--fd-status-success);
+@desktop-accent-yellow: var(--fd-status-warning);
 // 手柄模式焦点样式
 //
 // 标记挂在 <html> 上（DesktopApp 维护 data-fd-gamepad），而不是只挂在
@@ -115,7 +20,7 @@ html[data-fd-gamepad='true'] {
   *:focus {
     outline: 2px solid var(--fd-accent, #00fff5);
     outline-offset: 3px;
-    box-shadow: 0 0 12px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.3);
+    box-shadow: none;
   }
 
   // 某些元素不适合 outline，用 box-shadow 代替
@@ -124,7 +29,7 @@ html[data-fd-gamepad='true'] {
   .app-list-item:focus,
   .desktop-card:focus {
     outline: none;
-    box-shadow: 0 0 0 2px var(--fd-accent, #00fff5), 0 0 16px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.4);
+    box-shadow: none;
 
     // 呼吸微光：同一时刻只有一个焦点元素，动画成本可控。
     // 大屏远看时静止的环容易和边框混淆，缓慢的明暗让它始终「活着」
@@ -137,11 +42,7 @@ html[data-fd-gamepad='true'] {
   // 静态基线同值，动画被 prefers-reduced-motion 关闭时反馈依然完整
   .nav-item:focus {
     outline: none;
-    box-shadow:
-      0 0 0 2px var(--fd-accent, #00fff5),
-      0 0 16px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.4),
-      0 0 20px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.3),
-      0 0 40px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.1);
+    box-shadow: none;
     animation: fd-ring-breathe-nav 2.6s ease-in-out infinite;
   }
 
@@ -160,7 +61,7 @@ html[data-fd-gamepad='true'] {
     transform: translateY(-6px);
 
     .tile-cover {
-      box-shadow: 0 0 0 2px var(--fd-accent, #00fff5), 0 8px 32px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.25);
+      box-shadow: none;
     }
 
     .tile-overlay {
@@ -184,14 +85,10 @@ html[data-fd-gamepad='true'] {
 @keyframes fd-ring-breathe {
   0%,
   100% {
-    box-shadow:
-      0 0 0 2px var(--fd-accent, #00fff5),
-      0 0 16px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.4);
+    box-shadow: none;
   }
   50% {
-    box-shadow:
-      0 0 0 2px var(--fd-accent, #00fff5),
-      0 0 22px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.62);
+    box-shadow: none;
   }
 }
 
@@ -199,18 +96,10 @@ html[data-fd-gamepad='true'] {
 @keyframes fd-ring-breathe-nav {
   0%,
   100% {
-    box-shadow:
-      0 0 0 2px var(--fd-accent, #00fff5),
-      0 0 16px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.4),
-      0 0 20px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.3),
-      0 0 40px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.1);
+    box-shadow: none;
   }
   50% {
-    box-shadow:
-      0 0 0 2px var(--fd-accent, #00fff5),
-      0 0 22px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.62),
-      0 0 20px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.3),
-      0 0 40px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.1);
+    box-shadow: none;
   }
 }
 
@@ -339,7 +228,7 @@ html:not([data-fd-gamepad='true']) {
     &.active {
       background: rgba(var(--fd-accent-rgb, 0, 255, 245), 0.15);
       color: var(--fd-accent, #00fff5);
-      box-shadow: 0 0 20px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.3), 0 0 40px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.1);
+      box-shadow: none;
 
       &::before {
         content: '';
@@ -349,7 +238,7 @@ html:not([data-fd-gamepad='true']) {
         height: 32px;
         background: var(--fd-accent, #00fff5);
         border-radius: 0 4px 4px 0;
-        box-shadow: 0 0 20px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.3), 0 0 40px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.1);
+        box-shadow: none;
       }
     }
 
@@ -402,7 +291,7 @@ html:not([data-fd-gamepad='true']) {
 
   &:hover {
     border-color: rgba(var(--fd-accent-rgb, 0, 255, 245), 0.15);
-    background: linear-gradient(145deg, rgba(var(--fd-bg-secondary-rgb, 26, 26, 46), 0.95) 0%, rgba(var(--fd-bg-tertiary-rgb, 22, 33, 62), 0.95) 100%);
+    background: var(--fd-bg-secondary);
   }
 
   .card-header {
@@ -455,16 +344,16 @@ html:not([data-fd-gamepad='true']) {
   &:hover {
     background: rgba(var(--fd-accent-rgb, 0, 255, 245), 0.1);
     border-color: var(--fd-accent, #00fff5);
-    box-shadow: 0 0 20px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.3), 0 0 40px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.1);
+    box-shadow: none;
   }
 
   &.primary {
-    background: linear-gradient(135deg, var(--fd-accent, #00fff5) 0%, var(--fd-accent-secondary, #ff00ff) 100%);
+    background: var(--fd-bg-secondary);
     border: none;
     color: var(--fd-bg-primary, #0f0f23);
 
     &:hover {
-      box-shadow: 0 0 20px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.3), 0 0 40px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.1);
+      box-shadow: none;
       transform: translateY(-1px);
     }
   }
@@ -489,17 +378,17 @@ html:not([data-fd-gamepad='true']) {
 
   &.online {
     background: @desktop-accent-green;
-    box-shadow: 0 0 8px @desktop-accent-green;
+    box-shadow: none;
   }
 
   &.offline {
     background: @desktop-accent-orange;
-    box-shadow: 0 0 8px @desktop-accent-orange;
+    box-shadow: none;
   }
 
   &.connecting {
     background: @desktop-accent-yellow;
-    box-shadow: 0 0 8px @desktop-accent-yellow;
+    box-shadow: none;
     animation: pulse 1.5s infinite;
   }
 }
@@ -513,7 +402,7 @@ html:not([data-fd-gamepad='true']) {
 .stat-value {
   font-size: 36px;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--fd-accent, #00fff5) 0%, var(--fd-accent-secondary, #ff00ff) 100%);
+  background: var(--fd-bg-secondary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -574,3 +463,72 @@ html:not([data-fd-gamepad='true']) {
 .delay-3 { animation-delay: 0.3s; }
 .delay-4 { animation-delay: 0.4s; }
 
+
+// Foundation Lite: fixed surfaces for both supported appearances.
+html[data-fd-theme] {
+  --fd-border: rgba(var(--fd-text-primary-rgb), 0.16);
+  font-family: 'Segoe UI', 'Microsoft JhengHei UI', 'Microsoft JhengHei', sans-serif;
+  background: var(--fd-bg-primary);
+  color: var(--fd-text-primary);
+
+  .desktop-window { background: var(--fd-bg-primary); }
+  .desktop-window-main { padding: 28px 36px; }
+  .desktop-sidebar { width: 196px; padding: 20px 12px; background: var(--fd-bg-secondary); border-right: 1px solid var(--fd-border); }
+  .desktop-sidebar .sidebar-content { align-items: stretch; gap: 4px; }
+  .desktop-sidebar .nav-item { width: 100%; min-height: 44px; padding: 10px 12px; flex-direction: row; justify-content: flex-start; gap: 12px; border-radius: 6px; box-sizing: border-box; }
+  .desktop-sidebar .nav-item .nav-label { font-size: 14px; text-align: left; }
+  .desktop-sidebar .nav-item .nav-icon { width: 20px; height: 20px; }
+  .desktop-sidebar .nav-item.active { box-shadow: none; }
+  .desktop-sidebar .nav-item.active::before { content: none; }
+  .desktop-sidebar .nav-divider { width: 100%; margin: 14px 0; background: var(--fd-border); }
+  .page-title { font-size: 26px; font-weight: 600; line-height: 1.35; margin: 0 0 16px; color: var(--fd-text-primary); letter-spacing: 0; }
+  .page-header { margin-bottom: 24px; }
+  .page-subtitle { font-size: 14px; color: var(--fd-text-secondary); }
+  .desktop-card, .settings-card, .chub-pane { background: var(--fd-bg-secondary); border: 1px solid var(--fd-border); border-radius: 8px; box-shadow: none; backdrop-filter: none; }
+  .desktop-card::before, .desktop-card::after { content: none; }
+  .desktop-card:hover { box-shadow: none; transform: none; }
+  .card-header { border-color: var(--fd-border); }
+  .desktop-card .card-header .card-title, .setting-label, .toggle-label, .form-label { color: var(--fd-text-primary); }
+  .setting-desc, .toggle-desc { color: var(--fd-text-secondary); }
+  .desktop-btn, .preset-btn, .form-input, .form-select, .settings-select, .setting-input, .search-input, .fd-dropdown-trigger { font: inherit; color: var(--fd-text-primary); background: var(--fd-bg-secondary); border: 1px solid var(--fd-border); box-shadow: none; border-radius: 6px; }
+  .form-select { padding: 8px 12px; min-width: 140px; }
+  .desktop-btn.primary { background: var(--fd-accent); border-color: var(--fd-accent); color: var(--fd-bg-secondary); }
+  .gradient-text { background: none; -webkit-text-fill-color: currentColor; color: var(--fd-text-primary); }
+  .fade-in, .pulse, .nav-item, .desktop-card, .action-icon { animation: none; }
+  .action-icon, .stat-icon { background: var(--fd-bg-tertiary); color: var(--fd-accent); box-shadow: none; }
+  .desktop-card.hoverable:hover, .action-card:hover { transform: none; box-shadow: none; }
+  button, a, select, input, [tabindex] { &:focus-visible { outline: 2px solid var(--fd-accent); outline-offset: 3px; animation: none; box-shadow: none; } }
+  .settings-view > .page-header, .stream-view > .page-header { display: none; }
+  @media (max-width: 800px) {
+    .desktop-sidebar { width: 144px; padding: 16px 8px; }
+    .desktop-window-main { padding: 20px; }
+  }
+  @media (max-width: 520px) {
+    .desktop-sidebar { width: 86px; }
+    .desktop-sidebar .nav-item { flex-direction: column; gap: 4px; padding: 8px 2px; }
+    .desktop-sidebar .nav-item .nav-label { font-size: 11px; text-align: center; }
+    .desktop-window-main { padding: 16px 12px; }
+  }
+}
+html[data-fd-theme] .desktop-card .card-header { padding: 0 0 16px; margin-bottom: 18px; }
+html[data-fd-theme] .desktop-card .card-header .card-title { font-size: 16px; font-weight: 600; }
+html[data-fd-theme] .settings-card { padding: 22px; }
+html[data-fd-theme] .settings-card .title-icon { color: var(--fd-accent); }
+html[data-fd-theme] .settings-card .setting-desc { color: var(--fd-text-secondary); }
+html[data-fd-theme] .desktop-card .desktop-btn:hover { box-shadow: none; transform: none; }
+html[data-fd-theme] {
+  --el-color-primary: var(--fd-accent);
+  --el-text-color-primary: var(--fd-text-primary);
+  --el-text-color-regular: var(--fd-text-primary);
+  --el-text-color-secondary: var(--fd-text-secondary);
+  --el-bg-color: var(--fd-bg-secondary);
+  --el-bg-color-overlay: var(--fd-bg-secondary);
+  --el-fill-color-blank: var(--fd-bg-secondary);
+  --el-fill-color-light: var(--fd-bg-tertiary);
+  --el-border-color: var(--fd-border);
+  --el-border-color-light: var(--fd-border);
+}
+html[data-fd-theme] {
+  h1, h2, h3, h4, h5, h6, p { color: var(--fd-text-primary); }
+  button:disabled { cursor: not-allowed; opacity: .55; }
+}

@@ -7,8 +7,8 @@ use std::{
     io::Write,
     path::PathBuf,
     sync::{
-        atomic::{AtomicBool, Ordering},
         LazyLock, Mutex,
+        atomic::{AtomicBool, Ordering},
     },
 };
 use tauri::{AppHandle, Emitter, Manager, Runtime};
@@ -97,10 +97,10 @@ fn save(settings: &Settings) -> Result<(), String> {
         {
             use std::os::windows::ffi::OsStrExt;
             use windows::{
-                core::PCWSTR,
                 Win32::Storage::FileSystem::{
-                    MoveFileExW, MOVEFILE_REPLACE_EXISTING, MOVEFILE_WRITE_THROUGH,
+                    MOVEFILE_REPLACE_EXISTING, MOVEFILE_WRITE_THROUGH, MoveFileExW,
                 },
+                core::PCWSTR,
             };
             let from: Vec<u16> = temp.as_os_str().encode_wide().chain(Some(0)).collect();
             let to: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
@@ -137,14 +137,7 @@ fn normalized_key(value: &str) -> Result<String, String> {
     {
         return Err("nr_shortcut_invalid".into());
     }
-    if key.id()
-        == crate::app::TOOLBAR_SHORTCUT
-            .parse::<Shortcut>()
-            .unwrap()
-            .id()
-    {
-        return Err("nr_shortcut_conflict".into());
-    }
+
     Ok(key.to_string())
 }
 fn bindings(settings: &Settings) -> Result<Vec<Shortcut>, String> {
@@ -433,7 +426,7 @@ pub fn request_visibility<R: Runtime>(app: &AppHandle<R>, visible: bool) {
 pub fn set_visible<R: Runtime>(app: &AppHandle<R>, visible: bool) -> Result<(), String> {
     request_visibility(app, visible);
     let result = if visible {
-        crate::toolbar::create_tool_window_internal(app, "nr")
+        crate::tool_windows::create_tool_window_internal(app, "nr")
     } else if let Some(window) = app.get_webview_window("nr_overlay") {
         window.hide().map_err(|e| e.to_string())
     } else {
@@ -582,14 +575,16 @@ mod tests {
     #[test]
     fn canonical_duplicates_and_unmodified_keys_are_rejected() {
         assert!(normalized_key("KeyN").is_err());
-        assert!(normalized_key("Ctrl+Alt+Shift+KeyT").is_err());
+        assert!(normalized_key("Ctrl+Alt+Shift+KeyT").is_ok());
         let key = normalized_key("Ctrl+Alt+N").unwrap();
-        assert!(bindings(&Settings {
-            nr_shortcut: key.clone(),
-            overlay_shortcut: key,
-            ..Settings::default()
-        })
-        .is_err());
+        assert!(
+            bindings(&Settings {
+                nr_shortcut: key.clone(),
+                overlay_shortcut: key,
+                ..Settings::default()
+            })
+            .is_err()
+        );
         assert_eq!(normalized_key("").unwrap(), "");
     }
     #[test]

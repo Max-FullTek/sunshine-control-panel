@@ -1,18 +1,17 @@
 <template>
   <div class="desktop-window" :class="windowClass">
-    <div class="wallpaper-layer"></div>
     <slot name="titlebar">
       <TitleBar v-if="showTitleBar" :title="title" :icon="icon" />
     </slot>
-    
+
     <div class="desktop-window-content" :class="{ 'has-sidebar': hasSidebar }">
       <slot name="sidebar"></slot>
-      
+
       <main class="desktop-window-main">
         <slot></slot>
       </main>
     </div>
-    
+
     <slot name="footer"></slot>
   </div>
 </template>
@@ -59,66 +58,10 @@ const windowClass = computed(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--fd-bg-primary, #0f0f23) 0%, var(--fd-bg-secondary, #1a1a2e) 50%, var(--fd-bg-tertiary, #16213e) 100%);
+  background: var(--fd-bg-primary);
   color: var(--fd-text-primary, #ffffff);
   font-size: var(--fd-font-size, 14px);
   position: relative;
-
-  // 壁纸层
-  .wallpaper-layer {
-    position: absolute;
-    inset: 0;
-    background-image: var(--fd-wallpaper, none);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: 0;
-    transition: opacity 0.5s ease;
-
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.45);
-    }
-  }
-
-  // 背景网格效果
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      linear-gradient(rgba(var(--fd-accent-rgb, 0, 255, 245), 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(var(--fd-accent-rgb, 0, 255, 245), 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    pointer-events: none;
-    z-index: 0;
-    opacity: var(--fd-grid-visible, 1);
-  }
-
-  // 扫描线效果
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.03) 2px,
-      rgba(0, 0, 0, 0.03) 4px
-    );
-    pointer-events: none;
-    z-index: 1;
-    opacity: var(--fd-scanline-visible, 1);
-  }
 
   .desktop-window-content {
     flex: 1;
@@ -166,8 +109,4 @@ const windowClass = computed(() => {
   }
 }
 
-.theme-light {
-  background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 50%, #fafafa 100%);
-  color: #1e293b;
-}
 </style>

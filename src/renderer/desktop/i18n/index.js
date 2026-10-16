@@ -1,20 +1,20 @@
 import { ref, computed, watch } from 'vue'
 import { zh } from './zh.js'
 import { en } from './en.js'
+import { zh_TW } from './zh_TW.js'
+import { normalizeLocale, documentLocale } from '../../shared/locale.js'
 
-const messages = { zh, en }
+const messages = { zh, zh_TW, en }
 const LOCALE_REQUEST_KEY = 'foundation-desktop-locale-request'
 let localLocaleRequestId = null
 let latestBackendLocaleRevision = 0
 
-function normalizeDesktopLocale(locale) {
-  return locale?.toLowerCase().startsWith('zh') ? 'zh' : 'en'
-}
+const normalizeDesktopLocale = normalizeLocale
 
 function getDefaultLocale() {
   try {
     const saved = localStorage.getItem('language')
-    if (saved === 'zh' || saved === 'en') return saved
+    if (saved) return normalizeDesktopLocale(saved)
   } catch {
     // Fall back to the browser locale when storage is unavailable.
   }
@@ -35,6 +35,7 @@ function updateCurrentLocale(locale, persist = false) {
   if (persist) {
     try {
       localStorage.setItem('language', normalized)
+      localStorage.setItem('sunshine-locale', normalized)
     } catch {
       // Keep the in-memory locale when storage is unavailable.
     }
@@ -76,7 +77,7 @@ function clearLatestLocaleRequest() {
 }
 
 function setDocumentLanguage(locale) {
-  document.documentElement.lang = locale === 'zh' ? 'zh-CN' : 'en'
+  document.documentElement.lang = documentLocale(locale)
 }
 
 watch(currentLocale, setDocumentLanguage, { immediate: true })
@@ -88,7 +89,8 @@ async function syncLocaleFromSunshine() {
   syncInitialized = true
   const revision = localeRevision
   try {
-    const { invoke } = await import('@tauri-apps/api/core')
+    const { invoke, isTauri } = await import('@tauri-apps/api/core')
+    if (!isTauri()) return
     const config = await invoke('parse_sunshine_config')
     if (!config?.locale || revision !== localeRevision) return
     // Sunshine 用 'zh'/'zh_TW' 等，桌面 GUI 只有 'zh'/'en'
@@ -103,8 +105,10 @@ syncLocaleFromSunshine()
 // 监听托盘语言切换事件
 async function listenTrayLocaleChanged() {
   try {
+    const { isTauri } = await import('@tauri-apps/api/core')
+    if (!isTauri()) return
     const { listen } = await import('@tauri-apps/api/event')
-    listen('tray-locale-changed', (event) => {
+    await listen('tray-locale-changed', (event) => {
       const payload = event.payload
       const eventLocale = typeof payload === 'string' ? payload : payload?.locale
       if (!eventLocale) return
@@ -145,7 +149,8 @@ window.addEventListener('storage', (event) => {
 // 用户明确切换时，通过同一条命令更新 Sunshine UI 和托盘语言。
 async function syncLocalePreferences(locale, requestId) {
   try {
-    const { invoke } = await import('@tauri-apps/api/core')
+    const { invoke, isTauri } = await import('@tauri-apps/api/core')
+    if (!isTauri()) return
     await invoke('set_locale_preferences', { locale, requestId })
   } catch (error) {
     console.warn('Failed to sync locale preferences:', error)
@@ -171,7 +176,8 @@ export function useI18n() {
     },
   })
   const toggleLocale = () => {
-    const newLocale = locale.value === 'zh' ? 'en' : 'zh'
+    const options = ['zh_TW', 'en', 'zh']
+    const newLocale = options[(options.indexOf(locale.value) + 1) % options.length]
     locale.value = newLocale
   }
   return { t, locale, toggleLocale }

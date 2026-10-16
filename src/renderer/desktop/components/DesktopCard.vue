@@ -1,6 +1,6 @@
 <template>
-  <div 
-    class="desktop-card" 
+  <div
+    class="desktop-card"
     :class="{
       'hoverable': hoverable,
       'clickable': clickable,
@@ -18,11 +18,11 @@
         <slot name="actions"></slot>
       </div>
     </div>
-    
+
     <div class="card-content" :class="{ 'no-padding': noPadding }">
       <slot></slot>
     </div>
-    
+
     <div v-if="$slots.footer" class="card-footer">
       <slot name="footer"></slot>
     </div>
@@ -73,7 +73,7 @@ function handleClick() {
 
 <style lang="less" scoped>
 .desktop-card {
-  background: linear-gradient(145deg, rgba(var(--fd-bg-secondary-rgb, 26, 26, 46), 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+  background: var(--fd-bg-secondary);
   border: 1px solid rgba(var(--fd-accent-rgb, 0, 255, 245), 0.2);
   border-radius: var(--fd-card-radius, 14px);
   padding: 24px;
@@ -81,7 +81,7 @@ function handleClick() {
 
   &.hoverable:hover {
     border-color: rgba(var(--fd-accent-rgb, 0, 255, 245), 0.5);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.3), 0 0 40px rgba(var(--fd-accent-rgb, 0, 255, 245), 0.1);
+    box-shadow: none;
     transform: translateY(-2px);
   }
 
@@ -91,27 +91,27 @@ function handleClick() {
 
   &.card-primary {
     border-color: rgba(var(--fd-accent-rgb, 0, 255, 245), 0.4);
-    background: linear-gradient(145deg, rgba(var(--fd-accent-rgb, 0, 255, 245), 0.1) 0%, rgba(26, 26, 46, 0.9) 100%);
+    background: var(--fd-bg-secondary);
   }
 
   &.card-secondary {
     border-color: rgba(var(--fd-accent-secondary-rgb, 255, 0, 255), 0.4);
-    background: linear-gradient(145deg, rgba(var(--fd-accent-secondary-rgb, 255, 0, 255), 0.1) 0%, rgba(26, 26, 46, 0.9) 100%);
+    background: var(--fd-bg-secondary);
   }
 
   &.card-success {
     border-color: rgba(var(--fd-status-success-rgb, 0, 255, 136), 0.4);
-    background: linear-gradient(145deg, rgba(0, 255, 136, 0.1) 0%, rgba(var(--fd-bg-secondary-rgb, 26, 26, 46), 0.9) 100%);
+    background: var(--fd-bg-secondary);
   }
 
   &.card-warning {
     border-color: rgba(var(--fd-status-warning-rgb, 255, 215, 0), 0.4);
-    background: linear-gradient(145deg, rgba(255, 215, 0, 0.1) 0%, rgba(var(--fd-bg-secondary-rgb, 26, 26, 46), 0.9) 100%);
+    background: var(--fd-bg-secondary);
   }
 
   &.card-danger {
     border-color: rgba(var(--fd-status-danger-rgb, 255, 107, 53), 0.4);
-    background: linear-gradient(145deg, rgba(255, 107, 53, 0.1) 0%, rgba(var(--fd-bg-secondary-rgb, 26, 26, 46), 0.9) 100%);
+    background: var(--fd-bg-secondary);
   }
 
   .card-header {

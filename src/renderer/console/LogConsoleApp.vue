@@ -140,13 +140,16 @@ import { confirm as dialogConfirm, message as dialogMessage } from '@tauri-apps/
 import { ElMessage } from 'element-plus'
 import { Document, RefreshRight, Delete, Search, Close, Download } from '@element-plus/icons-vue'
 import { useI18n } from '../desktop/i18n/index.js'
+import { documentLocale } from '../shared/locale.js'
+import { useTheme } from '../desktop/composables/useTheme.js'
+useTheme()
 
 const { t, locale } = useI18n()
 const logText = computed(() => t.value.logConsole)
 
 watchEffect(() => {
   document.title = logText.value.title
-  document.documentElement.lang = locale.value === 'zh' ? 'zh-CN' : 'en'
+  document.documentElement.lang = documentLocale(locale.value)
 })
 
 // 响应式数据

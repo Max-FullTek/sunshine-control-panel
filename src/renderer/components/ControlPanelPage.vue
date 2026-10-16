@@ -11,7 +11,6 @@
           <div class="settings-row">
             <label for="panel-theme">{{ t.sidebar.theme }}</label>
             <el-select id="panel-theme" :model-value="themeMode" @update:model-value="emit('theme-change', $event)">
-              <el-option :label="t.sidebar.systemTheme" value="system" />
               <el-option :label="t.sidebar.lightMode" value="light" />
               <el-option :label="t.sidebar.darkMode" value="dark" />
             </el-select>
@@ -19,6 +18,7 @@
           <div class="settings-row">
             <label for="panel-language">{{ t.sidebar.language }}</label>
             <el-select id="panel-language" :model-value="locale" @update:model-value="emit('locale-change', $event)">
+              <el-option label="繁體中文" value="zh_TW" />
               <el-option label="简体中文" value="zh" />
               <el-option label="English" value="en" />
             </el-select>
@@ -93,15 +93,9 @@
     </template>
     <template v-else>
       <div class="settings-card">
-        <div class="settings-row">
-          <div>
-            <strong>{{ t.sidebar.officialWebsite }}</strong>
-            <p>AlkaidLab</p>
-          </div>
-          <el-button @click="actions.openUrl('https://www.alkaidlab.com/')">
-            {{ t.sidebar.visit }}
-            <el-icon aria-hidden="true"><TopRight /></el-icon>
-          </el-button>
+        <div v-for="link in referenceLinks" :key="link.url" class="settings-row">
+          <strong>{{ link.name }}</strong>
+          <el-button @click="actions.openUrl(link.url)">{{ t.sidebar.visit }}</el-button>
         </div>
         <div class="settings-row">
           <div>
@@ -119,10 +113,11 @@
 import { computed } from 'vue'
 import { TopRight } from '@element-plus/icons-vue'
 import { useI18n } from '../desktop/i18n/index.js'
+import { referenceLinks } from '../shared/referenceLinks.js'
 import { ROUTES } from '../composables/useRouter.js'
 const props = defineProps({
   page: { type: String, required: true },
-  themeMode: { type: String, default: 'system' },
+  themeMode: { type: String, default: 'dark' },
   locale: { type: String, default: 'en' },
   currentVersion: { type: String, default: '' },
   clipboardSyncEnabled: Boolean,
@@ -139,11 +134,11 @@ const heading = computed(() => {
 </script>
 <style scoped lang="less">
 .panel-page {
-  --panel-surface: #3d3235;
-  --panel-text: #eee5db;
-  --panel-muted: #bfb2b5;
-  --panel-border: rgba(230, 213, 184, 0.16);
-  --panel-accent: #e6d5b8;
+  --panel-surface: var(--fd-bg-secondary);
+  --panel-text: var(--fd-text-primary);
+  --panel-muted: var(--fd-text-secondary);
+  --panel-border: rgba(var(--fd-text-primary-rgb), .16);
+  --panel-accent: var(--fd-accent);
   max-width: 1100px;
   margin: 0 auto;
   padding: 30px;
@@ -151,11 +146,11 @@ const heading = computed(() => {
   font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
 }
 :global([data-bs-theme='light'] .panel-page) {
-  --panel-surface: #fff;
-  --panel-text: #26354a;
-  --panel-muted: #62758c;
-  --panel-border: #dbe6f4;
-  --panel-accent: #3484ef;
+  --panel-surface: var(--fd-bg-secondary);
+  --panel-text: var(--fd-text-primary);
+  --panel-muted: var(--fd-text-secondary);
+  --panel-border: rgba(var(--fd-text-primary-rgb), .16);
+  --panel-accent: var(--fd-accent);
 }
 .panel-heading {
   margin-bottom: 27px;

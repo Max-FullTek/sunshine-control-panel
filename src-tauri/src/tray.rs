@@ -15,7 +15,7 @@ use tauri::{
 
 #[cfg(target_os = "windows")]
 use crate::desktop_settings;
-use crate::{proxy_server, sunshine, toolbar, tray_config, utils, windows};
+use crate::{proxy_server, sunshine, tool_windows, tray_config, utils, windows};
 
 mod actions;
 mod events;
@@ -313,7 +313,6 @@ struct TrayStrings {
     reset_display: &'static str,
     reset_display_confirm: &'static str,
     restart_user_mode: &'static str,
-    show_toolbar: &'static str,
     prevent_sleep: &'static str,
     host_performance: &'static str,
     log_console: &'static str,
@@ -326,9 +325,6 @@ struct TrayStrings {
     shutdown: &'static str,
     shutdown_message: &'static str,
     language: &'static str,
-    star_project: &'static str,
-    visit_project_sunshine: &'static str,
-    visit_project_moonlight: &'static str,
     restart: &'static str,
     recover_service: &'static str,
     recovery_timeout: &'static str,
@@ -381,7 +377,6 @@ const ZH_STRINGS: TrayStrings = TrayStrings {
     reset_display: "重置显示",
     reset_display_confirm: "这将重置已保存的显示设备状态。是否继续？",
     restart_user_mode: "以用户模式运行 Sunshine",
-    show_toolbar: "显示桌宠",
     prevent_sleep: "阻止系统休眠",
     host_performance: "主机性能",
     log_console: "日志控制台",
@@ -394,14 +389,75 @@ const ZH_STRINGS: TrayStrings = TrayStrings {
     shutdown: "退出 Sunshine",
     shutdown_message: "这将停止 Sunshine 服务、GUI 和托盘。确定要退出吗？",
     language: "语言",
-    star_project: "项目主页",
-    visit_project_sunshine: "Sunshine 源代码",
-    visit_project_moonlight: "Moonlight 源代码",
     restart: "重启 Sunshine",
     recover_service: "重新启动 Sunshine 服务",
     recovery_timeout: "Sunshine 服务未能在等待时间内恢复，请检查服务日志后重试。",
     tooltip: "Sunshine GUI",
     tooltip_admin: "Sunshine GUI (管理员)",
+};
+
+const ZH_TW_STRINGS: TrayStrings = TrayStrings {
+    status_idle: "空閑",
+    status_streaming: "串流中",
+    status_paused: "串流已暫停",
+    status_pairing: "等待配對",
+    status_notification: "有新通知",
+    status_connecting: "正在連接",
+    status_disconnected: "未連接",
+    notification: "通知",
+    client_connected: "客戶端已連接",
+    client_connected_detail: "已建立新的串流連接。",
+    client_connected_named: "「{name}」已連接到這臺電腦。",
+    suspicious_client_warning: "警告：您很可能正在受到未知侵權客戶端的侵害。該判斷基于客戶端網絡特征，可能存在誤判。",
+    client_disconnected: "客戶端已斷開",
+    client_disconnected_detail: "串流連接已結束。",
+    client_disconnected_named: "「{name}」已從這臺電腦斷開。",
+    incoming_pairing: "Moonlight 配對請求",
+    pairing_instruction: "點擊此通知，輸入 Moonlight 上顯示的 4 位 PIN。",
+    pairing_menu_instruction: "打開 Sunshine 托盤菜單中的“完成配對”，輸入 Moonlight 上顯示的 4 位 PIN。",
+    complete_pairing: "完成配對",
+    open_main_panel: "打開主面板",
+    interfaces_menu: "其他界面",
+    display_menu: "顯示",
+    tools_menu: "工具",
+    settings_menu: "設置",
+    advanced_menu: "高級",
+    help_menu: "幫助",
+    open_sunshine: "Web 管理界面",
+    vdd_settings: "基地顯示器設置（ZakoVDD）",
+    vdd_create: "創建基地顯示器",
+    vdd_create_confirm: "創建基地顯示器可能會更改 Windows 顯示布局。是否繼續？",
+    vdd_close: "關閉基地顯示器",
+    vdd_keep: "串流結束后保留",
+    vdd_keep_confirm: "啟用后，串流結束時將保留基地顯示器，并可能更改 Windows 顯示布局。是否繼續？",
+    vdd_headless: "無頭模式自動創建",
+    vdd_headless_confirm: "這是實驗性恢復功能：未檢測到顯示器時會自動創建基地顯示器，并可能更改當前顯示布局。是否繼續？",
+    import_config: "導入配置",
+    export_config: "導出配置",
+    reset_config: "重置配置",
+    reset_config_confirm: "這將清空 sunshine.conf，并讓 Sunshine 恢復默認配置。是否繼續？",
+    clear_cache: "清理緩存",
+    clear_cache_confirm: "這將終止當前運行的應用，以便重建緩存狀態。是否繼續？",
+    reset_display: "重置顯示",
+    reset_display_confirm: "這將重置已保存的顯示裝置狀態。是否繼續？",
+    restart_user_mode: "以用戶模式運行 Sunshine",
+    prevent_sleep: "阻止系統休眠",
+    host_performance: "主機性能",
+    log_console: "日誌控制臺",
+    open_desktop: "大屏模式",
+    #[cfg(target_os = "windows")]
+    auto_start: "開機運行",
+    #[cfg(debug_assertions)]
+    debug_page: "調試頁面",
+    about: "關于 Sunshine",
+    shutdown: "結束 Sunshine",
+    shutdown_message: "這將停止 Sunshine 服務、GUI 和托盤。確定要結束嗎？",
+    language: "語言",
+    restart: "重啟 Sunshine",
+    recover_service: "重新啟動 Sunshine 服務",
+    recovery_timeout: "Sunshine 服務未能在等待時間內恢復，請檢查服務日誌后重試。",
+    tooltip: "Sunshine GUI",
+    tooltip_admin: "Sunshine GUI (管理員)",
 };
 
 const EN_STRINGS: TrayStrings = TrayStrings {
@@ -449,7 +505,6 @@ const EN_STRINGS: TrayStrings = TrayStrings {
     reset_display: "Reset Display",
     reset_display_confirm: "This resets persisted display-device state. Continue?",
     restart_user_mode: "Run Sunshine in User Mode",
-    show_toolbar: "Show Desktop Pet",
     prevent_sleep: "Prevent System Sleep",
     host_performance: "Host Performance",
     log_console: "Log Console",
@@ -462,9 +517,6 @@ const EN_STRINGS: TrayStrings = TrayStrings {
     shutdown: "Exit Sunshine",
     shutdown_message: "This will stop the Sunshine service, GUI, and tray. Continue?",
     language: "Language",
-    star_project: "Project Website",
-    visit_project_sunshine: "Sunshine Source Code",
-    visit_project_moonlight: "Moonlight Source Code",
     restart: "Restart Sunshine",
     recover_service: "Restart Sunshine Service",
     recovery_timeout: "The Sunshine service did not recover in time. Check the service log and try again.",
@@ -517,7 +569,6 @@ const JA_STRINGS: TrayStrings = TrayStrings {
     reset_display: "ディスプレイをリセット",
     reset_display_confirm: "保存されているディスプレイデバイスの状態をリセットします。続行しますか？",
     restart_user_mode: "ユーザーモードで Sunshine を実行",
-    show_toolbar: "デスクトップペットを表示",
     prevent_sleep: "システムのスリープを防止",
     host_performance: "ホストパフォーマンス",
     log_console: "ログコンソール",
@@ -530,9 +581,6 @@ const JA_STRINGS: TrayStrings = TrayStrings {
     shutdown: "Sunshine を終了",
     shutdown_message: "Sunshine サービス、GUI、トレイを停止します。続行しますか？",
     language: "言語",
-    star_project: "プロジェクトサイト",
-    visit_project_sunshine: "Sunshine ソースコード",
-    visit_project_moonlight: "Moonlight ソースコード",
     restart: "Sunshine を再起動",
     recover_service: "Sunshine サービスを再起動",
     recovery_timeout: "Sunshine サービスが時間内に復旧しませんでした。サービスログを確認して再試行してください。",
@@ -544,6 +592,7 @@ fn get_tray_strings() -> &'static TrayStrings {
     let locale = CURRENT_LOCALE.lock().unwrap();
     match locale.as_deref() {
         Some("zh") => &ZH_STRINGS,
+        Some("zh_TW") => &ZH_TW_STRINGS,
         Some("ja") => &JA_STRINGS,
         _ => &EN_STRINGS,
     }
@@ -606,7 +655,12 @@ pub fn create_system_tray<R: Runtime + 'static>(app: &AppHandle<R>) -> tauri::Re
 
 fn try_normalize_tray_locale(locale: &str) -> Option<&'static str> {
     let locale = locale.trim().to_ascii_lowercase().replace('_', "-");
-    if locale == "zh" || locale.starts_with("zh-") {
+    if ["zh-tw", "zh-hk", "zh-mo", "zh-hant"]
+        .iter()
+        .any(|prefix| locale == *prefix || locale.starts_with(&format!("{prefix}-")))
+    {
+        Some("zh_TW")
+    } else if locale == "zh" || locale.starts_with("zh-") {
         Some("zh")
     } else if locale == "ja" || locale.starts_with("ja-") {
         Some("ja")
@@ -636,6 +690,9 @@ fn resolve_initial_tray_locale(
 
 #[cfg(target_os = "windows")]
 fn locale_from_windows_ui_language(language_id: u16) -> Option<&'static str> {
+    if matches!(language_id, 0x0404 | 0x0c04 | 0x1404) {
+        return Some("zh_TW");
+    }
     // Match the primary language portion of the Windows LANGID.
     match language_id & 0x03ff {
         0x0004 => Some("zh"),
@@ -899,6 +956,8 @@ mod tests {
     #[test]
     fn tray_locale_normalizes_supported_language_variants() {
         assert_eq!(normalize_tray_locale("zh-CN"), "zh");
+        assert_eq!(normalize_tray_locale("zh_TW"), "zh_TW");
+        assert_eq!(normalize_tray_locale("zh-Hant"), "zh_TW");
         assert_eq!(normalize_tray_locale("ja-JP"), "ja");
         assert_eq!(normalize_tray_locale("en-US"), "en");
         assert_eq!(normalize_tray_locale("fr-FR"), "en");
@@ -925,7 +984,7 @@ mod tests {
         };
         assert_eq!(
             resolve_initial_tray_locale(Some(&config), Some("en-US")),
-            "zh"
+            "zh_TW"
         );
 
         assert_eq!(resolve_initial_tray_locale(None, Some("ja-JP")), "ja");
@@ -936,6 +995,7 @@ mod tests {
     #[test]
     fn windows_ui_language_maps_supported_tray_languages() {
         assert_eq!(locale_from_windows_ui_language(0x0804), Some("zh"));
+        assert_eq!(locale_from_windows_ui_language(0x0404), Some("zh_TW"));
         assert_eq!(locale_from_windows_ui_language(0x0411), Some("ja"));
         assert_eq!(locale_from_windows_ui_language(0x0409), Some("en"));
         assert_eq!(locale_from_windows_ui_language(0x040c), None);
@@ -957,7 +1017,6 @@ mod tests {
     #[test]
     fn primary_desktop_actions_have_clear_localized_labels() {
         assert_eq!(ZH_STRINGS.open_desktop, "大屏模式");
-        assert_eq!(ZH_STRINGS.show_toolbar, "显示桌宠");
         #[cfg(target_os = "windows")]
         assert_eq!(ZH_STRINGS.auto_start, "开机运行");
         assert_eq!(EN_STRINGS.open_desktop, "Large Screen Mode");

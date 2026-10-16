@@ -1,4 +1,5 @@
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useTheme } from '../desktop/composables/useTheme.js'
 import { useRouter, ROUTES } from './useRouter.js'
 import { useI18n } from '../desktop/i18n/index.js'
 
@@ -48,9 +49,8 @@ export function useSidebarState() {
 
   // 状态定义
   const isCollapsed = ref(false)
-  const isDark = ref(true)
-  const themeMode = ref('system')
-  const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+  const { themeMode, setTheme: setSharedTheme } = useTheme()
+  const isDark = computed(() => themeMode.value === 'dark')
   const isMaximized = ref(false)
   const isAdmin = ref(true)
   const currentVersion = ref('0.0.0')
@@ -73,13 +73,11 @@ export function useSidebarState() {
   /**
    * 切换主题
    */
-  const setTheme = (mode) => {
-    if (!['light', 'dark', 'system'].includes(mode)) return
-    themeMode.value = mode
-    isDark.value = mode === 'system' ? systemTheme.matches : mode === THEME.DARK
+  const setTheme = (mode) => setSharedTheme(mode)
+  watch(themeMode, () => {
     syncTheme()
     postMessageToIframes({ type: 'theme-sync', theme: currentTheme.value })
-  }
+  }, { immediate: true })
 
   /**
    * 切换折叠状态
@@ -113,15 +111,7 @@ export function useSidebarState() {
   /**
    * 初始化主题
    */
-  const initTheme = () => {
-    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME)
-    setTheme(['light', 'dark', 'system'].includes(savedTheme) ? savedTheme : 'system')
-    const handleSystemTheme = () => {
-      if (themeMode.value === 'system') setTheme('system')
-    }
-    systemTheme.addEventListener('change', handleSystemTheme)
-    cleanupFns.push(() => systemTheme.removeEventListener('change', handleSystemTheme))
-  }
+  const initTheme = () => syncTheme()
 
   /**
    * 初始化窗口状态
