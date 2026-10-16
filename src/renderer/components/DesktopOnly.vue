@@ -1,13 +1,15 @@
 <template>
-  <slot v-if="desktopAvailable" />
+  <slot v-if="desktopAvailable || preview" />
   <section v-else class="desktop-required" role="note">
     <p>{{ t.runtime.desktopRequired }}</p>
   </section>
 </template>
 <script setup>
 import { hasDesktopRuntime } from '../shared/runtime.js'
+import { isNativeUiPreview } from '../shared/preview.js'
 import { useI18n } from '../desktop/i18n/index.js'
 const desktopAvailable = hasDesktopRuntime()
+const preview = isNativeUiPreview()
 const { t } = useI18n()
 </script>
 <style scoped>

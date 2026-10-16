@@ -11,7 +11,7 @@ import IconGamepad from '../desktop/icons/IconGamepad.vue'
 import { ROUTES } from './useRouter.js'
 import { WEBUI_PAGES, getWebuiPage } from './webuiNavigation.js'
 
-const WEBUI_ICONS = {
+export const WEBUI_ICONS = {
   overview: House,
   apps: Grid,
   pairing: Connection,

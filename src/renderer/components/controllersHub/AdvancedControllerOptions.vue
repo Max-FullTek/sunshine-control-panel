@@ -52,6 +52,7 @@
 </template>
 
 <script setup>
+import { isNativeUiPreview } from '../../shared/preview.js'
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { controllerHub } from '../../tauri-adapter.js'
@@ -98,5 +99,5 @@ async function saveKey(key, value) {
   }
 }
 
-onMounted(loadConfig)
+onMounted(() => { if (!isNativeUiPreview()) loadConfig() })
 </script>

@@ -83,6 +83,7 @@
 </template>
 
 <script setup>
+import { isNativeUiPreview } from '../../shared/preview.js'
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { controllerHub, sunshine } from '../../tauri-adapter.js'
@@ -232,6 +233,7 @@ async function saveAppGamepad(index, value) {
 defineExpose({ refresh: loadConfig })
 
 onMounted(() => {
+  if (isNativeUiPreview()) return
   loadConfig()
   loadApps()
 })

@@ -3,7 +3,13 @@
  * 将 Electron IPC 调用迁移到 Tauri invoke 调用
  */
 
-import { invoke } from '@tauri-apps/api/core'
+import { invoke as nativeInvoke } from '@tauri-apps/api/core'
+import { isNativeUiPreview } from './shared/preview.js'
+
+// Preview exposes the real components, never a simulated Tauri environment.
+const invoke = (command, args) => isNativeUiPreview()
+  ? Promise.reject(new Error('Read-only UI preview: native commands are unavailable'))
+  : nativeInvoke(command, args)
 
 // ─── Helpers ────────────────────────────────────────────
 

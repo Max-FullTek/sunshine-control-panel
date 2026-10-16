@@ -7,7 +7,7 @@
             <el-icon><Monitor /></el-icon>
           </span>
           <div class="page-title-copy">
-            <h2>{{ t.vddSettings.title }}</h2>
+            <h2>{{ t.sidebar.virtualDisplay }}</h2>
             <div v-if="!isDriverCheckPending && hasUnsavedChanges" class="page-header-meta">
               <el-tag size="small" round type="warning" effect="light">
                 {{ t.vddSettings.unsavedBadge }}
@@ -572,6 +572,7 @@ import { useVddEdid } from '../composables/useVddEdid.js'
 import { useVddStatusLabel } from '../composables/useVddStatusLabel.js'
 import { installVddWithRecovery } from '../composables/vddInstallRecovery.js'
 import { openExternalUrl, sunshine, vdd } from '../tauri-adapter.js'
+import { isNativeUiPreview } from '../shared/preview.js'
 import { useI18n } from '../desktop/i18n/index.js'
 
 const { t } = useI18n()
@@ -1188,6 +1189,13 @@ const removeEdidFile = async () => {
 }
 
 onMounted(async () => {
+  if (isNativeUiPreview()) {
+    Object.assign(vddStatus, { state:'ready', installed:true, running:true, control_available:true, version_match:true })
+    applyLoadedSettings(createInitialSettings())
+    markSettingsClean()
+    hasCompletedDriverCheck.value = true
+    return
+  }
   await recheckDriver()
 })
 

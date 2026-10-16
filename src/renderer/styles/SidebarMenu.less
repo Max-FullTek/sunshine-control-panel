@@ -257,10 +257,21 @@ button:focus-visible {
   position: relative;
   overflow: hidden;
 }
+.caption-collapse {
+  position:absolute;
+  top:2px;
+  left:8px;
+  width:36px;
+  height:32px;
+  z-index:101;
+  border-radius:6px;
+  color:var(--nav-text);
+  &:hover { background:var(--nav-selected); }
+}
 .drag-region {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 48px;
   // Keep the three window controls outside the caption.
   right: 138px;
   height: 32px;

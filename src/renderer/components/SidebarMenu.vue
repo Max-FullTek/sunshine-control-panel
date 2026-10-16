@@ -9,18 +9,6 @@
           <span>Foundation Sunshine Lite</span>
           <span>Desktop</span>
         </h3>
-      <el-tooltip :content="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" placement="right">
-        <button
-          type="button"
-          class="collapse-btn"
-          :aria-label="isCollapsed ? t.sidebar.expand : t.sidebar.collapse"
-          :aria-expanded="!isCollapsed"
-          @pointerdown.stop
-          @click="toggleCollapse"
-        >
-<span aria-hidden="true">☰</span>
-        </button>
-      </el-tooltip>
       </div>
       <el-scrollbar class="menu-scrollbar">
         <nav :aria-label="t.sidebar.mainNavigation">
@@ -71,6 +59,14 @@
     </aside>
     <div class="main-content">
       <div v-if="desktopAvailable" class="drag-region" data-tauri-drag-region @pointerdown="onTouchWindowDragStart"></div>
+      <el-tooltip :content="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" placement="bottom">
+        <button type="button" class="collapse-btn caption-collapse" :aria-label="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" :aria-expanded="!isCollapsed" @pointerdown.stop @click="toggleCollapse">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 4h16v16H4zM9 4v16" />
+            <path :d="isCollapsed ? 'm13 9 3 3-3 3' : 'm16 9-3 3 3 3'" />
+          </svg>
+        </button>
+      </el-tooltip>
       <div v-if="desktopAvailable" class="window-controls">
         <el-tooltip :content="t.sidebar.minimize" placement="bottom">
           <button type="button" class="control-btn minimize" :aria-label="t.sidebar.minimize" @click="minimizeWindow">
