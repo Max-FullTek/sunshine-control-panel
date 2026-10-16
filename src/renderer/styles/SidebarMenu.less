@@ -286,7 +286,7 @@ button:focus-visible {
   app-region: no-drag;
   -webkit-app-region: no-drag;
   transition: color 180ms ease;
-  svg { width:18px; height:18px; transition:transform 420ms cubic-bezier(.19,1,.22,1); }
+  svg { width:20px; height:20px; transition:transform 420ms cubic-bezier(.19,1,.22,1); }
   &:hover, &:focus-visible { color:var(--nav-active); }
   &:focus-visible { outline:2px solid var(--nav-active); outline-offset:-6px; }
   &:active svg { scale:.8; }
@@ -349,6 +349,7 @@ button:focus-visible {
   }
 }
 .page-content {
+  padding: 10px 20px;
   flex: 1;
   min-height: 0;
   overflow: auto;

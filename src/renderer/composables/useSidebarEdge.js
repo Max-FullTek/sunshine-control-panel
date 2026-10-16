@@ -18,11 +18,11 @@ export function useSidebarEdge(isCollapsed) {
   let observer
 
   const edgePath = computed(() => {
-    const span = 100
-    return `M0 0 H1 V${y.value - span} C1 ${y.value - 38} ${bulge.value} ${y.value - 38} ${bulge.value} ${y.value} C${bulge.value} ${y.value + 38} 1 ${y.value + 38} 1 ${y.value + span} V${edgeHeight.value} H0 Z`
+    const span = 65
+    return `M0 0 H1 V${y.value - span} C1 ${y.value - 40} ${bulge.value} ${y.value - 36} ${bulge.value} ${y.value} C${bulge.value} ${y.value + 36} 1 ${y.value + 40} 1 ${y.value + span} V${edgeHeight.value} H0 Z`
   })
   const edgeButtonStyle = computed(() => ({
-    transform: `translate(${bulge.value * .58 - 18}px, ${y.value - 22}px)`,
+    transform: `translate(${bulge.value * .4 - 18}px, ${y.value - 22}px)`,
   }))
 
   function animate(time) {
@@ -47,13 +47,12 @@ export function useSidebarEdge(isCollapsed) {
       frame = 0
       lastTime = 0
       velocityY = velocityBulge = 0
-      y.value = targetY = 48
+      y.value = targetY
       bulge.value = targetBulge = 26
     } else if (!frame) frame = requestAnimationFrame(animate)
   }
   function resetEdge() {
     if (focused || pressed) return
-    targetY = 48
     targetBulge = 26
     update()
   }
@@ -61,10 +60,10 @@ export function useSidebarEdge(isCollapsed) {
     if (event.pointerType !== 'mouse' || focused || pressed || reducedMotion?.matches) return
     const rect = sidebarElement.value?.getBoundingClientRect()
     if (!rect) return
-    const distance = Math.abs(event.clientX - rect.right)
-    if (distance > 150) return resetEdge()
+    const distance = event.clientX - rect.right
+    if (distance < 0 || distance > 110) return resetEdge()
     targetY = Math.max(48, Math.min(edgeHeight.value - 48, event.clientY - rect.top))
-    targetBulge = 26 + 24 * (1 - distance / 150)
+    targetBulge = 26 + 10 * (1 - distance / 110)
     update()
   }
   function focusEdge(event) { focused = event.target.matches(':focus-visible') }
