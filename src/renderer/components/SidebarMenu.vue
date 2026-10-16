@@ -56,20 +56,19 @@
           </button>
         </el-tooltip>
       </nav>
-    </aside>
-    <div class="main-content">
-      <div v-if="desktopAvailable" class="drag-region" data-tauri-drag-region @pointerdown="onTouchWindowDragStart"></div>
       <el-tooltip :content="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" placement="bottom">
-        <button type="button" class="collapse-btn caption-collapse" :aria-label="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" :aria-expanded="!isCollapsed" @pointerdown.stop @click="toggleCollapse">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 4h16v16H4zM9 4v16" />
-            <path :d="isCollapsed ? 'm13 9 3 3-3 3' : 'm16 9-3 3 3 3'" />
+        <button type="button" class="collapse-btn sidebar-collapse" :aria-label="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" :aria-expanded="!isCollapsed" @pointerdown.stop @click="toggleCollapse">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path :d="isCollapsed ? 'm9 6 6 6-6 6' : 'm15 6-6 6 6 6'" />
           </svg>
         </button>
       </el-tooltip>
-      <div v-if="desktopAvailable" class="window-controls">
+    </aside>
+    <div class="main-content">
+      <div v-if="desktopAvailable" class="drag-region" data-tauri-drag-region @pointerdown="onTouchWindowDragStart"></div>
+      <div v-if="desktopAvailable || nativeUiPreview" class="window-controls">
         <el-tooltip :content="t.sidebar.minimize" placement="bottom">
-          <button type="button" class="control-btn minimize" :aria-label="t.sidebar.minimize" @click="minimizeWindow">
+          <button type="button" class="control-btn minimize" :disabled="nativeUiPreview && !desktopAvailable" :aria-label="t.sidebar.minimize" @click="minimizeWindow">
             <svg viewBox="0 0 12 12" class="window-button-icon" aria-hidden="true"><path d="M1 9h10" /></svg>
           </button>
         </el-tooltip>
@@ -77,6 +76,7 @@
           <button
             type="button"
             class="control-btn maximize"
+            :disabled="nativeUiPreview && !desktopAvailable"
             :aria-label="isMaximized ? t.sidebar.restore : t.sidebar.maximize"
             @click="toggleMaximize"
           >
@@ -87,7 +87,7 @@
           </button>
         </el-tooltip>
         <el-tooltip :content="t.sidebar.hideWindow" placement="bottom">
-          <button type="button" class="control-btn close" :aria-label="t.sidebar.hideWindow" @click="closeWindow">
+          <button type="button" class="control-btn close" :disabled="nativeUiPreview && !desktopAvailable" :aria-label="t.sidebar.hideWindow" @click="closeWindow">
             <svg viewBox="0 0 12 12" class="window-button-icon" aria-hidden="true"><path d="m1 1 10 10M11 1 1 11" /></svg>
           </button>
         </el-tooltip>
@@ -126,7 +126,9 @@
 import { computed, toRef, watch, onMounted } from 'vue'
 import DesktopOnly from './DesktopOnly.vue'
 import { hasDesktopRuntime } from '../shared/runtime.js'
+import { isNativeUiPreview } from '../shared/preview.js'
 const desktopAvailable = hasDesktopRuntime()
+const nativeUiPreview = isNativeUiPreview()
 import sunshineLogo from '../../assets/logo-sunshine-256.png?url'
 import VddSettings from './VddSettings.vue'
 import Welcome from './welcome.vue'
@@ -226,5 +228,6 @@ defineExpose({
 }
 .window-controls .control-btn:hover { background: var(--fd-bg-tertiary); }
 .window-controls .control-btn.close:hover { background: #c42b1c; color: white; }
+.window-controls .control-btn:disabled { cursor: default; background: transparent; color: var(--fd-text-secondary); }
 .window-button-icon { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.5; }
 </style>

@@ -257,21 +257,24 @@ button:focus-visible {
   position: relative;
   overflow: hidden;
 }
-.caption-collapse {
+.sidebar-collapse {
   position:absolute;
-  top:2px;
-  left:8px;
-  width:36px;
-  height:32px;
-  z-index:101;
-  border-radius:6px;
+  top:24px;
+  right:-22px;
+  width:22px;
+  height:40px;
+  z-index:1001;
+  border-radius:0 22px 22px 0;
+  border:1px solid var(--nav-line);
+  border-left:0;
+  background:var(--fd-bg-secondary, @morandi-mid-bg);
   color:var(--nav-text);
-  &:hover { background:var(--nav-selected); }
+  &:hover { color:var(--nav-active); }
 }
 .drag-region {
   position: absolute;
   top: 0;
-  left: 48px;
+  left: 24px;
   // Keep the three window controls outside the caption.
   right: 138px;
   height: 32px;
@@ -412,7 +415,7 @@ button:focus-visible {
   .main-content { background: var(--fd-bg-primary); box-shadow: none; }
   .sidebar-header { min-height: 76px; }
   .app-name { color: var(--fd-text-primary); font-size: 16px; }
-  .collapse-btn { color: var(--fd-text-secondary); background: transparent; }
+  .collapse-btn { color: var(--fd-text-secondary); background: var(--fd-bg-secondary); }
   .menu-item, .section-title { font-family: inherit; }
   .window-controls .control-icon { filter: none; transform: none; }
 }
