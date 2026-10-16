@@ -2,8 +2,9 @@
   <div class="sidebar-wrapper">
     <aside class="sidebar" :class="{ collapsed: isCollapsed }">
       <div class="sidebar-header" data-tauri-drag-region @pointerdown="onTouchWindowDragStart">
+        <img :src="sunshineLogo" class="brand-logo" alt="Foundation Sunshine" />
         <h3 v-if="!isCollapsed" class="app-name">
-          <span>Foundation</span>
+          <span>Foundation Sunshine</span>
           <span>Desktop</span>
         </h3>
       </div>
@@ -123,6 +124,7 @@
 
 <script setup>
 import { computed, toRef, watch, onMounted } from 'vue'
+import sunshineLogo from '../../assets/logo-sunshine-256.png?url'
 import VddSettings from './VddSettings.vue'
 import Welcome from './welcome.vue'
 import ControllersHub from './controllersHub/ControllersHub.vue'

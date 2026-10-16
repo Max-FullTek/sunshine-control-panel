@@ -443,6 +443,14 @@ onMounted(async () => {
   if (import.meta.env.DEV && new URLSearchParams(location.search).get('preview') === '1') {
     proxyBase = 'http://127.0.0.1:48081'
     localProxyVerified = true
+    // Reuse the native navigation handshake without enabling native actions
+    // in the browser-only preview.
+    const handlePreviewMessage = createMessageHandler()
+    const previewMessageTypes = new Set(['native-navigation-context-request', 'path-update', 'navigation-start'])
+    messageHandler = (event) => {
+      if (previewMessageTypes.has(event.data?.type)) handlePreviewMessage(event)
+    }
+    window.addEventListener('message', messageHandler)
     sunshineUrl.value = proxyBase + '/'
     currentPath.value = '/'
     return

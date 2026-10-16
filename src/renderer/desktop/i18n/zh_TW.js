@@ -555,7 +555,7 @@ export const zh_TW = {
     "clientPairing": "用戶端配對",
     "streamSettings": "串流設定",
     "toolbox": "工具箱",
-    "panelSettings": "面板設定",
+    "panelSettings": "介面設定",
     "helpAbout": "說明與關於",
     "toolboxDescription": "串流過程中的輔助工具與輸入診斷。",
     "panelSettingsDescription": "介面偏好、軟體更新、帳戶和維護。",
