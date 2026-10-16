@@ -253,24 +253,30 @@ button:focus-visible {
   min-width: 0;
   flex: 1;
   height: 100%;
+  box-sizing: border-box;
+  padding-top: 36px;
   background: @morandi-dark-bg;
   position: relative;
   overflow: hidden;
 }
 .sidebar-collapse {
   position:absolute;
-  top:24px;
-  right:-22px;
-  width:22px;
-  height:40px;
+  top:12px;
+  right:-14px;
+  width:28px;
+  height:28px;
   z-index:1001;
-  border-radius:0 22px 22px 0;
+  border-radius:50%;
   border:1px solid var(--nav-line);
-  border-left:0;
   background:var(--fd-bg-secondary, @morandi-mid-bg);
   color:var(--nav-text);
-  &:hover { color:var(--nav-active); }
+  box-shadow:0 2px 6px rgba(0,0,0,.16);
+  transition:transform 160ms ease, box-shadow 160ms ease, color 160ms ease;
+  svg { transition:transform 240ms cubic-bezier(.22,1,.36,1); }
+  &:hover { color:var(--nav-active); transform:scale(1.08); box-shadow:0 3px 10px rgba(0,0,0,.2); }
+  &:active { transform:scale(.94); }
 }
+.sidebar.collapsed .sidebar-collapse svg { transform:rotate(180deg); }
 .drag-region {
   position: absolute;
   top: 0;
@@ -386,8 +392,7 @@ button:focus-visible {
     min-height: 44px;
   }
   .collapse-btn {
-    width: 32px;
-    height: 44px;
+    &::after { content:''; position:absolute; inset:-8px; border-radius:50%; }
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -400,6 +405,7 @@ button:focus-visible {
   .control-icon {
     transition: none;
   }
+  .sidebar-collapse, .sidebar-collapse svg { transition:none; }
 }
 
 :global(html[data-fd-theme]) .sidebar-wrapper {

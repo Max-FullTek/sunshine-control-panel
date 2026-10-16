@@ -59,7 +59,7 @@
       <el-tooltip :content="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" placement="bottom">
         <button type="button" class="collapse-btn sidebar-collapse" :aria-label="isCollapsed ? t.sidebar.expand : t.sidebar.collapse" :aria-expanded="!isCollapsed" @pointerdown.stop @click="toggleCollapse">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path :d="isCollapsed ? 'm9 6 6 6-6 6' : 'm15 6-6 6 6 6'" />
+            <path d="m15 6-6 6 6 6" />
           </svg>
         </button>
       </el-tooltip>

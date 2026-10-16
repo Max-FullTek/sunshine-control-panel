@@ -1,4 +1,35 @@
 export const zh_TW = {
+  "aboutLite": {
+  "introTitle": "關於 Foundation Sunshine Lite",
+  "introSections": [
+    {
+      "title": "以串流為核心",
+      "body": "Foundation Sunshine Lite 是以 AlkaidLab 的 Foundation Sunshine 為基礎整理的輕量版本，承接 LizardByte Sunshine 的開源串流技術，並沿用 qiin2333 的 Sunshine Control Panel 介面與原生整合成果。感謝原作者與社群長期投入，讓這份延伸工作得以建立在既有成果之上。"
+    },
+    {
+      "title": "減法與一致性",
+      "body": "我們聚焦日常串流需要的應用程式管理、裝置配對、串流設定與顯示裝置操作，精簡附加工具與重複入口。Desktop 與瀏覽器共用 Vue 頁面，統一元件、間距及台灣繁體中文用語，同時保留原作者的預設背景、深淺色配色與卡片設計概念。"
+    },
+    {
+      "title": "持續整理中",
+      "body": "Lite 的介面仍在逐步調整；需要原生環境的功能會清楚標示 Desktop 限制。本專案是獨立維護的衍生版本，保留上游著作權與授權聲明。若這些功能對你有幫助，歡迎先造訪下方原作者專案，閱讀文件並給予 Star，支持開源開發。"
+    }
+  ],
+  "referencesTitle": "上游專案與參考資源",
+  "referenceDescriptions": {
+    "foundation": "AlkaidLab 維護的 Sunshine 衍生版本，是 Lite 的主要開發基礎。",
+    "panel": "qiin2333 開發的控制面板，提供 Vue 介面與 Desktop 原生整合。",
+    "sunshine": "LizardByte 維護的開源串流主機，提供串流、編碼與輸入核心。",
+    "resources": "LizardByte 整理的 Sunshine 與 Moonlight 社群工具及參考資源。"
+  },
+  "supportTitle": "支持原作者",
+  "supportBody": "喜歡這些開源成果，歡迎到原作者的 GitHub 專案按下 Star。這是表達支持與持續關注更新的簡單方式。",
+  "starLink": "前往 GitHub · 給予 Star",
+  "forkTitle": "我們的輕量版",
+  "forkBody": "Lite 的修改、原始碼與問題回報；上游專案仍由各自作者獨立維護。",
+  "forkLink": "查看 Foundation Sunshine Lite",
+  "previewVersion": "介面預覽"
+},
   "runtime": { "desktopRequired": "此功能需要在 Foundation Sunshine Lite Desktop 中設定。", "matchingCoreRequired": "目前主機尚未提供共用介面，請使用與 Desktop 配套的 Sunshine Lite 版本。" },
   "hostStatus": {
     "preview": "介面預覽：使用範例資料，非實際主機狀態",
@@ -12,7 +43,7 @@ export const zh_TW = {
   },
   "lite": {
     "referenceDescription": "專案原始碼、文件與用戶端參考資源。",
-    "licenseNotice": "Foundation Desktop 以 Foundation Sunshine 與 Sunshine 為基礎，保留原專案的著作權與授權聲明。",
+    "licenseNotice": "Foundation Sunshine Lite Desktop 以 Foundation Sunshine 與 Sunshine 為基礎，保留原專案的著作權與授權聲明。",
     "theme": "主題",
     "themeDescription": "純色淺色或深色外觀。",
     "light": "淺色",

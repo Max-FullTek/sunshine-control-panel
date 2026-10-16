@@ -1,4 +1,5 @@
 <template>
+  <span class="settings-select-wrapper">
   <select class="settings-select" :value="modelValue" @change="handleChange">
     <option
       v-for="option in options"
@@ -8,6 +9,8 @@
       {{ option.label }}
     </option>
   </select>
+  <svg class="select-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
+  </span>
 </template>
 
 <script setup>
@@ -33,18 +36,18 @@ function handleChange(event) {
 </script>
 
 <style lang="less" scoped>
+.settings-select-wrapper { display:inline-flex; position:relative; color:var(--fd-text-secondary); max-width:100%; }
+.select-chevron { position:absolute; right:12px; top:50%; transform:translateY(-50%); width:14px; height:14px; pointer-events:none; }
 .settings-select {
   padding: 8px 32px 8px 12px;
   border: 1px solid rgba(var(--fd-accent-rgb, 0, 255, 245), 0.2);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--fd-bg-secondary);
   color: var(--fd-text-primary, #fff);
   font-size: 14px;
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300fff5' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
+  max-width: 100%;
 
   &:focus {
     outline: none;

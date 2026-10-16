@@ -68,9 +68,18 @@
       <DesktopOnly v-if="!isAdmin"><el-button @click="actions.restartAsAdmin">{{ t.sidebar.restartAsAdmin }}</el-button></DesktopOnly>
     </template>
     <template v-else>
+      <article class="about-introduction settings-card">
+        <h2>{{ t.aboutLite.introTitle }}</h2>
+        <section v-for="section in t.aboutLite.introSections" :key="section.title">
+          <h3>{{ section.title }}</h3>
+          <p>{{ section.body }}</p>
+        </section>
+      </article>
+      <section class="panel-section">
+      <h2>{{ t.aboutLite.referencesTitle }}</h2>
       <div class="settings-card">
         <div v-for="link in referenceLinks" :key="link.url" class="settings-row">
-          <strong>{{ link.name }}</strong>
+          <div class="reference-copy"><strong>{{ link.name }}</strong><p>{{ t.aboutLite.referenceDescriptions[link.id] }}</p></div>
           <el-button @click="actions.openUrl(link.url)">{{ t.sidebar.visit }}</el-button>
         </div>
         <div class="settings-row">
@@ -81,7 +90,20 @@
           <el-button @click="emit('webui-navigate', '/troubleshooting')">{{ t.sidebar.open }}</el-button>
         </div>
       </div>
-      <p class="version-note">Foundation Desktop · {{ currentVersion }}</p>
+      </section>
+      <section class="support-section settings-card">
+        <h2>{{ t.aboutLite.supportTitle }}</h2>
+        <p>{{ t.aboutLite.supportBody }}</p>
+        <div class="support-links">
+          <a v-for="link in referenceLinks.filter(link => link.id !== 'resources')" :key="link.id" :href="link.url" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(link.url)"><strong>{{ link.name }}</strong><span>{{ t.aboutLite.starLink }} ↗</span></a>
+        </div>
+      </section>
+      <section class="fork-section settings-card">
+        <h2>{{ t.aboutLite.forkTitle }}</h2>
+        <p>{{ t.aboutLite.forkBody }}</p>
+        <a :href="liteRepositoryUrl" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(liteRepositoryUrl)">{{ t.aboutLite.forkLink }} ↗</a>
+      </section>
+      <p class="version-note">Foundation Sunshine Lite Desktop · {{ displayVersion }}</p>
     </template>
   </div>
 </template>
@@ -91,9 +113,9 @@ import DesktopOnly from './DesktopOnly.vue'
 import { Setting, QuestionFilled } from '@element-plus/icons-vue'
 import { computed } from 'vue'
 import DesktopPreferences from '../desktop/views/SettingsView.vue'
-import { TopRight } from '@element-plus/icons-vue'
 import { useI18n } from '../desktop/i18n/index.js'
-import { referenceLinks } from '../shared/referenceLinks.js'
+import { referenceLinks, liteRepositoryUrl } from '../shared/referenceLinks.js'
+import { isNativeUiPreview } from '../shared/preview.js'
 import { ROUTES } from '../composables/useRouter.js'
 const props = defineProps({
   page: { type: String, required: true },
@@ -106,10 +128,11 @@ const props = defineProps({
 })
 const emit = defineEmits(['theme-change', 'locale-change', 'webui-navigate'])
 const { t } = useI18n()
+const displayVersion = computed(() => isNativeUiPreview() ? t.value.aboutLite.previewVersion : props.currentVersion)
 const heading = computed(() => {
   const s = t.value.sidebar
   if (props.page === ROUTES.PANEL_SETTINGS) return { title: s.panelSettings, description: s.panelSettingsDescription }
-  return { title: s.helpAbout, description: 'Foundation Sunshine' }
+  return { title: s.helpAbout, description: 'Foundation Sunshine Lite Desktop' }
 })
 </script>
 <style scoped lang="less">
@@ -121,7 +144,10 @@ const heading = computed(() => {
   --panel-accent: var(--fd-accent);
   max-width: 1440px;
   margin: 0 auto;
-  padding: 52px 24px 32px;
+  padding: 0 24px 32px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
   color: var(--panel-text);
   font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
 }
@@ -248,7 +274,23 @@ const heading = computed(() => {
   color: var(--panel-muted);
   margin-top: 20px;
   font-size: 12px;
+  text-align: right;
+  padding-top: 20px;
+  margin-bottom: 0;
+  margin-top: auto;
 }
+.reference-copy { flex:1; min-width:180px; }
+.about-introduction, .support-section, .fork-section { padding:24px; margin-bottom:24px; }
+.about-introduction h2, .support-section h2, .fork-section h2 { font-size:19px; margin:0 0 18px; font-weight:600; }
+.about-introduction h3 { font-size:15px; font-weight:600; margin:20px 0 8px; }
+.about-introduction p, .support-section p, .fork-section p { font-size:14px; line-height:1.9; margin:0; color:var(--panel-muted); }
+.support-links { display:flex; flex-direction:column; margin-top:16px; }
+.support-links a { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; padding:12px 0; border-top:1px solid var(--panel-border); }
+.support-links a, .fork-section a { color:var(--panel-accent); text-decoration:none; font-size:14px; }
+.support-links a:hover, .fork-section a:hover { text-decoration:underline; }
+.support-links strong { font-weight:500; }
+.fork-section a { display:inline-block; margin-top:14px; }
+:deep(.page-heading) { padding-top:0; }
 @media (max-width: 850px) {
   .panel-page {
     padding: 24px 18px;

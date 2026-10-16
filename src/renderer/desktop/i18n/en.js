@@ -1,4 +1,35 @@
 export const en = {
+  "aboutLite": {
+  "introTitle": "About Foundation Sunshine Lite",
+  "introSections": [
+    {
+      "title": "Focused on streaming",
+      "body": "Foundation Sunshine Lite is a lightweight derivative of Foundation Sunshine by AlkaidLab. It builds on the open-source streaming technology of Sunshine by LizardByte and the Vue interface and native integration of Sunshine Control Panel by qiin2333. We thank the original authors and community for their work."
+    },
+    {
+      "title": "Less clutter, more consistency",
+      "body": "Lite focuses on app management, pairing, streaming settings and display controls, simplifying extra tools and repeated entry points. Desktop and browser share Vue pages, consistent components and spacing, and localized wording. The original background, light and dark palettes, and card design remain part of the interface."
+    },
+    {
+      "title": "Work in progress",
+      "body": "The interface is still being refined. Features that require native access identify their Desktop requirement. This is an independently maintained derivative that preserves upstream copyright and license notices. If you find it useful, visit the original projects below, read their documentation and consider giving them a Star."
+    }
+  ],
+  "referencesTitle": "Upstream projects and resources",
+  "referenceDescriptions": {
+    "foundation": "The Sunshine derivative maintained by AlkaidLab and the main foundation for Lite.",
+    "panel": "The control panel by qiin2333, providing the Vue interface and native Desktop integration.",
+    "sunshine": "The open-source streaming host by LizardByte, providing streaming, encoding and input.",
+    "resources": "Sunshine and Moonlight community tools and resources curated by LizardByte."
+  },
+  "supportTitle": "Support the original authors",
+  "supportBody": "Visit the original GitHub projects and consider giving them a Star to show your support and follow their updates.",
+  "starLink": "Visit GitHub · Give a Star",
+  "forkTitle": "Our lightweight version",
+  "forkBody": "Lite source, changes and issue reports. Each upstream project remains independently maintained by its authors.",
+  "forkLink": "View Foundation Sunshine Lite",
+  "previewVersion": "UI preview"
+},
   "runtime": { "desktopRequired": "Configure this feature in Foundation Sunshine Lite Desktop.", "matchingCoreRequired": "This host does not provide the shared interface. Use the Sunshine Lite build paired with Desktop." },
   "hostStatus": {
     "preview": "Interface preview: sample data, not live host status",
@@ -8,7 +39,7 @@ export const en = {
   },
   "lite": {
     "referenceDescription": "Project sources, documentation, and client references.",
-    "licenseNotice": "Foundation Desktop is based on Foundation Sunshine and Sunshine. Original copyright and license notices remain applicable.",
+    "licenseNotice": "Foundation Sunshine Lite Desktop is based on Foundation Sunshine and Sunshine. Original copyright and license notices remain applicable.",
     "theme": "Theme",
     "themeDescription": "Plain light or dark appearance.",
     "light": "Light",

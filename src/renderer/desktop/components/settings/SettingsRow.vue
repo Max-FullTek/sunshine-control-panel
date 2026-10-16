@@ -44,6 +44,7 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
   padding: 16px 0;
   border-bottom: 1px solid rgba(var(--fd-accent-rgb, 0, 255, 245), 0.1);
 
@@ -73,6 +74,9 @@ defineProps({
   color: rgba(var(--fd-text-primary-rgb, 255, 255, 255), 0.5);
   line-height: 1.45;
 }
+.setting-info { min-width:0; flex:1; }
+.setting-control { flex-shrink:0; max-width:100%; }
+@media (max-width:600px) { .setting-item { flex-wrap:wrap; gap:12px; } .setting-info { flex-basis:75%; } }
 
 .tool-path-name {
   display: inline-flex;
