@@ -437,6 +437,17 @@ onMounted(async () => {
   window.addEventListener('navigate-frame', handleNavigateFrame)
   window.addEventListener('locale-changed', handleLocaleChanged)
 
+  // Browser-only visual preview of the existing local agent's Web UI.
+  // Production builds remove this branch; native IPC and the proxy health
+  // challenge remain mandatory for the packaged application.
+  if (import.meta.env.DEV && new URLSearchParams(location.search).get('preview') === '1') {
+    proxyBase = 'http://127.0.0.1:48081'
+    localProxyVerified = true
+    sunshineUrl.value = proxyBase + '/'
+    currentPath.value = '/'
+    return
+  }
+
   try {
     await invoke('wait_for_proxy_ready')
     const proxyBaseUrl = await sunshine.getProxyUrl()
