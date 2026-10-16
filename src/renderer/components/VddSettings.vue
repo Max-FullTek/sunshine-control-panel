@@ -12,21 +12,20 @@
         </template>
         <template #actions>
         <div v-if="!isDriverCheckPending && vddReady" class="page-header-actions">
-          <el-button
+          <PageAction
             v-for="action in heroActions"
             :key="action.key"
-            :class="['page-header-action', `is-${action.key}`]"
-            :plain="action.plain"
-            :type="action.type"
-            :loading="action.loading"
+            :label="action.label"
+            :icon="action.icon"
+            :primary="action.key === 'save'"
+            :disabled="isNativeUiPreview() || (action.key === 'save' && !hasUnsavedChanges)"
+            :busy="action.loading"
             @click="action.onClick"
-          >
-            <el-icon><component :is="action.icon" /></el-icon>
-            {{ action.label }}
-          </el-button>
+          />
         </div>
         </template>
       </PageHeading>
+      <p class="save-behavior-note">{{ t.vddSettings.unsavedDesc }}</p>
 
       <div
         v-if="!isDriverCheckPending && vddReady && vddStatus.state === 'degraded'"
@@ -549,7 +548,6 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Monitor,
   Plus,
-  UploadFilled,
   Upload,
   Download,
   Refresh,
@@ -570,6 +568,7 @@ import { installVddWithRecovery } from '../composables/vddInstallRecovery.js'
 import { openExternalUrl, sunshine, vdd } from '../tauri-adapter.js'
 import { isNativeUiPreview } from '../shared/preview.js'
 import PageHeading from './PageHeading.vue'
+import PageAction from './PageAction.vue'
 import { useI18n } from '../desktop/i18n/index.js'
 
 const { t } = useI18n()
@@ -828,19 +827,15 @@ const heroActions = computed(() => [
   {
     key: 'reload',
     label: t.value.vddSettings.reload,
-    icon: Refresh,
+    icon: 'reload',
     loading: isLoading.value,
-    plain: true,
-    type: undefined,
     onClick: reloadSettings,
   },
   {
     key: 'save',
     label: t.value.vddSettings.saveAndApply,
-    icon: UploadFilled,
+    icon: 'save',
     loading: isSaving.value,
-    plain: !hasUnsavedChanges.value,
-    type: hasUnsavedChanges.value ? 'primary' : undefined,
     onClick: saveSettings,
   },
 ])

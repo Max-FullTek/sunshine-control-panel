@@ -169,7 +169,7 @@
   }
 }
 
-[data-bs-theme='dark'] {
+:global([data-bs-theme='dark']) {
   .vdd-settings-wrapper {
     --page-title-icon-color: #d8a0a0;
     --page-title-icon-bg: rgba(216, 160, 160, 0.12);
@@ -301,7 +301,7 @@
   }
 }
 
-[data-bs-theme='light'] {
+:global([data-bs-theme='light']) {
   .vdd-settings-wrapper {
     --page-title-icon-color: #3a7ed5;
     --page-title-icon-bg: rgba(58, 126, 213, 0.1);
@@ -1406,6 +1406,16 @@
   .card-shell(14px, 18px, 16px);
 }
 
+// Keep the original panel palette, with a stable surface behind settings.
+.vdd-settings-wrapper .section-card,
+.vdd-settings-wrapper .hero-panel,
+.vdd-settings-wrapper .overview-card {
+  background: var(--fd-bg-secondary);
+  border-color: var(--fd-border);
+  backdrop-filter: none;
+}
+.save-behavior-note { margin: -8px 0 20px; color: var(--fd-text-secondary); font-size:13px; line-height:1.6; }
+
 .utility-card {
   position: static;
 }
@@ -1607,7 +1617,7 @@
 
 // Segmented page layout: reuse the existing cards and controls while showing
 // only the task the user is currently working on.
-[data-bs-theme='dark'] {
+:global([data-bs-theme='dark']) {
   .vdd-settings-wrapper {
     --vdd-tabs-bg: rgba(255, 255, 255, 0.025);
     --vdd-tab-active-bg: rgba(212, 165, 165, 0.14);
@@ -1619,7 +1629,7 @@
   }
 }
 
-[data-bs-theme='light'] {
+:global([data-bs-theme='light']) {
   .vdd-settings-wrapper {
     --vdd-tabs-bg: rgba(58, 126, 213, 0.045);
     --vdd-tab-active-bg: rgba(255, 255, 255, 0.9);
@@ -1643,23 +1653,6 @@
   justify-content: flex-end;
   gap: 10px;
 
-  :deep(.el-button) {
-    min-height: 40px;
-    margin: 0;
-    border-radius: 11px;
-  }
-
-  :deep(.page-header-action.is-reload) {
-    color: var(--el-text-color-regular);
-    border-color: var(--el-border-color);
-    background: var(--el-bg-color-overlay);
-  }
-
-  :deep(.page-header-action.is-save.is-plain) {
-    color: var(--el-text-color-regular);
-    border-color: var(--el-border-color);
-    background: var(--el-fill-color-light);
-  }
 }
 
 .vdd-section-tabs {
@@ -1671,7 +1664,7 @@
   gap: 4px;
   border: 1px solid var(--el-border-color-lighter);
   border-radius: 12px;
-  background: var(--vdd-tabs-bg);
+  background: var(--fd-bg-secondary);
 }
 
 .vdd-section-tab {
@@ -1697,7 +1690,7 @@
 
   &.active {
     color: var(--vdd-tab-active-text);
-    background: var(--vdd-tab-active-bg);
+    background: var(--fd-bg-tertiary);
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
   }
 
