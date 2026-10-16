@@ -2,7 +2,7 @@ import { ref, computed, watch } from 'vue'
 import { zh } from './zh.js'
 import { en } from './en.js'
 import { zh_TW } from './zh_TW.js'
-import { normalizeLocale, documentLocale } from '../../shared/locale.js'
+import { normalizeLocale, documentLocale, readInterfaceLocale, writeInterfaceLocale } from '../../shared/locale.js'
 
 const messages = { zh, zh_TW, en }
 export const setShellLocale = (value) => updateCurrentLocale(normalizeLocale(value), true)
@@ -14,7 +14,7 @@ const normalizeDesktopLocale = normalizeLocale
 
 function getDefaultLocale() {
   try {
-    const saved = localStorage.getItem('language')
+    const saved = readInterfaceLocale(localStorage) || localStorage.getItem('language')
     if (saved) return normalizeDesktopLocale(saved)
   } catch {
     // Fall back to the browser locale when storage is unavailable.
@@ -164,6 +164,7 @@ function requestLocaleChange(value) {
 
   const requestId = createLocaleRequestId()
   setLatestLocaleRequest(requestId)
+  writeInterfaceLocale(localStorage, normalized)
   updateCurrentLocale(normalized, true)
   syncLocalePreferences(normalized, requestId)
 }

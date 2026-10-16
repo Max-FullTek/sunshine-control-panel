@@ -1,6 +1,6 @@
 export const en = {
   "setupLite": {"title": "Quick setup wizard"},
-  "localeHelp": {"host": "Default host interface language, applied when saved; shared with the interface language preference.", "interface": "Changes the current interface immediately. Desktop syncs the host preference; browser reloads use the host setting."},
+  "localeHelp": {"host": "Default host interface language, applied when saved; shared with the interface language preference.", "interface": "Changes the interface language immediately and remembers it across pages. Desktop also syncs the host preference."},
   "pairingCopy": {
   "description": [
     "Generate a QR code for quick pairing.",

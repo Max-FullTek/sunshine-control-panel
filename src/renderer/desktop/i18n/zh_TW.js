@@ -1,6 +1,6 @@
 export const zh_TW = {
   "setupLite": {"title": "快速設定精靈"},
-  "localeHelp": {"host": "主機的預設介面語言，儲存後生效；與介面設定的語言選擇共用。", "interface": "立即切換目前介面。Desktop 會同步主機偏好；瀏覽器重新載入後以主機設定為準。"},
+  "localeHelp": {"host": "主機的預設介面語言，儲存後生效；與介面設定的語言選擇共用。", "interface": "立即切換介面語言並記住選擇，切換頁面後仍會保留。Desktop 也會同步主機偏好。"},
   "pairingCopy": {
   "description": [
     "產生 QR Code 快速配對。",

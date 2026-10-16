@@ -1,6 +1,6 @@
 export const zh = {
   "setupLite": {"title": "快速设置向导"},
-  "localeHelp": {"host": "主机的默认界面语言，保存后生效；与界面设置的语言选择共用。", "interface": "立即切换当前界面。Desktop 会同步主机偏好；浏览器重新加载后以主机设置为准。"},
+  "localeHelp": {"host": "主机的默认界面语言，保存后生效；与界面设置的语言选择共用。", "interface": "立即切换界面语言并记住选择，切换页面后仍会保留。Desktop 也会同步主机偏好。"},
   "pairingCopy": {
   "description": [
     "生成 QR Code 快速配对。",
