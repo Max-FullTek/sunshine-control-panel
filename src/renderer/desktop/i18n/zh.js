@@ -215,7 +215,7 @@ export const zh = {
     gamepadCursor: '手柄光标模式',
     gamepadCursorDesc: '按左摇杆键用左摇杆驱动虚拟指针，覆盖尚未适配空间导航的页面',
     oskAutoOpen: '自动弹出屏幕键盘',
-    oskAutoOpenDesc: '焦点在文本框上按 A 时打开屏幕键盘',
+    oskAutoOpenDesc: '焦点在文本框上按 A 时打开屏幕键盘',
     navSounds: '手柄导航音效',
     navSoundsDesc: '焦点移动和确认/返回时的轻微提示音',
     launchAssistant: '启动助手',
@@ -920,7 +920,7 @@ export const zh = {
   deviceHub: {
     eyebrow: 'MANAGE / DEVICE HUB',
     title: '设备中心',
-    intro: '管理虚拟设备、本机组件与 USB/IP 透传；串流参数仍在 WebUI 中配置。',
+    intro: "管理手把模擬與輸入設定。",
     refresh: '刷新',
     available: '可用',
     unavailable: '不可用',

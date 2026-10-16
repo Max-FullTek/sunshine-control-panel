@@ -215,7 +215,7 @@ export const en = {
     gamepadCursor: 'Gamepad cursor mode',
     gamepadCursorDesc: 'Click the left stick to drive a virtual pointer, covering pages that spatial navigation does not reach yet',
     oskAutoOpen: 'Auto-open on-screen keyboard',
-    oskAutoOpenDesc: 'Press A on a focused text field to open the on-screen keyboard',
+    oskAutoOpenDesc: 'Press A on a focused text field to open the on-screen keyboard',
     navSounds: 'Gamepad navigation sounds',
     navSoundsDesc: 'Subtle ticks for focus moves, confirm and back',
     launchAssistant: 'Launch Assistant',
@@ -921,7 +921,7 @@ export const en = {
   deviceHub: {
     eyebrow: 'MANAGE / DEVICE HUB',
     title: 'Device Hub',
-    intro: 'Manage virtual devices, local components, and USB/IP passthrough. Streaming settings remain in the Web UI.',
+    intro: "Manage gamepad emulation and input options.",
     refresh: 'Refresh',
     available: 'Available',
     unavailable: 'Unavailable',
