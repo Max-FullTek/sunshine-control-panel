@@ -1,4 +1,6 @@
 export const zh = {
+  "setupLite": {"title": "快速设置向导"},
+  "localeHelp": {"host": "主机的默认界面语言，保存后生效；与界面设置的语言选择共用。", "interface": "立即切换当前界面。Desktop 会同步主机偏好；浏览器重新加载后以主机设置为准。"},
   "pairingCopy": {
   "description": [
     "生成 QR Code 快速配对。",
@@ -21,10 +23,10 @@ export const zh = {
   "help": "了解 Foundation Sunshine Lite，查看上游项目、支持作者与诊断入口。"
 },
   "appsGuide": {
+  "restorePrefix": "你可以点击",
+  "restoreSuffix": "来补回缺少的内置项目，并重置同名内置项目的设置；其他自定义项目会保留，更改会立即保存。",
   "restoreLabel": "还原默认应用程序",
-  "title": "这份列表如何使用？",
-  "body": "这里管理 Moonlight 客户端看到的串流应用程序。Desktop 用于串流整个桌面；其他项目可设置游戏或程序的启动命令、封面及结束后的动作。新增或编辑后请保存，客户端便能从列表选择要启动的项目。搜索可快速筛选，拖动卡片右上角的手柄可调整顺序，顺序更改会自动保存。",
-  "restore": "“还原默认应用程序”会立即保存：补回缺少的内置项目，并将同名内置项目的设置重置为默认值。自行新增且不同名的项目会保留；若曾修改内置项目，请先记下设置。",
+  "body": "管理 Moonlight 可启动的桌面、游戏与程序，并设置启动命令、封面及结束动作。",
   "qr": "QR Code 配对（实验性）"
 },
   "aboutLite": {

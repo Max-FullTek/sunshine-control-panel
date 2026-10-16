@@ -1,4 +1,6 @@
 export const en = {
+  "setupLite": {"title": "Quick setup wizard"},
+  "localeHelp": {"host": "Default host interface language, applied when saved; shared with the interface language preference.", "interface": "Changes the current interface immediately. Desktop syncs the host preference; browser reloads use the host setting."},
   "pairingCopy": {
   "description": [
     "Generate a QR code for quick pairing.",
@@ -21,10 +23,10 @@ export const en = {
   "help": "Learn about Foundation Sunshine Lite, support upstream authors and find diagnostics."
 },
   "appsGuide": {
+  "restorePrefix": "Use",
+  "restoreSuffix": "to add missing built-in entries and reset settings on matching built-in names. Other custom entries are kept; changes save immediately.",
   "restoreLabel": "Restore default apps",
-  "title": "How does this list work?",
-  "body": "Manage the streaming apps shown in Moonlight. Desktop streams the whole desktop; other entries can specify launch commands, artwork and cleanup actions. Save new or edited entries to make them available to clients. Search filters the list. Drag the handle at the top right of a card to reorder it; changed order saves automatically.",
-  "restore": "Restore default apps saves immediately: it adds missing defaults and resets settings on built-in entries with matching names. Custom entries with other names are kept. Record any customized built-in settings first.",
+  "body": "Manage the desktops, games and apps Moonlight can launch, including launch commands, artwork and cleanup actions.",
   "qr": "QR code pairing (experimental)"
 },
   "aboutLite": {

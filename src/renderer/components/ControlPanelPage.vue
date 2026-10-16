@@ -15,7 +15,7 @@
             </el-select>
           </div>
           <div class="settings-row">
-            <label for="panel-language">{{ t.sidebar.language }}</label>
+            <div class="reference-copy"><label for="panel-language">{{ t.sidebar.language }}</label><p>{{ t.localeHelp.interface }}</p></div>
             <el-select id="panel-language" :model-value="locale" @update:model-value="emit('locale-change', $event)">
               <el-option label="繁體中文" value="zh_TW" />
               <el-option label="简体中文" value="zh" />
