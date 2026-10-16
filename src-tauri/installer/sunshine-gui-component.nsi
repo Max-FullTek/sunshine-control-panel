@@ -58,7 +58,6 @@ LangString InstallingGui ${LANG_SIMPCHINESE} "正在更新 $GuiDir 中的 Sunshi
 Var SunshineDir
 Var GuiDir
 Var GuiPath
-Var StylusPluginPath
 Var Parameters
 
 Function FindSunshine
@@ -93,7 +92,6 @@ Function FindSunshine
 found:
   StrCpy $GuiDir "$SunshineDir\assets\gui"
   StrCpy $GuiPath "$GuiDir\sunshine-gui.exe"
-  StrCpy $StylusPluginPath "$GuiDir\alkaidlab-plugin-stylus.dll"
 FunctionEnd
 
 Function .onInit
@@ -143,13 +141,6 @@ core_compatible:
   ; sunshine.exe, or sunshinesvc.exe: an active stream must keep running.
   nsExec::ExecToLog '"$SYSDIR\taskkill.exe" /F /IM sunshine-gui.exe'
 
-  Delete "$StylusPluginPath.previous"
-  IfFileExists "$StylusPluginPath" 0 backup_gui
-  ClearErrors
-  Rename "$StylusPluginPath" "$StylusPluginPath.previous"
-  IfErrors backup_failed
-
-backup_gui:
   Delete "$GuiPath.previous"
   IfFileExists "$GuiPath" 0 install_new_gui
   ClearErrors
@@ -161,11 +152,8 @@ install_new_gui:
   ClearErrors
   File /oname=sunshine-gui.exe "${SOURCE_DIR}\sunshine-gui.exe"
   IfErrors install_failed
-  File /oname=alkaidlab-plugin-stylus.dll "${SOURCE_DIR}\alkaidlab-plugin-stylus.dll"
-  IfErrors install_failed
   File /nonfatal /oname=WebView2Loader.dll "${SOURCE_DIR}\WebView2Loader.dll"
   Delete "$GuiPath.previous"
-  Delete "$StylusPluginPath.previous"
 
   ; Interactive installs restore the tray agent immediately. Silent installs
   ; are driven by the in-app updater, which restarts the GUI itself.
@@ -176,8 +164,6 @@ install_done:
   Goto section_done
 
 backup_failed:
-  IfFileExists "$StylusPluginPath.previous" 0 +2
-  Rename "$StylusPluginPath.previous" "$StylusPluginPath"
   IfSilent backup_failed_silent
   MessageBox MB_OK|MB_ICONSTOP "$(BackupFailed)"
 backup_failed_silent:
@@ -186,11 +172,8 @@ backup_failed_silent:
 
 install_failed:
   Delete "$GuiPath"
-  Delete "$StylusPluginPath"
   IfFileExists "$GuiPath.previous" 0 +2
   Rename "$GuiPath.previous" "$GuiPath"
-  IfFileExists "$StylusPluginPath.previous" 0 +2
-  Rename "$StylusPluginPath.previous" "$StylusPluginPath"
   IfSilent install_failed_silent
   MessageBox MB_OK|MB_ICONSTOP "$(InstallFailed)"
 install_failed_silent:
