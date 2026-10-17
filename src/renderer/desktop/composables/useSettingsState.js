@@ -53,21 +53,6 @@ export function useSettingsState(t) {
     }
   }
 
-  function openLink(type) {
-    const urls = {
-      github: 'https://github.com/LizardByte/Sunshine',
-      docs: 'https://docs.lizardbyte.dev/projects/sunshine/',
-      discord: 'https://discord.gg/lizardbyte',
-    }
-    if (invoke.value) {
-      invoke.value('open_external_url', { url: urls[type] }).catch(() => {
-        window.open(urls[type], '_blank')
-      })
-    } else {
-      window.open(urls[type], '_blank')
-    }
-  }
-
   async function initializeSettingsState() {
     hasTauri.value = await isTauriRuntime()
     if (hasTauri.value) {
@@ -94,7 +79,6 @@ export function useSettingsState(t) {
     statusNotice,
     disposeSettingsState,
     initializeSettingsState,
-    openLink,
     resetSettings,
     saveSettings,
   }

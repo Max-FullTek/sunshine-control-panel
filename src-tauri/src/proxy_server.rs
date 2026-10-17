@@ -50,10 +50,6 @@ const DEFAULT_PROXY_TIMEOUT_SECS: u64 = 5;
 
 /// Loopback connections should establish quickly.
 const PROXY_CONNECT_TIMEOUT_MS: u64 = 500;
-// Public services may need DNS and a full TLS handshake across the Internet.
-const EXTERNAL_PROXY_CONNECT_TIMEOUT_SECS: u64 = 5;
-const EXTERNAL_PROXY_TIMEOUT_SECS: u64 = 15;
-
 /// Bound memory and active work exposed by the unauthenticated loopback proxy.
 const MAX_PROXY_REQUEST_BODY_BYTES: usize = 16 * 1024 * 1024;
 const MAX_PROXY_RESPONSE_BODY_BYTES: usize = 64 * 1024 * 1024;
@@ -588,64 +584,6 @@ fn is_api_request(path: &str) -> bool {
     path.starts_with("/api/")
 }
 
-/// 检查是否是外部代理请求
-#[inline]
-fn is_external_proxy_request(path: &str) -> bool {
-    path.starts_with("/_proxy/")
-}
-
-/// 检查是否是 Steam API 请求
-#[inline]
-fn is_steam_api_request(path: &str) -> bool {
-    path.starts_with("/steam-store/") || path.starts_with("/steamgriddb/")
-}
-
-/// 解析外部代理 URL
-fn parse_external_proxy_url(path: &str, query: &str) -> Option<String> {
-    use url::form_urlencoded;
-
-    // 路径格式: /_proxy/{encoded_url}
-    // 或者: /_proxy/?url={encoded_url}
-    if let Some(encoded_url) = path.strip_prefix("/_proxy/") {
-        if !encoded_url.is_empty() {
-            // URL 编码在路径中，使用 percent_decode 解码
-            return percent_decode_str(encoded_url);
-        }
-    }
-
-    // 检查查询参数
-    if !query.is_empty() {
-        for (key, value) in form_urlencoded::parse(query.as_bytes()) {
-            if key == "url" {
-                return Some(value.into_owned());
-            }
-        }
-    }
-
-    None
-}
-
-/// 解码 URL 编码的字符串
-fn percent_decode_str(s: &str) -> Option<String> {
-    let mut result = Vec::new();
-    let bytes = s.as_bytes();
-    let mut i = 0;
-    while i < bytes.len() {
-        if bytes[i] == b'%' && i + 2 < bytes.len() {
-            if let Ok(byte) =
-                u8::from_str_radix(std::str::from_utf8(&bytes[i + 1..i + 3]).unwrap_or(""), 16)
-            {
-                result.push(byte);
-                i += 3;
-                continue;
-            }
-        }
-        result.push(bytes[i]);
-        i += 1;
-    }
-    String::from_utf8(result).ok()
-}
-
 /// 创建服务不可用响应（根据请求类型返回不同格式）
 fn service_unavailable_response(is_api: bool) -> Response {
     if is_api {
@@ -855,14 +793,12 @@ async fn proxy_handler(req: Request) -> Response {
     let query = uri.query().unwrap_or("").to_string();
     let headers = req.headers().clone();
 
-    // 检查是否是外部代理请求（用于绕过 CORS）
-    if is_external_proxy_request(&path) {
-        return handle_external_proxy(&path, &query, &method, &headers, req).await;
-    }
-
-    // 检查是否是 Steam API 请求（需要特殊处理）
-    if is_steam_api_request(&path) {
-        return handle_steam_api(&path, &query, &method, &headers, req).await;
+    // Retired Lite integrations must never fall through to an upstream proxy.
+    if ["/_proxy", "/steam-api", "/steam-store", "/steamgriddb"]
+        .iter()
+        .any(|prefix| path == *prefix || path.starts_with(&format!("{prefix}/")))
+    {
+        return axum::http::StatusCode::NOT_FOUND.into_response();
     }
 
     // 判断是否是 API 请求
@@ -966,238 +902,6 @@ async fn proxy_handler(req: Request) -> Response {
             }
         }
     }
-}
-
-/// 处理 Steam API 请求（直接转发到 Steam API）
-async fn handle_steam_api(
-    path: &str,
-    query: &str,
-    method: &axum::http::Method,
-    headers: &axum::http::HeaderMap,
-    req: Request,
-) -> Response {
-    // 获取请求体
-    let body = match read_proxy_request_body(req).await {
-        Ok(bytes) => bytes,
-        Err(response) => return response,
-    };
-
-    // 构建目标 URL
-    let target_url = if path.starts_with("/steam-store/") {
-        let api_path = path.strip_prefix("/steam-store").unwrap_or(path);
-        let params = if query.is_empty() {
-            "l=schinese&cc=CN"
-        } else {
-            query
-        };
-        format!("https://store.steampowered.com{}?{}", api_path, params)
-    } else if path.starts_with("/steamgriddb/") {
-        let api_path = path.strip_prefix("/steamgriddb").unwrap_or(path);
-        format!("https://www.steamgriddb.com/api/v2{}?{}", api_path, query)
-    } else {
-        return (
-            axum::http::StatusCode::BAD_REQUEST,
-            [(
-                axum::http::header::CONTENT_TYPE,
-                "application/json; charset=utf-8",
-            )],
-            r#"{"success":false,"error":"Unknown Steam API path"}"#,
-        )
-            .into_response();
-    };
-
-    debug!("🎮 Steam API 代理请求: {} -> {}", path, target_url);
-
-    // 发送请求并构建响应
-    let client = get_external_http_client(ExternalProxyScope::Steam);
-    match send_request(client, &target_url, method, headers, &body).await {
-        Ok(response) => build_filtered_proxy_response(response).await,
-        Err(e) => {
-            error!("❌ Steam API 请求失败: {}", e);
-            (
-                axum::http::StatusCode::BAD_GATEWAY,
-                [(
-                    axum::http::header::CONTENT_TYPE,
-                    "application/json; charset=utf-8",
-                )],
-                format!(
-                    r#"{{"success":false,"error":"Steam API request failed: {}"}}"#,
-                    e
-                ),
-            )
-                .into_response()
-        }
-    }
-}
-
-/// 构建经过响应头过滤的代理响应
-async fn build_filtered_proxy_response(response: reqwest::Response) -> Response {
-    let status = response.status();
-    let resp_headers = response.headers().clone();
-    let body = match limited_response_body(response, MAX_PROXY_RESPONSE_BODY_BYTES) {
-        Ok(body) => body,
-        Err(error) => {
-            warn!("拒绝过大的代理响应: {}", error);
-            return proxy_limit_response(
-                axum::http::StatusCode::BAD_GATEWAY,
-                "Proxy response body exceeds 64 MiB",
-            );
-        }
-    };
-    let mut builder = axum::http::Response::builder().status(status.as_u16());
-
-    // 复制响应头（排除 CORS、长度与传输编码）
-    for (key, value) in resp_headers.iter() {
-        let key_str = key.as_str().to_lowercase();
-        if !key_str.starts_with("access-control-") && key_str != "transfer-encoding" {
-            builder = builder.header(key.as_str(), value);
-        }
-    }
-
-    builder.body(body).unwrap_or_else(|_| {
-        (
-            axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-            "构建响应失败",
-        )
-            .into_response()
-    })
-}
-
-/// 处理外部代理请求（绕过 CORS 限制）
-async fn handle_external_proxy(
-    path: &str,
-    query: &str,
-    method: &axum::http::Method,
-    headers: &axum::http::HeaderMap,
-    req: Request,
-) -> Response {
-    // 解析目标 URL
-    let target_url = match parse_external_proxy_url(path, query) {
-        Some(url) => url,
-        None => {
-            return (
-                axum::http::StatusCode::BAD_REQUEST,
-                [(
-                    axum::http::header::CONTENT_TYPE,
-                    "application/json; charset=utf-8",
-                )],
-                r#"{"success":false,"error":"Missing or invalid URL parameter"}"#,
-            )
-                .into_response();
-        }
-    };
-
-    let is_allowed = url::Url::parse(&target_url)
-        .ok()
-        .is_some_and(|url| external_proxy_url_allowed(&url, ExternalProxyScope::Github));
-
-    if !is_allowed {
-        warn!("⚠️ 外部代理请求被拒绝（域名不在白名单）: {}", target_url);
-        return (
-            axum::http::StatusCode::FORBIDDEN,
-            [(
-                axum::http::header::CONTENT_TYPE,
-                "application/json; charset=utf-8",
-            )],
-            r#"{"success":false,"error":"Domain not allowed"}"#,
-        )
-            .into_response();
-    }
-
-    debug!("🌐 外部代理请求: {}", target_url);
-
-    // 获取请求体
-    let body = match read_proxy_request_body(req).await {
-        Ok(bytes) => bytes,
-        Err(response) => return response,
-    };
-
-    // 发送请求
-    let client = get_external_http_client(ExternalProxyScope::Github);
-    match send_request(client, &target_url, method, headers, &body).await {
-        Ok(response) => build_filtered_proxy_response(response).await,
-        Err(e) => {
-            error!("❌ 外部代理请求失败: {}", e);
-            (
-                axum::http::StatusCode::BAD_GATEWAY,
-                [(
-                    axum::http::header::CONTENT_TYPE,
-                    "application/json; charset=utf-8",
-                )],
-                format!(
-                    r#"{{"success":false,"error":"External request failed: {}"}}"#,
-                    e
-                ),
-            )
-                .into_response()
-        }
-    }
-}
-
-#[derive(Clone, Copy)]
-enum ExternalProxyScope {
-    Github,
-    Steam,
-}
-
-fn external_proxy_url_allowed(url: &url::Url, scope: ExternalProxyScope) -> bool {
-    if url.scheme() != "https" || !url.username().is_empty() || url.password().is_some() {
-        return false;
-    }
-    let Some(host) = url.host_str() else {
-        return false;
-    };
-    match scope {
-        ExternalProxyScope::Github => [
-            "github.io",
-            "raw.githubusercontent.com",
-            "github.com",
-            "api.github.com",
-            // GitHub release downloads redirect to these asset hosts.
-            "objects.githubusercontent.com",
-            "release-assets.githubusercontent.com",
-        ]
-        .iter()
-        .any(|domain| host == *domain || host.ends_with(&format!(".{domain}"))),
-        ExternalProxyScope::Steam => {
-            matches!(host, "store.steampowered.com" | "www.steamgriddb.com")
-        }
-    }
-}
-
-fn external_http_client_builder(scope: ExternalProxyScope) -> reqwest::ClientBuilder {
-    reqwest::Client::builder()
-        // External services use normal system trust and hostname verification.
-        .https_only(true)
-        .redirect(reqwest::redirect::Policy::custom(move |attempt| {
-            if attempt.previous().len() >= 5 {
-                attempt.error("Too many external proxy redirects")
-            } else if !external_proxy_url_allowed(attempt.url(), scope) {
-                attempt.error("External proxy redirect destination is not allowed")
-            } else {
-                attempt.follow()
-            }
-        }))
-        .pool_max_idle_per_host(20)
-        .timeout(std::time::Duration::from_secs(EXTERNAL_PROXY_TIMEOUT_SECS))
-        .connect_timeout(std::time::Duration::from_secs(
-            EXTERNAL_PROXY_CONNECT_TIMEOUT_SECS,
-        ))
-}
-
-fn get_external_http_client(scope: ExternalProxyScope) -> &'static reqwest::Client {
-    use std::sync::OnceLock;
-    static GITHUB: OnceLock<reqwest::Client> = OnceLock::new();
-    static STEAM: OnceLock<reqwest::Client> = OnceLock::new();
-    let client = match scope {
-        ExternalProxyScope::Github => &GITHUB,
-        ExternalProxyScope::Steam => &STEAM,
-    };
-    client.get_or_init(|| {
-        external_http_client_builder(scope)
-            .build()
-            .expect("Failed to create external HTTPS client")
-    })
 }
 
 fn is_loopback_sunshine_url(value: &str) -> bool {
@@ -1491,202 +1195,32 @@ mod tests {
         )
     }
 
-    fn fixture_external_client(scope: ExternalProxyScope, trusted: bool) -> reqwest::Client {
-        let mut builder = external_http_client_builder(scope)
-            .no_proxy()
-            .resolve("api.github.com", "127.0.0.1:443".parse().unwrap())
-            .resolve("store.steampowered.com", "127.0.0.1:443".parse().unwrap())
-            .resolve("www.steamgriddb.com", "127.0.0.1:443".parse().unwrap());
-        if trusted {
-            builder = builder.add_root_certificate(
-                reqwest::Certificate::from_der(include_bytes!("../test-fixtures/proxy-tls.cer"))
-                    .unwrap(),
-            );
-        }
-        builder.build().unwrap()
-    }
-
-    #[test]
-    fn external_proxy_policy_rejects_plaintext_credentials_and_wrong_hosts() {
-        for value in [
-            "http://api.github.com/data",
-            "https://api.github.com.evil.invalid/data",
-            "https://user:password@api.github.com/data",
-            "https://127.0.0.1/data",
-            "https://store.steampowered.com/data",
+    #[tokio::test]
+    async fn retired_external_integrations_return_not_found_without_an_upstream() {
+        for path in [
+            "/_proxy/https%3A%2F%2Fapi.github.com%2Frepos",
+            "/_proxy/?url=https%3A%2F%2Fapi.github.com",
+            "/steam-api/ISteamApps/GetAppList/v2",
+            "/steam-store/api/storesearch/?term=game",
+            "/steamgriddb/search/autocomplete/game",
+            "/_proxy",
+            "/steam-api",
+            "/steam-store",
+            "/steamgriddb",
         ] {
-            assert!(
-                !external_proxy_url_allowed(
-                    &url::Url::parse(value).unwrap(),
-                    ExternalProxyScope::Github
-                ),
-                "{value}"
-            );
+            for method in [axum::http::Method::GET, axum::http::Method::POST] {
+                let request = axum::http::Request::builder()
+                    .uri(path)
+                    .method(method)
+                    .body(Body::empty())
+                    .unwrap();
+                assert_eq!(
+                    proxy_handler(request).await.status(),
+                    axum::http::StatusCode::NOT_FOUND,
+                    "{path}"
+                );
+            }
         }
-        for value in [
-            "https://api.github.com/repos/example/project/releases",
-            "https://example.github.io/data",
-            "https://raw.githubusercontent.com/example/data",
-            "https://release-assets.githubusercontent.com/example/asset",
-        ] {
-            assert!(
-                external_proxy_url_allowed(
-                    &url::Url::parse(value).unwrap(),
-                    ExternalProxyScope::Github
-                ),
-                "{value}"
-            );
-        }
-        for host in ["store.steampowered.com", "www.steamgriddb.com"] {
-            assert!(external_proxy_url_allowed(
-                &url::Url::parse(&format!("https://{host}/api")).unwrap(),
-                ExternalProxyScope::Steam
-            ));
-        }
-        assert!(!external_proxy_url_allowed(
-            &url::Url::parse("https://api.github.com/data").unwrap(),
-            ExternalProxyScope::Steam
-        ));
-    }
-
-    #[tokio::test]
-    async fn external_https_rejects_untrusted_certificates() {
-        let (address, server) = spawn_tls_fixture(tls_ok_response("untrusted"));
-        let result = fixture_external_client(ExternalProxyScope::Github, false)
-            .get(format!("https://api.github.com:{}/data", address.port()))
-            .send()
-            .await;
-        assert!(result.unwrap_err().is_connect());
-        server.join().unwrap();
-    }
-
-    #[tokio::test]
-    async fn external_https_keeps_hostname_verification() {
-        let (address, server) = spawn_tls_fixture(tls_ok_response("wrong hostname"));
-        let result = fixture_external_client(ExternalProxyScope::Steam, true)
-            .get(format!(
-                "https://www.steamgriddb.com:{}/data",
-                address.port()
-            ))
-            .send()
-            .await;
-        assert!(result.unwrap_err().is_connect());
-        server.join().unwrap();
-    }
-
-    #[tokio::test]
-    async fn external_https_accepts_trusted_github_and_steam_responses() {
-        for (scope, host) in [
-            (ExternalProxyScope::Github, "api.github.com"),
-            (ExternalProxyScope::Steam, "store.steampowered.com"),
-        ] {
-            let (address, server) = spawn_tls_fixture(tls_ok_response("query-and-cover-response"));
-            let upstream = send_request(
-                &fixture_external_client(scope, true),
-                &format!("https://{host}:{}/api?term=game", address.port()),
-                &axum::http::Method::GET,
-                &axum::http::HeaderMap::new(),
-                &Bytes::new(),
-            )
-            .await
-            .unwrap();
-            let response = build_filtered_proxy_response(upstream).await;
-            assert_eq!(response.status(), axum::http::StatusCode::OK);
-            assert_eq!(
-                axum::body::to_bytes(response.into_body(), 1024)
-                    .await
-                    .unwrap()
-                    .as_ref(),
-                b"query-and-cover-response"
-            );
-            server.join().unwrap();
-        }
-    }
-
-    #[tokio::test]
-    async fn external_https_blocks_redirects_outside_its_scope_and_to_http() {
-        for location in [
-            "https://example.invalid/data",
-            "http://api.github.com/data",
-            "https://store.steampowered.com/data",
-        ] {
-            let (address, server) = spawn_tls_fixture(format!(
-                "HTTP/1.1 302 Found\r\nLocation: {location}\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
-            ));
-            let result = fixture_external_client(ExternalProxyScope::Github, true)
-                .get(format!("https://api.github.com:{}/data", address.port()))
-                .send()
-                .await;
-            assert!(result.unwrap_err().is_redirect(), "{location}");
-            server.join().unwrap();
-        }
-    }
-
-    #[tokio::test]
-    async fn external_https_follows_allowed_redirects() {
-        let (destination, destination_server) = spawn_tls_fixture(tls_ok_response("redirect-ok"));
-        let (source, source_server) = spawn_tls_fixture(format!(
-            "HTTP/1.1 302 Found\r\nLocation: https://api.github.com:{}/final\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
-            destination.port()
-        ));
-        let response = fixture_external_client(ExternalProxyScope::Github, true)
-            .get(format!("https://api.github.com:{}/start", source.port()))
-            .send()
-            .await
-            .unwrap();
-        assert_eq!(response.text().await.unwrap(), "redirect-ok");
-        source_server.join().unwrap();
-        destination_server.join().unwrap();
-    }
-
-    #[tokio::test]
-    #[ignore = "contacts public GitHub and Steam services; run explicitly when network is available"]
-    async fn external_https_live_service_smoke() {
-        let mut headers = axum::http::HeaderMap::new();
-        headers.insert(
-            axum::http::header::USER_AGENT,
-            axum::http::HeaderValue::from_static("Foundation-Sunshine-Lite-HTTPS-smoke"),
-        );
-        let query = url::form_urlencoded::Serializer::new(String::new())
-            .append_pair("url", "https://api.github.com/repos/LizardByte/Sunshine")
-            .finish();
-        let response = handle_external_proxy(
-            "/_proxy/",
-            &query,
-            &axum::http::Method::GET,
-            &headers,
-            axum::http::Request::new(Body::empty()),
-        )
-        .await;
-        assert_eq!(
-            response.status(),
-            axum::http::StatusCode::OK,
-            "GitHub query failed"
-        );
-        let body = axum::body::to_bytes(response.into_body(), MAX_PROXY_RESPONSE_BODY_BYTES)
-            .await
-            .unwrap();
-        let repository: serde_json::Value = serde_json::from_slice(&body).unwrap();
-        assert_eq!(repository["full_name"], "LizardByte/Sunshine");
-
-        let response = handle_steam_api(
-            "/steam-store/api/storesearch/",
-            "term=Portal&l=english&cc=US",
-            &axum::http::Method::GET,
-            &headers,
-            axum::http::Request::new(Body::empty()),
-        )
-        .await;
-        assert_eq!(
-            response.status(),
-            axum::http::StatusCode::OK,
-            "Steam search failed"
-        );
-        let body = axum::body::to_bytes(response.into_body(), MAX_PROXY_RESPONSE_BODY_BYTES)
-            .await
-            .unwrap();
-        let search: serde_json::Value = serde_json::from_slice(&body).unwrap();
-        assert!(!search["items"].as_array().unwrap().is_empty());
     }
 
     #[tokio::test]

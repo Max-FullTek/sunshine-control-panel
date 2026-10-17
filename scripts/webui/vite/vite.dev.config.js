@@ -30,24 +30,6 @@ function htmlExtensionMiddleware(htmlFiles) {
 // 需要支持的html页面
 const htmlPages = ['apps', 'config', 'index', 'password', 'pin', 'troubleshooting', 'welcome']
 
-// 代理配置复用函数
-function createProxyLogger(prefix, target, rewritePath) {
-  return {
-    target,
-    changeOrigin: true,
-    secure: true,
-    rewrite: (path) => path.replace(rewritePath, ''),
-    configure(proxy) {
-      proxy.on('proxyReq', (proxyReq, req) => {
-        console.log(`${prefix}请求:`, req.method, req.url, '-> ' + target + req.url.replace(rewritePath, ''))
-      })
-      proxy.on('proxyRes', (proxyRes, req) => {
-        console.log(`✅ ${prefix}响应:`, req.url, '状态码:', proxyRes.statusCode)
-      })
-    },
-  }
-}
-
 export default defineConfig({
   resolve: {
     ...sharedResolve,
@@ -92,8 +74,6 @@ export default defineConfig({
       port: 3000,
     },
     proxy: {
-      '/steam-api': createProxyLogger('🎮 Steam API', 'https://api.steampowered.com', /^\/steam-api/),
-      '/steam-store': createProxyLogger('🛒 Steam Store', 'https://store.steampowered.com', /^\/steam-store/),
       '/boxart': {
         target: 'https://localhost:47990',
         changeOrigin: true,

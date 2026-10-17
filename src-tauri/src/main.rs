@@ -13,7 +13,6 @@ mod device_config;
 mod elevation;
 mod file_transfer;
 mod fs_utils;
-mod github_download;
 mod logger;
 mod power;
 mod proxy_server;

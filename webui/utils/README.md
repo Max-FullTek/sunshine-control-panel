@@ -135,19 +135,3 @@ const formResult = validateAppForm(formData);
 console.log(formResult.isValid); // true/false
 console.log(formResult.errors); // 错误列表
 ```
-
-## Steam API 模块 (steamApi.js)
-
-提供Steam Store API集成功能。
-
-### 使用方法
-
-```javascript
-import { searchSteamApps, findAppCover } from './utils/steamApi.js';
-
-// 搜索Steam应用
-const apps = await searchSteamApps('Half-Life');
-
-// 查找应用封面
-const cover = await findAppCover('Half-Life 2');
-``` 
