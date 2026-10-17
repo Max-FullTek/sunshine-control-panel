@@ -2,7 +2,9 @@
 
 以原 Sunshine Control Panel 為基礎的單一 Windows 桌面設定程式，使用 Tauri 2 + Vue 3。主視窗維持 1600×1000，透過 Rust API 與本機代理連接 Sunshine 核心。Desktop 連線入口確認代理與共用介面版本後，開啟核心提供的同一套 Vue 頁面；不再以 iframe 嵌入第二套導覽。
 
-共用前端由 Foundation Sunshine 根目錄的 `npm run build` 建置，重用此子模組的側欄、主題、語系與原生設定元件。瀏覽器會顯示原生功能需要 Desktop 的提示。核心與 Desktop 必須使用配對的原始碼版本；單獨建置此子模組只會產生連線入口與輔助視窗，無法代替核心前端建置。
+完整 WebUI 原始碼位於本庫 `webui/`，Vite 與翻譯工具位於 `scripts/webui/`。`npm run build:webui` 獨立產出 `build/webui`；`npm run build:renderer` 產出桌面連線入口及輔助頁面。核心負責提供 WebUI 靜態檔案與原有 API，瀏覽器與桌面繼續使用同一套頁面。主庫的 `npm run build` 是相容建置入口。
+
+`webui/` 與 `scripts/webui/` 從 Foundation Sunshine `0bc9e215` 搬移，保留原 GPL-3.0 授權，全文見 [webui/public/LICENSE](webui/public/LICENSE)；既有面板程式的授權仍見根目錄 LICENSE。搬移不代表將原 WebUI 改授權為 MIT。
 
 不連接實際主機的唯讀預覽：在 Sunshine 根目錄建置後執行 `node scripts/preview-webui.mjs --sample`，開啟 `http://127.0.0.1:8081/config`。此模式使用範例資料並拒絕寫入請求，不代表原生整合已驗證。
 

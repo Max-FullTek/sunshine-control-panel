@@ -31,3 +31,6 @@ src-tauri/icons/*.png
 # Installer 构建产物
 src-tauri/installer/staging/
 src-tauri/installer/dist/
+# Generated WebUI entry
+/webui/welcome.html
+/webui/dist/

@@ -7,6 +7,10 @@ on:
       - 'v*'
   workflow_dispatch:
     inputs:
+      webui_only:
+        description: 'Build and test WebUI only; reuse an existing native GUI with identical native inputs'
+        type: boolean
+        default: false
       create_release:
         description: 'Create a GitHub Release'
         required: false
@@ -26,8 +30,28 @@ permissions:
   contents: read
 
 jobs:
+  build-webui:
+    name: Build WebUI (no Rust)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run lint:webui
+      - run: npm run test:webui
+      - run: npm run build:webui
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sunshine-webui
+          path: build/webui/
+          if-no-files-found: error
+
   build-windows:
     name: Build Windows (x64)
+    if: inputs.webui_only != true
     runs-on: windows-latest
 
     steps:
@@ -37,7 +61,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: 24.21.0
+          node-version-file: .node-version
           cache: npm
 
       - name: Setup Rust

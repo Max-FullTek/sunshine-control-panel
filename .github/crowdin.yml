@@ -1,0 +1,3 @@
+"base_path": "."
+"preserve_hierarchy": true
+"files": [{"source": "/webui/public/assets/locale/en.json", "translation": "/webui/public/assets/locale/%two_letters_code%.%file_extension%", "update_option": "update_as_unapproved"}]

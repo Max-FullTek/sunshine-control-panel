@@ -10,13 +10,25 @@
     "dev": "tauri dev",
     "dev-webui": "cross-env WEBUI_DEV_TARGET=https://localhost:3000 tauri dev",
     "dev:renderer": "vite --config vite.config.js",
-    "test:renderer": "node --test",
+    "test:renderer": "node --test \"src/renderer/**/*.test.js\"",
     "build": "tauri build",
     "build:renderer": "vite build --config vite.config.js",
     "build:win": "npm run build:component:win",
     "build:component:win": "powershell -ExecutionPolicy Bypass -File ./scripts/build-gui-component-installer.ps1",
     "build:beta": "cross-env BETA=true npm run build:renderer && tauri build --features beta",
-    "build:beta:win": "cross-env BETA=true powershell -ExecutionPolicy Bypass -File ./scripts/build-gui-component-installer.ps1 -Beta"
+    "build:beta:win": "cross-env BETA=true powershell -ExecutionPolicy Bypass -File ./scripts/build-gui-component-installer.ps1 -Beta",
+    "prebuild:webui": "node webui/scripts/extract-welcome-locales.js",
+    "build:webui": "vite build --config scripts/webui/vite/vite.config.js",
+    "dev:webui": "vite serve --config scripts/webui/vite/vite.dev.config.js",
+    "preview:webui": "vite preview --config scripts/webui/vite/vite.config.js",
+    "lint:webui": "eslint --config eslint.webui.config.js \"webui/**/*.{js,vue}\" --max-warnings 0",
+    "test:webui": "node --test \"webui/tests/*.test.js\"",
+    "i18n:validate": "node scripts/webui/validate-i18n.js",
+    "i18n:sync": "node scripts/webui/validate-i18n.js --sync",
+    "i18n:reverse-sync": "node scripts/webui/reverse-sync-i18n.js --sync",
+    "i18n:reverse-check": "node scripts/webui/reverse-sync-i18n.js",
+    "i18n:format": "node scripts/webui/format-i18n.js",
+    "i18n:format:check": "node scripts/webui/format-i18n.js --check"
   },
   "repository": "https://github.com/qiin2333/sunshine",
   "author": {
@@ -25,26 +37,42 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.11.4",
-    "@vitejs/plugin-vue": "^6.0.7",
+    "@vitejs/plugin-vue": "^6.0.8",
     "cross-env": "^7.0.3",
     "esbuild": "^0.28.1",
-    "less": "^4.6.7",
-    "unplugin-vue-components": "^32.1.0",
-    "vite": "^8.1.0"
+    "less": "^4.9.0",
+    "unplugin-vue-components": "32.1.0",
+    "vite": "^8.2.2",
+    "ejs": "^6.0.1",
+    "eslint": "^10.9.0",
+    "eslint-plugin-vue": "~10.10.0",
+    "globals": "^17.11.0",
+    "vite-plugin-mkcert": "^2.1.0"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.3.2",
-    "@tauri-apps/api": "^2.11.1",
-    "@tauri-apps/plugin-dialog": "^2.7.2",
-    "@tauri-apps/plugin-fs": "^2.5.1",
-    "dompurify": "^3.4.16",
-    "element-plus": "^2.14.2",
-    "markdown-it": "^14.3.2",
+    "@element-plus/icons-vue": "2.3.2",
+    "@tauri-apps/api": "2.11.1",
+    "@tauri-apps/plugin-dialog": "2.7.2",
+    "@tauri-apps/plugin-fs": "2.5.1",
+    "dompurify": "3.4.16",
+    "element-plus": "2.14.2",
+    "markdown-it": "14.3.2",
     "qrcode": "^1.5.4",
-    "vue": "^3.5.38",
-    "vue-i18n": "^11.4.6"
+    "vue": "^3.5.43",
+    "vue-i18n": "^11.4.8",
+    "@fortawesome/fontawesome-free": "7.3.1",
+    "@popperjs/core": "2.11.8",
+    "bootstrap": "^5.3.8",
+    "firebase": "^12.18.0",
+    "nanoid": "^6.0.1",
+    "vuedraggable-es": "^4.1.1"
   },
   "overrides": {
     "@vueuse/core": "14.4.0"
-  }
+  },
+  "engines": {
+    "node": ">=26.7.0 <27",
+    "npm": ">=11.19.0 <12"
+  },
+  "packageManager": "npm@11.19.0"
 }
