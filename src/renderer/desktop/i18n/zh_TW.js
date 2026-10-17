@@ -659,7 +659,7 @@ export const zh_TW = {
     "logout": "登出",
     "logoutDescription": "結束當前 WebUI 會話，下次訪問需要重新登入。",
     "accountDescription": "修改 WebUI 使用者名與密碼。",
-    "diagnostics": "故障診斷",
+    "diagnostics": "疑難排解",
     "diagnosticsDescription": "記錄、服務狀態與故障排查。",
     "timerDescription": "計時與定時操作",
     "latencyDescription": "查看串流顯示延遲",

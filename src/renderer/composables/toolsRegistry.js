@@ -6,6 +6,7 @@ import {
   House,
   Grid,
   QuestionFilled,
+  Tools,
 } from '@element-plus/icons-vue'
 import IconGamepad from '../desktop/icons/IconGamepad.vue'
 import { ROUTES } from './useRouter.js'
@@ -56,6 +57,14 @@ export function createNavigationGroups(ctx) {
 export function createFooterTools(ctx) {
   return [
     {
+      id: 'troubleshooting',
+      icon: Tools,
+      label: ctx.t.value.sidebar.diagnostics,
+      action: () => ctx.openWebUi('/troubleshooting'),
+      isActive: () =>
+        ctx.router.isRoute(ROUTES.HOME) && /^\/troubleshooting(?:\.html)?(?:[?#]|$)/.test(ctx.webuiPath.value),
+    },
+    {
       id: 'panel-settings',
       icon: Setting,
       label: ctx.t.value.sidebar.panelSettings,
@@ -69,9 +78,7 @@ export function createFooterTools(ctx) {
       icon: QuestionFilled,
       label: ctx.t.value.sidebar.helpAbout,
       action: () => ctx.router.navigate(ROUTES.HELP),
-      isActive: () =>
-        ctx.router.isRoute(ROUTES.HELP) ||
-        (ctx.router.isRoute(ROUTES.HOME) && /^\/troubleshooting(?:\.html)?(?:[?#]|$)/.test(ctx.webuiPath.value)),
+      isActive: () => ctx.router.isRoute(ROUTES.HELP),
     },
   ]
 }
