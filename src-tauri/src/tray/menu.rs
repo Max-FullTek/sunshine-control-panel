@@ -248,7 +248,7 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
     let lang_zh = CheckMenuItem::with_id(
         app,
         "lang_zh",
-        "中文",
+        "简体中文",
         true,
         current_locale == "zh",
         None::<&str>,
@@ -269,20 +269,12 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
         current_locale == "en",
         None::<&str>,
     )?;
-    let lang_ja = CheckMenuItem::with_id(
-        app,
-        "lang_ja",
-        "日本語",
-        true,
-        current_locale == "ja",
-        None::<&str>,
-    )?;
     let lang_submenu = Submenu::with_id_and_items(
         app,
         "language",
         s.language,
         true,
-        &[&lang_zh_tw, &lang_en, &lang_zh, &lang_ja],
+        &[&lang_zh_tw, &lang_en, &lang_zh],
     )?;
 
     #[cfg(target_os = "windows")]

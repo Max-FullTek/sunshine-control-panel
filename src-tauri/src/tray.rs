@@ -349,7 +349,7 @@ const ZH_STRINGS: TrayStrings = TrayStrings {
     pairing_instruction: "点击此通知，输入 Moonlight 上显示的 4 位 PIN。",
     pairing_menu_instruction: "打开 Sunshine 托盘菜单中的“完成配对”，输入 Moonlight 上显示的 4 位 PIN。",
     complete_pairing: "完成配对",
-    open_main_panel: "Foundation Sunshine Lite Desktop",
+    open_main_panel: "打开控制面板",
     display_menu: "显示",
     tools_menu: "工具",
     settings_menu: "设置",
@@ -368,8 +368,8 @@ const ZH_STRINGS: TrayStrings = TrayStrings {
     export_config: "导出配置",
     reset_config: "重置配置",
     reset_config_confirm: "这将清空 sunshine.conf，并让 Sunshine 恢复默认配置。是否继续？",
-    clear_cache: "清理缓存",
-    clear_cache_confirm: "这将终止当前运行的应用，以便重建缓存状态。是否继续？",
+    clear_cache: "结束串流应用程序",
+    clear_cache_confirm: "这将结束当前的串流应用程序并中断串流。是否继续？",
     reset_display: "重置显示",
     reset_display_confirm: "这将重置已保存的显示设备状态。是否继续？",
     restart_user_mode: "以用户模式运行 Sunshine",
@@ -381,74 +381,74 @@ const ZH_STRINGS: TrayStrings = TrayStrings {
     debug_page: "调试页面",
     about: "关于 Sunshine",
     shutdown: "退出 Sunshine",
-    shutdown_message: "这将停止 Sunshine 服务、GUI 和托盘。确定要退出吗？",
+    shutdown_message: "这将停止 Sunshine 服务、控制面板和托盘。确定要退出吗？",
     language: "语言",
     restart: "重启 Sunshine",
     recover_service: "重新启动 Sunshine 服务",
     recovery_timeout: "Sunshine 服务未能在等待时间内恢复，请检查服务日志后重试。",
-    tooltip: "Sunshine GUI",
-    tooltip_admin: "Sunshine GUI (管理员)",
+    tooltip: "Foundation Sunshine Lite 控制面板",
+    tooltip_admin: "Foundation Sunshine Lite 控制面板（管理员）",
 };
 
 const ZH_TW_STRINGS: TrayStrings = TrayStrings {
-    status_idle: "空閑",
+    status_idle: "閒置",
     status_streaming: "串流中",
     status_paused: "串流已暫停",
     status_pairing: "等待配對",
     status_notification: "有新通知",
-    status_connecting: "正在連接",
-    status_disconnected: "未連接",
+    status_connecting: "正在連線",
+    status_disconnected: "未連線",
     notification: "通知",
-    client_connected: "客戶端已連接",
-    client_connected_detail: "已建立新的串流連接。",
-    client_connected_named: "「{name}」已連接到這臺電腦。",
-    suspicious_client_warning: "警告：您很可能正在受到未知侵權客戶端的侵害。該判斷基于客戶端網絡特征，可能存在誤判。",
-    client_disconnected: "客戶端已斷開",
-    client_disconnected_detail: "串流連接已結束。",
-    client_disconnected_named: "「{name}」已從這臺電腦斷開。",
+    client_connected: "用戶端已連線",
+    client_connected_detail: "已建立新的串流連線。",
+    client_connected_named: "「{name}」已連線到這台電腦。",
+    suspicious_client_warning: "警告：您很可能正在受到未知侵權用戶端的侵害。該判斷基於用戶端網路特徵，可能存在誤判。",
+    client_disconnected: "用戶端已斷開",
+    client_disconnected_detail: "串流連線已結束。",
+    client_disconnected_named: "「{name}」已從這台電腦斷開。",
     incoming_pairing: "Moonlight 配對請求",
-    pairing_instruction: "點擊此通知，輸入 Moonlight 上顯示的 4 位 PIN。",
-    pairing_menu_instruction: "打開 Sunshine 系統匣菜單中的“完成配對”，輸入 Moonlight 上顯示的 4 位 PIN。",
+    pairing_instruction: "點選此通知，輸入 Moonlight 上顯示的 4 位 PIN。",
+    pairing_menu_instruction: "開啟 Sunshine 系統匣選單中的“完成配對”，輸入 Moonlight 上顯示的 4 位 PIN。",
     complete_pairing: "完成配對",
-    open_main_panel: "Foundation Sunshine Lite Desktop",
+    open_main_panel: "開啟控制面板",
     display_menu: "顯示",
     tools_menu: "工具",
     settings_menu: "設定",
-    advanced_menu: "高級",
-    help_menu: "幫助",
+    advanced_menu: "進階",
+    help_menu: "說明",
     open_sunshine: "以瀏覽器開啟",
     vdd_settings: "基地顯示器設定（ZakoVDD）",
-    vdd_create: "創建基地顯示器",
-    vdd_create_confirm: "創建基地顯示器可能會更改 Windows 顯示布局。是否繼續？",
+    vdd_create: "建立基地顯示器",
+    vdd_create_confirm: "建立基地顯示器可能會更改 Windows 顯示配置。是否繼續？",
     vdd_close: "關閉基地顯示器",
-    vdd_keep: "串流結束后保留",
-    vdd_keep_confirm: "啟用后，串流結束時將保留基地顯示器，并可能更改 Windows 顯示布局。是否繼續？",
-    vdd_headless: "無頭模式自動創建",
-    vdd_headless_confirm: "這是實驗性恢復功能：未檢測到顯示器時會自動創建基地顯示器，并可能更改當前顯示布局。是否繼續？",
-    import_config: "導入設定",
-    export_config: "導出設定",
+    vdd_keep: "串流結束後保留",
+    vdd_keep_confirm: "啟用後，串流結束時將保留基地顯示器，並可能更改 Windows 顯示配置。是否繼續？",
+    vdd_headless: "無頭模式自動建立",
+    vdd_headless_confirm: "這是實驗性恢復功能：未偵測到顯示器時會自動建立基地顯示器，並可能更改目前顯示配置。是否繼續？",
+    import_config: "匯入設定",
+    export_config: "匯出設定",
     reset_config: "重置設定",
-    reset_config_confirm: "這將清空 sunshine.conf，并讓 Sunshine 恢復默認設定。是否繼續？",
-    clear_cache: "清理緩存",
-    clear_cache_confirm: "這將終止當前運行的應用，以便重建緩存狀態。是否繼續？",
+    reset_config_confirm: "這將清空 sunshine.conf，並讓 Sunshine 恢復預設設定。是否繼續？",
+    clear_cache: "結束串流應用程式",
+    clear_cache_confirm: "這將結束目前的串流應用程式並中斷串流。是否繼續？",
     reset_display: "重置顯示",
-    reset_display_confirm: "這將重置已保存的顯示裝置狀態。是否繼續？",
-    restart_user_mode: "以用戶模式運行 Sunshine",
-    prevent_sleep: "阻止系統休眠",
-    log_console: "記錄控制臺",
+    reset_display_confirm: "這將重置已儲存的顯示裝置狀態。是否繼續？",
+    restart_user_mode: "以使用者模式執行 Sunshine",
+    prevent_sleep: "防止系統睡眠",
+    log_console: "記錄主控台",
     #[cfg(target_os = "windows")]
-    auto_start: "開機運行",
+    auto_start: "開機啟動",
     #[cfg(debug_assertions)]
-    debug_page: "調試頁面",
-    about: "關于 Sunshine",
+    debug_page: "偵錯頁面",
+    about: "關於 Sunshine",
     shutdown: "結束 Sunshine",
-    shutdown_message: "這將停止 Sunshine 服務、GUI 和系統匣。確定要結束嗎？",
+    shutdown_message: "這將停止 Sunshine 服務、控制面板與系統匣。確定要結束嗎？",
     language: "語言",
-    restart: "重啟 Sunshine",
+    restart: "重新啟動 Sunshine",
     recover_service: "重新啟動 Sunshine 服務",
-    recovery_timeout: "Sunshine 服務未能在等待時間內恢復，請檢查服務記錄后重試。",
-    tooltip: "Sunshine GUI",
-    tooltip_admin: "Sunshine GUI (管理員)",
+    recovery_timeout: "Sunshine 服務未能在等待時間內恢復，請檢查服務記錄後重試。",
+    tooltip: "Foundation Sunshine Lite 控制面板",
+    tooltip_admin: "Foundation Sunshine Lite 控制面板 (管理員)",
 };
 
 const EN_STRINGS: TrayStrings = TrayStrings {
@@ -471,7 +471,7 @@ const EN_STRINGS: TrayStrings = TrayStrings {
     pairing_instruction: "Click this notification to enter the 4-digit PIN shown in Moonlight.",
     pairing_menu_instruction: "Open Complete Pairing from the Sunshine tray menu and enter the 4-digit PIN shown in Moonlight.",
     complete_pairing: "Complete pairing",
-    open_main_panel: "Foundation Sunshine Lite Desktop",
+    open_main_panel: "Open Control Panel",
     display_menu: "Display",
     tools_menu: "Tools",
     settings_menu: "Settings",
@@ -490,8 +490,8 @@ const EN_STRINGS: TrayStrings = TrayStrings {
     export_config: "Export Config",
     reset_config: "Reset Config",
     reset_config_confirm: "This clears sunshine.conf and restores Sunshine defaults. Continue?",
-    clear_cache: "Clear Cache",
-    clear_cache_confirm: "This terminates the running application so cached state can be rebuilt. Continue?",
+    clear_cache: "Stop Streaming Application",
+    clear_cache_confirm: "This stops the current streaming application and disconnects the stream. Continue?",
     reset_display: "Reset Display",
     reset_display_confirm: "This resets persisted display-device state. Continue?",
     restart_user_mode: "Run Sunshine in User Mode",
@@ -503,74 +503,13 @@ const EN_STRINGS: TrayStrings = TrayStrings {
     debug_page: "Debug Page",
     about: "About Sunshine",
     shutdown: "Exit Sunshine",
-    shutdown_message: "This will stop the Sunshine service, GUI, and tray. Continue?",
+    shutdown_message: "This will stop the Sunshine service, control panel, and tray. Continue?",
     language: "Language",
     restart: "Restart Sunshine",
     recover_service: "Restart Sunshine Service",
     recovery_timeout: "The Sunshine service did not recover in time. Check the service log and try again.",
-    tooltip: "Sunshine GUI",
-    tooltip_admin: "Sunshine GUI (Admin)",
-};
-
-const JA_STRINGS: TrayStrings = TrayStrings {
-    status_idle: "待機中",
-    status_streaming: "ストリーミング中",
-    status_paused: "ストリーム一時停止",
-    status_pairing: "ペアリング待機中",
-    status_notification: "新しい通知",
-    status_connecting: "接続中",
-    status_disconnected: "未接続",
-    notification: "通知",
-    client_connected: "クライアントが接続しました",
-    client_connected_detail: "新しいストリーミング接続が確立されました。",
-    client_connected_named: "「{name}」がこのコンピューターに接続しました。",
-    suspicious_client_warning: "警告：不明な権利侵害クライアントが使用されている可能性が非常に高いです。この判定はヒューリスティックであり、誤判定の可能性があります。",
-    client_disconnected: "クライアントが切断されました",
-    client_disconnected_detail: "ストリーミング接続が終了しました。",
-    client_disconnected_named: "「{name}」がこのコンピューターから切断されました。",
-    incoming_pairing: "Moonlight ペアリング要求",
-    pairing_instruction: "この通知をクリックし、Moonlight に表示された 4 桁の PIN を入力してください。",
-    pairing_menu_instruction: "Sunshine のトレイメニューから「ペアリングを完了」を開き、Moonlight に表示された 4 桁の PIN を入力してください。",
-    complete_pairing: "ペアリングを完了",
-    open_main_panel: "Foundation Sunshine Lite Desktop",
-    display_menu: "ディスプレイ",
-    tools_menu: "ツール",
-    settings_menu: "設定",
-    advanced_menu: "詳細設定",
-    help_menu: "ヘルプ",
-    open_sunshine: "ブラウザーで開く",
-    vdd_settings: "仮想ディスプレイ設定",
-    vdd_create: "仮想ディスプレイを作成",
-    vdd_create_confirm: "仮想ディスプレイを作成すると、Windows のディスプレイ配置が変更される場合があります。続行しますか？",
-    vdd_close: "仮想ディスプレイを閉じる",
-    vdd_keep: "ストリーミング後も保持",
-    vdd_keep_confirm: "有効にすると、ストリーミング終了後も仮想ディスプレイが保持され、Windows のディスプレイ配置が変更される場合があります。続行しますか？",
-    vdd_headless: "ヘッドレス時に自動作成",
-    vdd_headless_confirm: "これは実験的な復旧機能です。ディスプレイが検出されない場合に仮想ディスプレイを作成し、現在の配置が変更される場合があります。続行しますか？",
-    import_config: "設定をインポート",
-    export_config: "設定をエクスポート",
-    reset_config: "設定をリセット",
-    reset_config_confirm: "sunshine.conf を消去し、Sunshine の既定設定に戻します。続行しますか？",
-    clear_cache: "キャッシュを消去",
-    clear_cache_confirm: "キャッシュ状態を再構築するため、実行中のアプリケーションを終了します。続行しますか？",
-    reset_display: "ディスプレイをリセット",
-    reset_display_confirm: "保存されているディスプレイデバイスの状態をリセットします。続行しますか？",
-    restart_user_mode: "ユーザーモードで Sunshine を実行",
-    prevent_sleep: "システムのスリープを防止",
-    log_console: "ログコンソール",
-    #[cfg(target_os = "windows")]
-    auto_start: "起動時に実行",
-    #[cfg(debug_assertions)]
-    debug_page: "デバッグページ",
-    about: "Sunshine について",
-    shutdown: "Sunshine を終了",
-    shutdown_message: "Sunshine サービス、GUI、トレイを停止します。続行しますか？",
-    language: "言語",
-    restart: "Sunshine を再起動",
-    recover_service: "Sunshine サービスを再起動",
-    recovery_timeout: "Sunshine サービスが時間内に復旧しませんでした。サービスログを確認して再試行してください。",
-    tooltip: "Sunshine GUI",
-    tooltip_admin: "Sunshine GUI (管理者)",
+    tooltip: "Foundation Sunshine Lite Control Panel",
+    tooltip_admin: "Foundation Sunshine Lite Control Panel (Admin)",
 };
 
 fn get_tray_strings() -> &'static TrayStrings {
@@ -578,7 +517,6 @@ fn get_tray_strings() -> &'static TrayStrings {
     match locale.as_deref() {
         Some("zh") => &ZH_STRINGS,
         Some("zh_TW") => &ZH_TW_STRINGS,
-        Some("ja") => &JA_STRINGS,
         _ => &EN_STRINGS,
     }
 }
@@ -647,8 +585,6 @@ fn try_normalize_tray_locale(locale: &str) -> Option<&'static str> {
         Some("zh_TW")
     } else if locale == "zh" || locale.starts_with("zh-") {
         Some("zh")
-    } else if locale == "ja" || locale.starts_with("ja-") {
-        Some("ja")
     } else if locale == "en" || locale.starts_with("en-") {
         Some("en")
     } else {
@@ -681,7 +617,6 @@ fn locale_from_windows_ui_language(language_id: u16) -> Option<&'static str> {
     // Match the primary language portion of the Windows LANGID.
     match language_id & 0x03ff {
         0x0004 => Some("zh"),
-        0x0011 => Some("ja"),
         0x0009 => Some("en"),
         _ => None,
     }
@@ -937,13 +872,13 @@ mod tests {
         assert_eq!(normalize_tray_locale("zh-CN"), "zh");
         assert_eq!(normalize_tray_locale("zh_TW"), "zh_TW");
         assert_eq!(normalize_tray_locale("zh-Hant"), "zh_TW");
-        assert_eq!(normalize_tray_locale("ja-JP"), "ja");
+        assert_eq!(normalize_tray_locale("ja-JP"), "en");
         assert_eq!(normalize_tray_locale("en-US"), "en");
         assert_eq!(normalize_tray_locale("fr-FR"), "en");
     }
 
     #[test]
-    fn persisted_ui_locale_wins_during_initialization() {
+    fn unsupported_saved_locale_uses_english_even_on_a_chinese_system() {
         let config = sunshine::SunshineConfig {
             locale: Some("ja".to_string()),
             ..Default::default()
@@ -951,7 +886,7 @@ mod tests {
 
         assert_eq!(
             resolve_initial_tray_locale(Some(&config), Some("zh-CN")),
-            "ja"
+            "en"
         );
     }
 
@@ -966,7 +901,7 @@ mod tests {
             "zh_TW"
         );
 
-        assert_eq!(resolve_initial_tray_locale(None, Some("ja-JP")), "ja");
+        assert_eq!(resolve_initial_tray_locale(None, Some("ja-JP")), "en");
         assert_eq!(resolve_initial_tray_locale(None, None), "en");
     }
 
@@ -975,7 +910,7 @@ mod tests {
     fn windows_ui_language_maps_supported_tray_languages() {
         assert_eq!(locale_from_windows_ui_language(0x0804), Some("zh"));
         assert_eq!(locale_from_windows_ui_language(0x0404), Some("zh_TW"));
-        assert_eq!(locale_from_windows_ui_language(0x0411), Some("ja"));
+        assert_eq!(locale_from_windows_ui_language(0x0411), None);
         assert_eq!(locale_from_windows_ui_language(0x0409), Some("en"));
         assert_eq!(locale_from_windows_ui_language(0x040c), None);
     }
@@ -1009,7 +944,7 @@ mod tests {
         assert!(ZH_STRINGS.vdd_keep_confirm.contains("串流结束"));
         assert!(ZH_STRINGS.vdd_headless_confirm.contains("实验性"));
         assert!(ZH_STRINGS.reset_config_confirm.contains("默认配置"));
-        assert!(ZH_STRINGS.clear_cache_confirm.contains("缓存状态"));
+        assert!(ZH_STRINGS.clear_cache_confirm.contains("中断串流"));
         assert!(ZH_STRINGS.reset_display_confirm.contains("显示设备"));
     }
 

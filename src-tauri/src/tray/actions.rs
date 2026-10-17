@@ -60,7 +60,6 @@ pub fn handle_tray_menu_event<R: Runtime + 'static>(app: &AppHandle<R>, menu_id:
         "lang_zh" => switch_tray_locale(app, "zh"),
         "lang_zh_tw" => switch_tray_locale(app, "zh_TW"),
         "lang_en" => switch_tray_locale(app, "en"),
-        "lang_ja" => switch_tray_locale(app, "ja"),
         "restart" => restart_sunshine(app),
         _ => warn!("⚠️ 未知的托盘菜单事件: {}", menu_id),
     }
