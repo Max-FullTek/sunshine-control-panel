@@ -1,5 +1,4 @@
 import { ref } from 'vue'
-import { trackEvents } from '../config/firebase.js'
 import { getBootstrapConfig } from '../config/bootstrapData.js'
 import { apiFetch, apiJson } from '../utils/apiFetch.js'
 import { deepClone, safeJsonParse } from '../utils/helpers.js'
@@ -632,14 +631,12 @@ export function useConfig() {
       saved.value = true
 
       if (saved.value) {
-        trackEvents.configChanged(currentTab.value, 'save')
         saveSnapshots()
       }
 
       return saved.value
     } catch (error) {
       console.error('Save failed:', error)
-      trackEvents.errorOccurred('config_save', error.message)
       return false
     }
   }
@@ -662,7 +659,6 @@ export function useConfig() {
 
     try {
       await apiFetch('/api/restart', { method: 'POST' })
-      trackEvents.userAction('config_applied')
     } catch (error) {
       console.error('Failed to restart:', error)
     }

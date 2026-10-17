@@ -3,7 +3,6 @@ import { translateFallback } from '../utils/localizedMessage.js'
 import { AppService } from '../services/appService.js'
 import { APP_CONSTANTS, ENV_VARS_CONFIG } from '../utils/constants.js'
 import { debounce, deepClone } from '../utils/helpers.js'
-import { trackEvents } from '../config/firebase.js'
 const MESSAGE_DURATION = 3000
 /**
  * 应用管理组合式函数
@@ -130,7 +129,6 @@ export function useApps() {
   }
 
   const newApp = () => {
-    trackEvents.userAction('new_app_clicked')
     editingApp.value = createDefaultApp()
   }
 
@@ -174,13 +172,11 @@ export function useApps() {
   }
 
   const deleteApp = async (index) => {
-    const appName = apps.value[index]?.name || 'unknown'
     try {
       apps.value.splice(index, 1)
       await AppService.saveApps(apps.value, null)
       await loadApps()
       showMessage(translate('apps.feedback.delete_success'), APP_CONSTANTS.MESSAGE_TYPES.SUCCESS)
-      trackEvents.appDeleted(appName)
     } catch (error) {
       console.error('删除应用失败:', error)
       showMessage(translate('apps.feedback.delete_failed'), APP_CONSTANTS.MESSAGE_TYPES.ERROR)
@@ -280,7 +276,6 @@ export function useApps() {
       // 保存成功后更新原始列表
       originalApps.value = deepClone(apps.value)
       showMessage(translate('apps.feedback.save_success'), APP_CONSTANTS.MESSAGE_TYPES.SUCCESS)
-      trackEvents.userAction('apps_saved', { count: apps.value.length })
     } catch (error) {
       console.error('保存应用列表失败:', error)
       showMessage(translate('apps.feedback.save_failed'), APP_CONSTANTS.MESSAGE_TYPES.ERROR)
@@ -307,11 +302,6 @@ export function useApps() {
         translate('apps.restore_default_apps_result', { restored: result.restored, added: result.added }),
         APP_CONSTANTS.MESSAGE_TYPES.SUCCESS
       )
-      trackEvents.userAction('default_apps_restored', {
-        platform: platform.value,
-        restored: result.restored,
-        added: result.added,
-      })
     } catch (error) {
       console.error('Restore default apps failed:', error)
       showMessage(translate('apps.restore_default_apps_failed'), APP_CONSTANTS.MESSAGE_TYPES.ERROR)

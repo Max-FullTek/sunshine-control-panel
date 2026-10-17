@@ -245,7 +245,6 @@ import Navbar from '../components/layout/Navbar.vue'
 import ConfirmDialog from '../components/common/ConfirmDialog.vue'
 import { getPreferredEncoderTab } from '../config/encoderTabs.js'
 import { useConfig } from '../composables/useConfig.js'
-import { trackEvents } from '../config/firebase.js'
 
 const General = defineAsyncComponent(() => import('../configs/tabs/General.vue'))
 const Inputs = defineAsyncComponent(() => import('../configs/tabs/Inputs.vue'))
@@ -427,7 +426,6 @@ const handleConfigHash = () => {
 }
 
 onMounted(async () => {
-  trackEvents.pageView('configuration')
   initTabs()
   await loadConfig()
   handleConfigHash()

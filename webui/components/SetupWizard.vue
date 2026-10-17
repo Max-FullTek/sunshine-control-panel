@@ -325,7 +325,6 @@
 </template>
 
 <script>
-import { trackEvents } from '../config/firebase.js'
 import { apiFetch, apiJson } from '../utils/apiFetch.js'
 import { saveSetupWizardLocale, saveSetupWizardConfig } from '../services/setupWizardService.js'
 import { detectSystemLocale } from '../config/i18n.js'
@@ -424,19 +423,9 @@ export default {
     ] }
   },
   mounted() {
-    // 记录进入设置向导
-    trackEvents.pageView('setup_wizard')
-    trackEvents.userAction('setup_wizard_started', {
-      has_locale: this.hasLocale,
-      adapter_count: this.adapters.length
-    })
-    
     // 如果已经有语言配置，跳过第一步
     if (this.hasLocale) {
       this.currentStep = 2
-      trackEvents.userAction('setup_wizard_skip_language', { 
-        reason: 'already_configured' 
-      })
     }
     
     // 如果只有一个显卡，自动选择
@@ -596,15 +585,6 @@ export default {
         this.currentStep = 5
         this.showCompletionNotices()
 
-        // 记录设置完成
-        trackEvents.userAction('setup_wizard_completed', {
-          selected_display: config.output_name,
-          adapter: this.selectedAdapter,
-          display_device_prep: config.display_device_prep,
-          is_virtual_display: config.output_name === 'ZakoHDR',
-          display_setup_skipped: preserveDisplay,
-        })
-
         this.savedConfig = config
       } catch (error) {
         console.error('Failed to save configuration:', error)
@@ -670,11 +650,6 @@ export default {
         config.setup_wizard_completed = true
         await saveSetupWizardConfig(config)
 
-        // 记录跳过事件
-        trackEvents.userAction('setup_wizard_skipped', {
-          from_step: this.currentStep
-        })
-
         // 触发完成事件，让父组件知道设置向导已完成
         this.$emit('setup-complete', config)
 
@@ -688,10 +663,6 @@ export default {
       }
     },
     goToApps() {
-      // 记录跳转到应用配置页面
-      trackEvents.userAction('setup_go_to_apps', {
-        from_step: this.currentStep
-      })
       // 触发重启并显示倒计时
       this.triggerRestartAndRedirect()
     },
@@ -1370,7 +1341,6 @@ export default {
     padding: 0.65rem 0.85rem;
     white-space: nowrap;
   }
-
 
 
 

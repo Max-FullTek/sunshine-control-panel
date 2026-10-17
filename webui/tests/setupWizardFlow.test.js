@@ -36,7 +36,7 @@ function createWizard(t, config = {}, postStatus = 'true') {
   const context = vm.createContext({
     apiFetch, apiJson, saveSetupWizardConfig, saveSetupWizardLocale,
     ConfirmDialog: {}, detectSystemLocale: () => 'zh_TW', getWizardLocale: locale => locale,
-    trackEvents: { userAction() {}, pageView() {} }, console: { error() {} },
+    console: { error() {} },
     writeInterfaceLocale() {}, SETUP_WIZARD_LANGUAGE_SAVED_KEY: 'saved',
     window: { location: { reload: () => redirects.push('reload'), replace: path => redirects.push(path) }, sessionStorage: { setItem() {} } },
     AbortController,

@@ -16,7 +16,6 @@ function harness(initialApps, fail = false) {
     translateFallback: key => key,
     deepClone: value => JSON.parse(JSON.stringify(value)),
     debounce: fn => fn,
-    trackEvents: { userAction() {} },
     setTimeout() {},
     console: { error() {} },
     AppService: {
