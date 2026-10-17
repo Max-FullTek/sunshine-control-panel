@@ -4,6 +4,7 @@
  */
 
 import { localizedMessage } from './localizedMessage.js'
+import { isLocalImagePath } from './imageUtils.js'
 
 /**
  * 验证规则对象
@@ -67,6 +68,10 @@ export function validateField(fieldName, value, customRules = {}, translate) {
   // 如果字段为空且不是必填，则跳过其他验证
   if (isEmpty) {
     return { isValid: true, message: '' }
+  }
+
+  if (fieldName === 'imagePath' && !isLocalImagePath(strValue)) {
+    return { isValid: false, message: message('apps.image_load_failed') }
   }
 
   // 长度验证

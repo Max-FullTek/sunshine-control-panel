@@ -11,8 +11,11 @@ export function getImagePreviewUrl(imagePath = 'box.png') {
   if (imagePath === 'desktop') {
     return '/boxart/desktop.png'
   }
-  if (/^(https?:|blob:|data:)/i.test(imagePath)) {
+  if (/^(blob:|data:image\/png;base64,)/i.test(imagePath)) {
     return imagePath
+  }
+  if (!isLocalImagePath(imagePath)) {
+    return '/boxart/box.png'
   }
   if (imagePath.startsWith('/boxart/') || imagePath.startsWith('boxart/')) {
     return imagePath.startsWith('/') ? imagePath : `/${imagePath}`
@@ -48,15 +51,12 @@ export function isLocalImagePath(imagePath) {
     return false
   }
 
-  // 如果是网络URL或blob/data URL，不是本地路径
-  if (
-    imagePath.startsWith('http://') ||
-    imagePath.startsWith('https://') ||
-    imagePath.startsWith('blob:') ||
-    imagePath.startsWith('data:')
-  ) {
+  // Network shares and URI schemes are not local application cover paths.
+  if (/^[\\/]{2}/.test(imagePath)) {
     return false
   }
-
-  return true
+  const colon = imagePath.indexOf(':')
+  return colon === -1 || (
+    /^[a-z]:[\\/]/i.test(imagePath) && imagePath.indexOf(':', colon + 1) === -1
+  )
 }

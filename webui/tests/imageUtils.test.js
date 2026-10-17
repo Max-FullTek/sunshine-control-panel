@@ -2,9 +2,13 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 import { getImagePreviewUrl } from '../utils/imageUtils.js'
+import { validateField } from '../utils/validation.js'
 
-test('getImagePreviewUrl keeps direct preview URLs unchanged', () => {
-  assert.equal(getImagePreviewUrl('https://cdn.example.com/cover.jpg'), 'https://cdn.example.com/cover.jpg')
+test('external cover URLs and network shares never become image sources', () => {
+  for (const path of ['https://cdn.example.com/cover.jpg', 'HTTP://example.invalid/a.png', '//server/a.png', '\\\\server\\a.png', 'javascript:alert(1)', 'file://server/a.png']) {
+    assert.equal(getImagePreviewUrl(path), '/boxart/box.png')
+    assert.equal(validateField('imagePath', path).isValid, false)
+  }
   assert.equal(getImagePreviewUrl('data:image/png;base64,abc'), 'data:image/png;base64,abc')
 })
 

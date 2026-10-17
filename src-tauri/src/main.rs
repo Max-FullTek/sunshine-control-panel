@@ -11,7 +11,6 @@ mod desktop_settings;
 mod device_config;
 #[cfg(target_os = "windows")]
 mod elevation;
-mod file_transfer;
 mod fs_utils;
 mod logger;
 mod power;
@@ -219,7 +218,6 @@ fn main() {
             logger::clear_logs,
             logger::export_logs,
             clipboard::clipboard_sync_status,
-            file_transfer::send_file_to_client,
             windows::webview_heartbeat,
             windows::resize_about_window,
             tray::set_locale_preferences,

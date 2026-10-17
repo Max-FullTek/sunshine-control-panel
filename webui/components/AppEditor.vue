@@ -11,6 +11,7 @@
         </div>
         <div class="modal-body">
           <input type="file" ref="fileInput" style="display: none" />
+          <input type="file" ref="coverFileInput" accept="image/png" style="display: none" @change="selectLocalCover" />
           <input type="file" ref="dirInput" style="display: none" webkitdirectory />
 
           <form v-if="formData" @submit.prevent="saveApp">
@@ -39,6 +40,15 @@
                     @blur="validateField('name')"
                     required
                   />
+                </FormField>
+
+                <FormField id="appImage" :label="t('apps.image')" :hint="t('apps.image_desc')" :validation="validation['image-path']">
+                  <div class="input-group">
+                    <input id="appImage" class="form-control" v-model="formData['image-path']" @blur="validateField('image-path')" />
+                    <button type="button" class="btn btn-outline-secondary" :title="t('apps.select')" @click="coverFileInput?.click()">
+                      <i class="fas fa-folder-open"></i>
+                    </button>
+                  </div>
                 </FormField>
 
                 <FormField
@@ -425,6 +435,7 @@ const { t } = useI18n()
 
 const modalElement = ref(null)
 const fileInput = ref(null)
+const coverFileInput = ref(null)
 const dirInput = ref(null)
 const formData = ref(null)
 const validation = ref({})
@@ -653,6 +664,35 @@ const removeDetachedCommand = (index) => {
 
 const handleDetachedCommandOrderChanged = (newOrder) => {
   formData.value.detached = newOrder
+}
+
+const selectLocalCover = async (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+  try {
+    if (file.size > 7.5 * 1024 * 1024) throw new Error(t('apps.validation.file_max_size', { size: '7.5' }))
+    const header = new Uint8Array(await file.slice(0, 8).arrayBuffer())
+    if (![137, 80, 78, 71, 13, 10, 26, 10].every((byte, index) => header[index] === byte)) {
+      throw new Error(t('apps.validation.file_types', { types: 'PNG' }))
+    }
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(String(reader.result))
+      reader.onerror = () => reject(new Error(t('apps.image_load_failed')))
+      reader.readAsDataURL(file)
+    })
+    const result = await apiPostJson('/api/covers/upload', {
+      key: `local_${nanoid()}`,
+      data: dataUrl.slice(dataUrl.indexOf(',') + 1),
+    })
+    if (!result.path) throw new Error(result.error || t('apps.image_load_failed'))
+    formData.value['image-path'] = result.path
+    validateField('image-path')
+  } catch (error) {
+    showMessage(t('apps.image_upload_failed', { error: error.message }), 'error')
+  } finally {
+    event.target.value = ''
+  }
 }
 
 const onFilePathSelected = (fieldName, filePath) => {

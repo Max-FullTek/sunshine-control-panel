@@ -9,8 +9,7 @@
 //!
 //! ```text
 //!   u8 version=1
-//!   u8 kind        (1 = utf8 text, 2 = png image, 3 = blob ref JSON,
-//!                   4 = file-transfer offer JSON)
+//!   u8 kind        (1 = utf8 text, 2 = png image, 3 = blob ref JSON)
 //!   u32 token      (echo-suppression nonce)
 //!   u32 length
 //!   bytes payload  (length bytes)
@@ -64,7 +63,6 @@ const WIRE_VERSION: u8 = 1;
 const KIND_TEXT: u8 = 1;
 const KIND_PNG: u8 = 2;
 const KIND_REF: u8 = 3;
-const KIND_FILE_OFFER: u8 = 4;
 
 const MAX_TEXT_BYTES: usize = 1 * 1024 * 1024;
 const MAX_IMAGE_BYTES: usize = 50 * 1024 * 1024; // matches service blob cap
@@ -129,7 +127,6 @@ enum Kind {
     Text,
     Png,
     Ref,
-    FileOffer,
 }
 
 impl Kind {
@@ -138,7 +135,6 @@ impl Kind {
             KIND_TEXT => Some(Kind::Text),
             KIND_PNG => Some(Kind::Png),
             KIND_REF => Some(Kind::Ref),
-            KIND_FILE_OFFER => Some(Kind::FileOffer),
             _ => None,
         }
     }
@@ -147,7 +143,6 @@ impl Kind {
             Kind::Text => KIND_TEXT,
             Kind::Png => KIND_PNG,
             Kind::Ref => KIND_REF,
-            Kind::FileOffer => KIND_FILE_OFFER,
         }
     }
 }
@@ -604,16 +599,6 @@ async fn post_item(body: Vec<u8>) -> Result<(), String> {
     Ok(())
 }
 
-pub async fn post_file_offer_payload(payload: Vec<u8>) -> Result<(), String> {
-    let token = next_token();
-    let body = encode_frame(&Frame {
-        kind: Kind::FileOffer,
-        token,
-        payload,
-    });
-    post_item(body).await
-}
-
 async fn post_capability_once() -> Result<(), String> {
     let url = get_sunshine_url().await?;
     let client = create_https_client()?;
@@ -735,11 +720,6 @@ fn handle_inbound_frame(frame: Frame, echo: &Arc<Mutex<EchoState>>) {
             let token = frame.token;
             deliver_burst_png(token, &frame.payload, echo);
         }
-        Kind::FileOffer => {
-            // Keep the legacy warn-and-drop path (apply_inbound_inline
-            // rejects file offers on the host agent).
-            apply_inbound_inline(frame, echo);
-        }
     }
 }
 
@@ -780,7 +760,6 @@ async fn apply_inbound_ref(frame: Frame, echo: Arc<Mutex<EchoState>>) {
     let kind = match meta.mime.as_str() {
         m if m.starts_with("text/") => Kind::Text,
         "image/png" => Kind::Png,
-        "application/vnd.sunshine.file-offer+json" => Kind::FileOffer,
         other => {
             warn!("inbound REF: unsupported mime '{}'", other);
             return;
@@ -999,12 +978,6 @@ fn apply_inbound_inline(frame: Frame, echo: &Arc<Mutex<EchoState>>) {
         Kind::Ref => {
             // Already unwrapped above; should never reach here.
             warn!("apply_inbound_inline got Kind::Ref; dropped");
-        }
-        Kind::FileOffer => {
-            // Host GUI currently only sends this to clients. If a client sends
-            // one back, ignore it rather than writing arbitrary file metadata
-            // to the host clipboard.
-            warn!("inbound file offer on host GUI agent; dropped");
         }
     }
 }
@@ -1563,6 +1536,12 @@ mod echo_tests {
             Some(10)
         )));
         assert!(!state.observe(image_only));
+    }
+
+    #[test]
+    fn unsupported_clipboard_kinds_are_not_decoded() {
+        assert!(Kind::from_byte(4).is_none());
+        assert!(decode_frame(&[1, 4, 0, 0, 0, 0, 0, 0, 0, 0]).is_none());
     }
 
     #[test]

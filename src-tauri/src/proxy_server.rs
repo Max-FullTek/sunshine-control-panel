@@ -793,14 +793,6 @@ async fn proxy_handler(req: Request) -> Response {
     let query = uri.query().unwrap_or("").to_string();
     let headers = req.headers().clone();
 
-    // Retired Lite integrations must never fall through to an upstream proxy.
-    if ["/_proxy", "/steam-api", "/steam-store", "/steamgriddb"]
-        .iter()
-        .any(|prefix| path == *prefix || path.starts_with(&format!("{prefix}/")))
-    {
-        return axum::http::StatusCode::NOT_FOUND.into_response();
-    }
-
     // 判断是否是 API 请求
     let is_api = is_api_request(&path);
 
@@ -1193,34 +1185,6 @@ mod tests {
             "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
             body.len()
         )
-    }
-
-    #[tokio::test]
-    async fn retired_external_integrations_return_not_found_without_an_upstream() {
-        for path in [
-            "/_proxy/https%3A%2F%2Fapi.github.com%2Frepos",
-            "/_proxy/?url=https%3A%2F%2Fapi.github.com",
-            "/steam-api/ISteamApps/GetAppList/v2",
-            "/steam-store/api/storesearch/?term=game",
-            "/steamgriddb/search/autocomplete/game",
-            "/_proxy",
-            "/steam-api",
-            "/steam-store",
-            "/steamgriddb",
-        ] {
-            for method in [axum::http::Method::GET, axum::http::Method::POST] {
-                let request = axum::http::Request::builder()
-                    .uri(path)
-                    .method(method)
-                    .body(Body::empty())
-                    .unwrap();
-                assert_eq!(
-                    proxy_handler(request).await.status(),
-                    axum::http::StatusCode::NOT_FOUND,
-                    "{path}"
-                );
-            }
-        }
     }
 
     #[tokio::test]

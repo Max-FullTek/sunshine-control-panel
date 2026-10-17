@@ -17,8 +17,6 @@ pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>
     let agent_only = args.iter().any(|arg| arg == "--hidden");
     let explicit_minimized = args.iter().any(|arg| arg == "--minimized");
     let desktop_settings = crate::desktop_settings::load_desktop_settings_from_disk();
-    let send_to_client_paths = crate::file_transfer::parse_send_to_client_args(&args);
-    let is_send_to_client = !send_to_client_paths.is_empty();
     let url_contains_pin = args
         .iter()
         .find(|arg| arg.starts_with("--url="))
@@ -27,8 +25,6 @@ pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>
     let app_handle = app.handle().clone();
     windows::register_agent_restart();
     crate::desktop_settings::apply_startup_settings(&app_handle, &desktop_settings);
-    // 更新偏好属于应用级状态，必须在 `--hidden` 的纯托盘代理模式下也立即注册。
-    // 自动联网检查仍在后面按窗口启动模式决定，避免把状态初始化和网络行为耦合。
     #[cfg(target_os = "windows")]
     crate::vdd::start_hardware_cursor_migration();
     let start_minimized = explicit_minimized || desktop_settings.start_minimized;
@@ -37,7 +33,7 @@ pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>
     // allocating a hidden WebView. UI windows are created on demand.
     if agent_only {
         info!("Starting Sunshine user agent without WebView windows");
-    } else if !url_contains_pin && !is_send_to_client {
+    } else if !url_contains_pin {
         if start_minimized {
             windows::create_main_window_hidden(&app_handle)?;
         } else {
@@ -48,16 +44,13 @@ pub fn setup_application(app: &mut App) -> Result<(), Box<dyn std::error::Error>
     tray::create_system_tray(&app_handle)?;
     crate::power::refresh_ecoqos_state(&app_handle);
     #[cfg(target_os = "windows")]
-    if let Err(e) = crate::shell_context_menu::install_file_transfer_menu() {
-        warn!("⚠️  安装文件传输右键菜单失败: {}", e);
+    if let Err(e) = crate::shell_context_menu::remove_retired_file_transfer_menu() {
+        warn!("⚠️  移除旧文件传输右键菜单失败: {}", e);
     }
 
     // 剪贴板同步：用户会话 agent 默认随面板启动；服务端如果禁用了则 SSE 自然失败，
     // 不需要额外开关。
     crate::clipboard::auto_start();
-    if is_send_to_client {
-        crate::file_transfer::dispatch_cli_send(send_to_client_paths);
-    }
 
     // 启动 WebView 心跳监控（检测渲染进程崩溃并自动恢复）
     windows::start_heartbeat_monitor(app.handle().clone());
@@ -90,13 +83,6 @@ pub fn shutdown_application() {
 pub fn handle_single_instance(app: &AppHandle, args: Vec<String>) {
     info!("🔔 检测到第二个实例启动，激活现有窗口");
     info!("   启动参数: {:?}", args);
-
-    let send_to_client_paths = crate::file_transfer::parse_send_to_client_args(&args);
-    if !send_to_client_paths.is_empty() {
-        info!("📤 检测到文件传输右键菜单请求");
-        crate::file_transfer::dispatch_cli_send(send_to_client_paths);
-        return;
-    }
 
     // 诊断：列出当前所有窗口
 
