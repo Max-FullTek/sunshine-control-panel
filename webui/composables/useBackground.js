@@ -2,7 +2,7 @@ import { getCurrentScope, onScopeDispose } from 'vue'
 import { translateFallback } from '../utils/localizedMessage.js'
 import { extractColors, rgbToHsl as rgbToHslValues, selectAccentColor } from '../utils/colorPalette.js'
 
-const DEFAULT_BACKGROUND = 'https://assets.alkaidlab.com/sunshine-bg0.webp'
+const DEFAULT_BACKGROUND = ''
 const STORAGE_KEY = 'customBackground'
 const THUMBNAIL_MAX_SIZE = 200
 const TEXT_COLOR_PROPERTIES = [
@@ -180,7 +180,12 @@ export function useBackground(options = {}) {
     translate = translateFallback,
   } = options
 
-  const getCurrentBackground = () => localStorage.getItem(storageKey) ?? defaultBackground
+  const getCurrentBackground = () => {
+    const saved = localStorage.getItem(storageKey)
+    // Backgrounds chosen through the UI are stored locally as data URLs.
+    // Ignore legacy remote values so opening a page cannot fetch an old default.
+    return isLocalImage(saved) ? saved : defaultBackground
+  }
 
   const isDevMode = () => localStorage.getItem('sunshine_dev_mode') === '1'
 
@@ -208,7 +213,7 @@ export function useBackground(options = {}) {
   }
 
   const setBackground = async (imageUrl) => {
-    if (isDevMode()) {
+    if (!imageUrl || isDevMode()) {
       colorUpdateId++
       document.body.style.background = ''
       resetTextColorTheme()

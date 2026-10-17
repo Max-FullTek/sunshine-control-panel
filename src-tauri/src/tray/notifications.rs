@@ -20,10 +20,7 @@ const WINDOWS_NOTIFICATION_ICON_FILE: &str = "notification-icon-v2.ico";
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 enum ConnectionChange {
-    Connected {
-        client_name: Option<String>,
-        highly_suspected_unknown_client: bool,
-    },
+    Connected { client_name: Option<String> },
     Disconnected(Option<String>),
 }
 
@@ -144,7 +141,6 @@ fn connection_changes(
                 changes.push(ConnectionChange::Connected {
                     client_name: (!session.client_name.trim().is_empty())
                         .then(|| session.client_name.trim().to_string()),
-                    highly_suspected_unknown_client: session.highly_suspected_unknown_client,
                 });
             }
         }
@@ -163,10 +159,7 @@ fn connection_changes(
         changes
     } else if matches!(previous.status.as_str(), "idle" | "paused") && current.status == "streaming"
     {
-        vec![ConnectionChange::Connected {
-            client_name: None,
-            highly_suspected_unknown_client: false,
-        }]
+        vec![ConnectionChange::Connected { client_name: None }]
     } else if previous.status == "streaming" && matches!(current.status.as_str(), "idle" | "paused")
     {
         vec![ConnectionChange::Disconnected(None)]
@@ -180,21 +173,14 @@ fn connection_content(
     change: ConnectionChange,
 ) -> NotificationContent {
     match change {
-        ConnectionChange::Connected {
-            client_name,
-            highly_suspected_unknown_client,
-        } => {
-            let mut body = client_name
+        ConnectionChange::Connected { client_name } => {
+            let body = client_name
                 .map(|name| {
                     strings
                         .client_connected_named
                         .replace("{name}", &super::menu::compact_menu_text(&name, 64))
                 })
                 .unwrap_or_else(|| strings.client_connected_detail.to_string());
-            if highly_suspected_unknown_client {
-                body.push('\n');
-                body.push_str(strings.suspicious_client_warning);
-            }
             NotificationContent {
                 title: strings.client_connected.to_string(),
                 body,
@@ -423,14 +409,12 @@ mod tests {
         connected.sessions.push(crate::sunshine::TrayClientSession {
             id: 7,
             client_name: "Living Room TV".to_string(),
-            highly_suspected_unknown_client: false,
         });
 
         assert_eq!(
             connection_changes(Some(&idle), &connected),
             vec![ConnectionChange::Connected {
                 client_name: Some("Living Room TV".to_string()),
-                highly_suspected_unknown_client: false,
             }]
         );
         assert_eq!(
@@ -450,10 +434,7 @@ mod tests {
 
         assert_eq!(
             connection_changes(Some(&idle), &streaming),
-            vec![ConnectionChange::Connected {
-                client_name: None,
-                highly_suspected_unknown_client: false,
-            }]
+            vec![ConnectionChange::Connected { client_name: None }]
         );
         assert_eq!(
             connection_changes(Some(&streaming), &paused),
@@ -478,7 +459,6 @@ mod tests {
                 &super::super::ZH_STRINGS,
                 ConnectionChange::Connected {
                     client_name: Some("客厅电视".to_string()),
-                    highly_suspected_unknown_client: false,
                 }
             ),
             NotificationContent {
@@ -494,28 +474,6 @@ mod tests {
             NotificationContent {
                 title: "Client disconnected".to_string(),
                 body: "The streaming connection has ended.".to_string(),
-            }
-        );
-    }
-
-    #[test]
-    fn suspicious_client_warning_is_appended_to_connection_notification() {
-        assert_eq!(
-            connection_content(
-                &super::super::ZH_STRINGS,
-                ConnectionChange::Connected {
-                    client_name: Some("可疑客户端".to_string()),
-                    highly_suspected_unknown_client: true,
-                }
-            ),
-            NotificationContent {
-                title: "客户端已连接".to_string(),
-                body: concat!(
-                    "「可疑客户端」已连接到这台电脑。\n",
-                    "警告：您很可能正在受到未知侵权客户端的侵害。",
-                    "该判断基于客户端网络特征，可能存在误判。"
-                )
-                .to_string(),
             }
         );
     }

@@ -38,7 +38,7 @@ export const en = {
     },
     {
       "title": "Less clutter, more consistency",
-      "body": "Lite focuses on app management, pairing, streaming settings and display controls, simplifying extra tools and repeated entry points. Desktop and browser share Vue pages, consistent components and spacing, and localized wording. The original background, light and dark palettes, and card design remain part of the interface."
+      "body": "Lite focuses on app management, pairing, streaming settings and display controls, simplifying extra tools and repeated entry points. Desktop and browser share Vue pages, consistent components and spacing, and localized wording. The original light and dark palettes and card design remain part of the interface."
     },
     {
       "title": "Work in progress",
