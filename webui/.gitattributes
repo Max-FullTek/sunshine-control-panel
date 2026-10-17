@@ -1,0 +1,2 @@
+# Preserve the translation formatter's byte-for-byte LF convention after moving repositories.
+public/assets/locale/*.json text eol=lf

@@ -6,7 +6,7 @@ import { computed, ref } from 'vue'
 import { APP_CONSTANTS } from '../utils/constants.js'
 
 const source = (await readFile(new URL('../composables/useApps.js', import.meta.url), 'utf8'))
-  .replace(/^import .*\n/gm, '')
+  .replace(/^import .*\r?\n/gm, '')
   .replace('export function useApps()', 'function useApps()')
 
 function harness(initialApps, fail = false) {
