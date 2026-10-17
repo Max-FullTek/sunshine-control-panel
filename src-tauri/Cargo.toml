@@ -44,6 +44,10 @@ sha2 = "0.10"
 zip = { version = "4", default-features = false, features = ["deflate"] }
 uuid = { version = "1", features = ["v4"] }
 
+[dev-dependencies]
+# Exercise HTTPS trust and redirects with a local TLS fixture, without changing system trust.
+native-tls = "0.2.18"
+
 [features]
 # by default Tauri runs in production mode
 # when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL

@@ -50,6 +50,9 @@ const DEFAULT_PROXY_TIMEOUT_SECS: u64 = 5;
 
 /// Loopback connections should establish quickly.
 const PROXY_CONNECT_TIMEOUT_MS: u64 = 500;
+// Public services may need DNS and a full TLS handshake across the Internet.
+const EXTERNAL_PROXY_CONNECT_TIMEOUT_SECS: u64 = 5;
+const EXTERNAL_PROXY_TIMEOUT_SECS: u64 = 15;
 
 /// Bound memory and active work exposed by the unauthenticated loopback proxy.
 const MAX_PROXY_REQUEST_BODY_BYTES: usize = 16 * 1024 * 1024;
@@ -1006,7 +1009,7 @@ async fn handle_steam_api(
     debug!("🎮 Steam API 代理请求: {} -> {}", path, target_url);
 
     // 发送请求并构建响应
-    let client = get_http_client();
+    let client = get_external_http_client(ExternalProxyScope::Steam);
     match send_request(client, &target_url, method, headers, &body).await {
         Ok(response) => build_filtered_proxy_response(response).await,
         Err(e) => {
@@ -1084,27 +1087,9 @@ async fn handle_external_proxy(
         }
     };
 
-    // 安全检查：只允许 HTTPS 请求到白名单域名
-    let allowed_domains = [
-        "github.io",
-        "raw.githubusercontent.com",
-        "github.com",
-        "api.github.com",
-    ];
-
     let is_allowed = url::Url::parse(&target_url)
         .ok()
-        .map(|u| {
-            u.scheme() == "https"
-                && u.host_str()
-                    .map(|host| {
-                        allowed_domains
-                            .iter()
-                            .any(|d| host == *d || host.ends_with(&format!(".{}", d)))
-                    })
-                    .unwrap_or(false)
-        })
-        .unwrap_or(false);
+        .is_some_and(|url| external_proxy_url_allowed(&url, ExternalProxyScope::Github));
 
     if !is_allowed {
         warn!("⚠️ 外部代理请求被拒绝（域名不在白名单）: {}", target_url);
@@ -1128,7 +1113,7 @@ async fn handle_external_proxy(
     };
 
     // 发送请求
-    let client = get_http_client();
+    let client = get_external_http_client(ExternalProxyScope::Github);
     match send_request(client, &target_url, method, headers, &body).await {
         Ok(response) => build_filtered_proxy_response(response).await,
         Err(e) => {
@@ -1149,19 +1134,104 @@ async fn handle_external_proxy(
     }
 }
 
-/// 创建共享的 HTTP 客户端（连接复用，性能优化）
-fn get_http_client() -> &'static reqwest::Client {
-    use std::sync::OnceLock;
-    static CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
-    CLIENT.get_or_init(|| build_http_client(DEFAULT_PROXY_TIMEOUT_SECS))
+#[derive(Clone, Copy)]
+enum ExternalProxyScope {
+    Github,
+    Steam,
 }
 
-fn get_streaming_http_client() -> &'static reqwest::Client {
+fn external_proxy_url_allowed(url: &url::Url, scope: ExternalProxyScope) -> bool {
+    if url.scheme() != "https" || !url.username().is_empty() || url.password().is_some() {
+        return false;
+    }
+    let Some(host) = url.host_str() else {
+        return false;
+    };
+    match scope {
+        ExternalProxyScope::Github => [
+            "github.io",
+            "raw.githubusercontent.com",
+            "github.com",
+            "api.github.com",
+            // GitHub release downloads redirect to these asset hosts.
+            "objects.githubusercontent.com",
+            "release-assets.githubusercontent.com",
+        ]
+        .iter()
+        .any(|domain| host == *domain || host.ends_with(&format!(".{domain}"))),
+        ExternalProxyScope::Steam => {
+            matches!(host, "store.steampowered.com" | "www.steamgriddb.com")
+        }
+    }
+}
+
+fn external_http_client_builder(scope: ExternalProxyScope) -> reqwest::ClientBuilder {
+    reqwest::Client::builder()
+        // External services use normal system trust and hostname verification.
+        .https_only(true)
+        .redirect(reqwest::redirect::Policy::custom(move |attempt| {
+            if attempt.previous().len() >= 5 {
+                attempt.error("Too many external proxy redirects")
+            } else if !external_proxy_url_allowed(attempt.url(), scope) {
+                attempt.error("External proxy redirect destination is not allowed")
+            } else {
+                attempt.follow()
+            }
+        }))
+        .pool_max_idle_per_host(20)
+        .timeout(std::time::Duration::from_secs(EXTERNAL_PROXY_TIMEOUT_SECS))
+        .connect_timeout(std::time::Duration::from_secs(
+            EXTERNAL_PROXY_CONNECT_TIMEOUT_SECS,
+        ))
+}
+
+fn get_external_http_client(scope: ExternalProxyScope) -> &'static reqwest::Client {
     use std::sync::OnceLock;
-    static CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
-    CLIENT.get_or_init(|| {
+    static GITHUB: OnceLock<reqwest::Client> = OnceLock::new();
+    static STEAM: OnceLock<reqwest::Client> = OnceLock::new();
+    let client = match scope {
+        ExternalProxyScope::Github => &GITHUB,
+        ExternalProxyScope::Steam => &STEAM,
+    };
+    client.get_or_init(|| {
+        external_http_client_builder(scope)
+            .build()
+            .expect("Failed to create external HTTPS client")
+    })
+}
+
+fn is_loopback_sunshine_url(value: &str) -> bool {
+    url::Url::parse(value).is_ok_and(|url| {
+        matches!(url.scheme(), "http" | "https")
+            && url.username().is_empty()
+            && url.password().is_none()
+            && match url.host() {
+                Some(url::Host::Domain(host)) => host.eq_ignore_ascii_case("localhost"),
+                Some(url::Host::Ipv4(address)) => address.is_loopback(),
+                Some(url::Host::Ipv6(address)) => address.is_loopback(),
+                None => false,
+            }
+    })
+}
+
+/// Remote Sunshine targets retain normal certificate verification.
+fn get_sunshine_http_client(loopback: bool) -> &'static reqwest::Client {
+    use std::sync::OnceLock;
+    static LOCAL: OnceLock<reqwest::Client> = OnceLock::new();
+    static REMOTE: OnceLock<reqwest::Client> = OnceLock::new();
+    let client = if loopback { &LOCAL } else { &REMOTE };
+    client.get_or_init(|| build_sunshine_http_client(DEFAULT_PROXY_TIMEOUT_SECS, loopback))
+}
+
+fn get_streaming_http_client(loopback: bool) -> &'static reqwest::Client {
+    use std::sync::OnceLock;
+    static LOCAL: OnceLock<reqwest::Client> = OnceLock::new();
+    static REMOTE: OnceLock<reqwest::Client> = OnceLock::new();
+    let client = if loopback { &LOCAL } else { &REMOTE };
+    client.get_or_init(|| {
         reqwest::Client::builder()
-            .danger_accept_invalid_certs(true)
+            .danger_accept_invalid_certs(loopback)
+            .redirect(reqwest::redirect::Policy::none())
             .pool_max_idle_per_host(3)
             .connect_timeout(std::time::Duration::from_millis(PROXY_CONNECT_TIMEOUT_MS))
             .read_timeout(std::time::Duration::from_secs(
@@ -1172,9 +1242,10 @@ fn get_streaming_http_client() -> &'static reqwest::Client {
     })
 }
 
-fn build_http_client(timeout_secs: u64) -> reqwest::Client {
+fn build_sunshine_http_client(timeout_secs: u64, loopback: bool) -> reqwest::Client {
     reqwest::Client::builder()
-        .danger_accept_invalid_certs(true)
+        .danger_accept_invalid_certs(loopback)
+        .redirect(reqwest::redirect::Policy::none())
         .pool_max_idle_per_host(20)
         .timeout(std::time::Duration::from_secs(timeout_secs))
         .connect_timeout(std::time::Duration::from_millis(PROXY_CONNECT_TIMEOUT_MS))
@@ -1227,17 +1298,20 @@ async fn fetch_and_proxy(
     headers: &axum::http::HeaderMap,
     body: &Bytes,
 ) -> Result<Response, Box<dyn std::error::Error + Send + Sync>> {
+    let loopback = is_loopback_sunshine_url(url);
     let response_body_limit = proxy_response_body_limit(url, method, headers);
     let client = if response_body_limit.is_none() {
-        get_streaming_http_client()
+        get_streaming_http_client(loopback)
     } else {
-        get_http_client()
+        get_sunshine_http_client(loopback)
     };
 
     // 尝试请求，HTTPS 失败时降级到 HTTP（仅限非连接错误）
     let response = match send_request(client, url, method, headers, body).await {
         Ok(resp) => resp,
-        Err(e) if url.starts_with("https://") && !is_connection_error(&e.to_string()) => {
+        Err(e)
+            if loopback && url.starts_with("https://") && !is_connection_error(&e.to_string()) =>
+        {
             let http_url = url.replace("https://", "http://");
             warn!("⚠️  HTTPS 连接失败，尝试 HTTP: {}", http_url);
             send_request(client, &http_url, method, headers, body).await?
@@ -1364,6 +1438,310 @@ mod tests {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
     static TEST_LOCK: Lazy<tokio::sync::Mutex<()>> = Lazy::new(|| tokio::sync::Mutex::new(()));
+
+    // This identity is only a test fixture. Its root is added to individual test
+    // clients, never to the system certificate store or production clients.
+    fn spawn_tls_fixture(response: String) -> (SocketAddr, std::thread::JoinHandle<()>) {
+        let identity = native_tls::Identity::from_pkcs12(
+            include_bytes!("../test-fixtures/proxy-tls.pfx"),
+            "test-only",
+        )
+        .unwrap();
+        let acceptor = native_tls::TlsAcceptor::new(identity).unwrap();
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let task = std::thread::spawn(move || {
+            let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+            let stream = loop {
+                match listener.accept() {
+                    Ok((stream, _)) => break stream,
+                    Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                        assert!(
+                            std::time::Instant::now() < deadline,
+                            "TLS fixture was not contacted"
+                        );
+                        std::thread::sleep(std::time::Duration::from_millis(5));
+                    }
+                    Err(error) => panic!("TLS fixture accept failed: {error}"),
+                }
+            };
+            stream.set_nonblocking(false).unwrap();
+            stream
+                .set_read_timeout(Some(std::time::Duration::from_secs(3)))
+                .unwrap();
+            stream
+                .set_write_timeout(Some(std::time::Duration::from_secs(3)))
+                .unwrap();
+            // An untrusted-certificate test intentionally aborts the handshake.
+            if let Ok(mut stream) = acceptor.accept(stream) {
+                let mut buffer = [0_u8; 8192];
+                if std::io::Read::read(&mut stream, &mut buffer).is_ok() {
+                    let _ = std::io::Write::write_all(&mut stream, response.as_bytes());
+                }
+            }
+        });
+        (address, task)
+    }
+
+    fn tls_ok_response(body: &str) -> String {
+        format!(
+            "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+            body.len()
+        )
+    }
+
+    fn fixture_external_client(scope: ExternalProxyScope, trusted: bool) -> reqwest::Client {
+        let mut builder = external_http_client_builder(scope)
+            .no_proxy()
+            .resolve("api.github.com", "127.0.0.1:443".parse().unwrap())
+            .resolve("store.steampowered.com", "127.0.0.1:443".parse().unwrap())
+            .resolve("www.steamgriddb.com", "127.0.0.1:443".parse().unwrap());
+        if trusted {
+            builder = builder.add_root_certificate(
+                reqwest::Certificate::from_der(include_bytes!("../test-fixtures/proxy-tls.cer"))
+                    .unwrap(),
+            );
+        }
+        builder.build().unwrap()
+    }
+
+    #[test]
+    fn external_proxy_policy_rejects_plaintext_credentials_and_wrong_hosts() {
+        for value in [
+            "http://api.github.com/data",
+            "https://api.github.com.evil.invalid/data",
+            "https://user:password@api.github.com/data",
+            "https://127.0.0.1/data",
+            "https://store.steampowered.com/data",
+        ] {
+            assert!(
+                !external_proxy_url_allowed(
+                    &url::Url::parse(value).unwrap(),
+                    ExternalProxyScope::Github
+                ),
+                "{value}"
+            );
+        }
+        for value in [
+            "https://api.github.com/repos/example/project/releases",
+            "https://example.github.io/data",
+            "https://raw.githubusercontent.com/example/data",
+            "https://release-assets.githubusercontent.com/example/asset",
+        ] {
+            assert!(
+                external_proxy_url_allowed(
+                    &url::Url::parse(value).unwrap(),
+                    ExternalProxyScope::Github
+                ),
+                "{value}"
+            );
+        }
+        for host in ["store.steampowered.com", "www.steamgriddb.com"] {
+            assert!(external_proxy_url_allowed(
+                &url::Url::parse(&format!("https://{host}/api")).unwrap(),
+                ExternalProxyScope::Steam
+            ));
+        }
+        assert!(!external_proxy_url_allowed(
+            &url::Url::parse("https://api.github.com/data").unwrap(),
+            ExternalProxyScope::Steam
+        ));
+    }
+
+    #[tokio::test]
+    async fn external_https_rejects_untrusted_certificates() {
+        let (address, server) = spawn_tls_fixture(tls_ok_response("untrusted"));
+        let result = fixture_external_client(ExternalProxyScope::Github, false)
+            .get(format!("https://api.github.com:{}/data", address.port()))
+            .send()
+            .await;
+        assert!(result.unwrap_err().is_connect());
+        server.join().unwrap();
+    }
+
+    #[tokio::test]
+    async fn external_https_keeps_hostname_verification() {
+        let (address, server) = spawn_tls_fixture(tls_ok_response("wrong hostname"));
+        let result = fixture_external_client(ExternalProxyScope::Steam, true)
+            .get(format!(
+                "https://www.steamgriddb.com:{}/data",
+                address.port()
+            ))
+            .send()
+            .await;
+        assert!(result.unwrap_err().is_connect());
+        server.join().unwrap();
+    }
+
+    #[tokio::test]
+    async fn external_https_accepts_trusted_github_and_steam_responses() {
+        for (scope, host) in [
+            (ExternalProxyScope::Github, "api.github.com"),
+            (ExternalProxyScope::Steam, "store.steampowered.com"),
+        ] {
+            let (address, server) = spawn_tls_fixture(tls_ok_response("query-and-cover-response"));
+            let upstream = send_request(
+                &fixture_external_client(scope, true),
+                &format!("https://{host}:{}/api?term=game", address.port()),
+                &axum::http::Method::GET,
+                &axum::http::HeaderMap::new(),
+                &Bytes::new(),
+            )
+            .await
+            .unwrap();
+            let response = build_filtered_proxy_response(upstream).await;
+            assert_eq!(response.status(), axum::http::StatusCode::OK);
+            assert_eq!(
+                axum::body::to_bytes(response.into_body(), 1024)
+                    .await
+                    .unwrap()
+                    .as_ref(),
+                b"query-and-cover-response"
+            );
+            server.join().unwrap();
+        }
+    }
+
+    #[tokio::test]
+    async fn external_https_blocks_redirects_outside_its_scope_and_to_http() {
+        for location in [
+            "https://example.invalid/data",
+            "http://api.github.com/data",
+            "https://store.steampowered.com/data",
+        ] {
+            let (address, server) = spawn_tls_fixture(format!(
+                "HTTP/1.1 302 Found\r\nLocation: {location}\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+            ));
+            let result = fixture_external_client(ExternalProxyScope::Github, true)
+                .get(format!("https://api.github.com:{}/data", address.port()))
+                .send()
+                .await;
+            assert!(result.unwrap_err().is_redirect(), "{location}");
+            server.join().unwrap();
+        }
+    }
+
+    #[tokio::test]
+    async fn external_https_follows_allowed_redirects() {
+        let (destination, destination_server) = spawn_tls_fixture(tls_ok_response("redirect-ok"));
+        let (source, source_server) = spawn_tls_fixture(format!(
+            "HTTP/1.1 302 Found\r\nLocation: https://api.github.com:{}/final\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+            destination.port()
+        ));
+        let response = fixture_external_client(ExternalProxyScope::Github, true)
+            .get(format!("https://api.github.com:{}/start", source.port()))
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(response.text().await.unwrap(), "redirect-ok");
+        source_server.join().unwrap();
+        destination_server.join().unwrap();
+    }
+
+    #[tokio::test]
+    #[ignore = "contacts public GitHub and Steam services; run explicitly when network is available"]
+    async fn external_https_live_service_smoke() {
+        let mut headers = axum::http::HeaderMap::new();
+        headers.insert(
+            axum::http::header::USER_AGENT,
+            axum::http::HeaderValue::from_static("Foundation-Sunshine-Lite-HTTPS-smoke"),
+        );
+        let query = url::form_urlencoded::Serializer::new(String::new())
+            .append_pair("url", "https://api.github.com/repos/LizardByte/Sunshine")
+            .finish();
+        let response = handle_external_proxy(
+            "/_proxy/",
+            &query,
+            &axum::http::Method::GET,
+            &headers,
+            axum::http::Request::new(Body::empty()),
+        )
+        .await;
+        assert_eq!(
+            response.status(),
+            axum::http::StatusCode::OK,
+            "GitHub query failed"
+        );
+        let body = axum::body::to_bytes(response.into_body(), MAX_PROXY_RESPONSE_BODY_BYTES)
+            .await
+            .unwrap();
+        let repository: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(repository["full_name"], "LizardByte/Sunshine");
+
+        let response = handle_steam_api(
+            "/steam-store/api/storesearch/",
+            "term=Portal&l=english&cc=US",
+            &axum::http::Method::GET,
+            &headers,
+            axum::http::Request::new(Body::empty()),
+        )
+        .await;
+        assert_eq!(
+            response.status(),
+            axum::http::StatusCode::OK,
+            "Steam search failed"
+        );
+        let body = axum::body::to_bytes(response.into_body(), MAX_PROXY_RESPONSE_BODY_BYTES)
+            .await
+            .unwrap();
+        let search: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert!(!search["items"].as_array().unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn local_self_signed_sunshine_still_proxies_pages_apis_and_log_streams() {
+        for path in ["/", "/api/config", "/api/logs"] {
+            let (address, server) = spawn_tls_fixture(tls_ok_response("local-sunshine-ok"));
+            let response = fetch_and_proxy(
+                &format!("https://127.0.0.1:{}{path}", address.port()),
+                &axum::http::Method::GET,
+                &axum::http::HeaderMap::new(),
+                &Bytes::new(),
+            )
+            .await
+            .unwrap();
+            assert_eq!(response.status(), axum::http::StatusCode::OK);
+            assert_eq!(
+                axum::body::to_bytes(response.into_body(), 1024)
+                    .await
+                    .unwrap()
+                    .as_ref(),
+                b"local-sunshine-ok"
+            );
+            server.join().unwrap();
+        }
+    }
+
+    #[tokio::test]
+    async fn local_self_signed_exception_cannot_follow_redirects_or_apply_to_remote_hosts() {
+        for value in [
+            "https://example.invalid/",
+            "https://localhost.evil.invalid/",
+            "https://user@localhost/",
+        ] {
+            assert!(!is_loopback_sunshine_url(value));
+        }
+        let (remote, remote_server) =
+            spawn_tls_fixture(tls_ok_response("untrusted remote Sunshine"));
+        let result = build_sunshine_http_client(5, false)
+            .get(format!("https://localhost:{}/", remote.port()))
+            .send()
+            .await;
+        assert!(result.unwrap_err().is_connect());
+        remote_server.join().unwrap();
+        let (address, server) = spawn_tls_fixture("HTTP/1.1 302 Found\r\nLocation: https://example.invalid/\r\nContent-Length: 0\r\nConnection: close\r\n\r\n".to_string());
+        let response = fetch_and_proxy(
+            &format!("https://127.0.0.1:{}/", address.port()),
+            &axum::http::Method::GET,
+            &axum::http::HeaderMap::new(),
+            &Bytes::new(),
+        )
+        .await
+        .unwrap();
+        assert_eq!(response.status(), axum::http::StatusCode::FOUND);
+        server.join().unwrap();
+    }
 
     async fn unused_local_port() -> u16 {
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
