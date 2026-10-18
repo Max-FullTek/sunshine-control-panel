@@ -315,8 +315,6 @@ struct TrayStrings {
     log_console: &'static str,
     #[cfg(target_os = "windows")]
     auto_start: &'static str,
-    #[cfg(debug_assertions)]
-    debug_page: &'static str,
     about: &'static str,
     shutdown: &'static str,
     shutdown_message: &'static str,
@@ -375,8 +373,6 @@ const ZH_STRINGS: TrayStrings = TrayStrings {
     log_console: "日志控制台",
     #[cfg(target_os = "windows")]
     auto_start: "开机运行",
-    #[cfg(debug_assertions)]
-    debug_page: "调试页面",
     about: "关于 Sunshine",
     shutdown: "退出 Sunshine",
     shutdown_message: "这将停止 Sunshine 服务、控制面板和托盘。确定要退出吗？",
@@ -435,8 +431,6 @@ const ZH_TW_STRINGS: TrayStrings = TrayStrings {
     log_console: "記錄主控台",
     #[cfg(target_os = "windows")]
     auto_start: "開機啟動",
-    #[cfg(debug_assertions)]
-    debug_page: "偵錯頁面",
     about: "關於 Sunshine",
     shutdown: "結束 Sunshine",
     shutdown_message: "這將停止 Sunshine 服務、控制面板與系統匣。確定要結束嗎？",
@@ -495,8 +489,6 @@ const EN_STRINGS: TrayStrings = TrayStrings {
     log_console: "Log Console",
     #[cfg(target_os = "windows")]
     auto_start: "Run at Startup",
-    #[cfg(debug_assertions)]
-    debug_page: "Debug Page",
     about: "About Sunshine",
     shutdown: "Exit Sunshine",
     shutdown_message: "This will stop the Sunshine service, control panel, and tray. Continue?",

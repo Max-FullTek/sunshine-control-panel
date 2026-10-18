@@ -101,7 +101,7 @@ onBeforeUnmount(() => {
           aria-modal="true"
           :aria-labelledby="`${dialogId}-title`"
           tabindex="-1"
-          @keydown="handleKeydown"
+          @keydown.stop="handleKeydown"
         >
           <header class="confirm-dialog-header">
             <h5 :id="`${dialogId}-title`">
@@ -153,7 +153,7 @@ onBeforeUnmount(() => {
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-lg);
   outline: none;
-  background: var(--ui-surface-strong);
+  background: var(--ui-dialog-bg);
   box-shadow: var(--ui-shadow-md);
   color: var(--ui-text-primary);
   backdrop-filter: blur(20px);

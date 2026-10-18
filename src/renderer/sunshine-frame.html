@@ -7,13 +7,11 @@
     <title>Foundation Desktop</title>
     <script>
       ;(() => {
-        const savedTheme = localStorage.getItem('sunshine-theme')
-        const theme =
-          savedTheme === 'light' || savedTheme === 'dark'
-            ? savedTheme
-            : window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light'
+        let theme = 'dark'
+        try {
+          const saved = JSON.parse(localStorage.getItem('foundation-desktop-theme'))
+          theme = (saved?.mode || saved?.preset) === 'light' ? 'light' : 'dark'
+        } catch { /* Match the shared theme's default when storage is unavailable. */ }
 
         document.documentElement.setAttribute('data-bs-theme', theme)
         document.documentElement.style.colorScheme = theme
@@ -27,15 +25,9 @@
       }
 
       :root {
-        --boot-background: linear-gradient(135deg, #2d2628 0%, #3d3235 100%);
-        --boot-foreground: #e6d5b8;
-        --boot-shadow: rgba(212, 165, 165, 0.3);
-      }
-
-      :root[data-bs-theme='light'] {
-        --boot-background: linear-gradient(135deg, #f0f8ff 0%, #e6f2ff 100%);
-        --boot-foreground: #4a9eff;
-        --boot-shadow: rgba(74, 158, 255, 0.3);
+        --boot-background: var(--ui-page-bg);
+        --boot-foreground: var(--ui-text-primary);
+        --boot-shadow: var(--ui-accent-soft);
       }
 
       body {

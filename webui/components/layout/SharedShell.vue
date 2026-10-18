@@ -2,8 +2,17 @@
   <SidebarMenu ref="sidebar" :webui-path="path" :host-status="hostStatus" @webui-navigate="navigate">
     <slot />
   </SidebarMenu>
+  <SetupDialog />
+  <ConfirmDialog :show="accountOpen" dialog-id="account-dialog" :title="t('password.password_change')"
+    max-width="740px" :close-label="t('_common.close')" @close="closeAccount">
+    <AccountForm v-if="accountOpen" />
+  </ConfirmDialog>
 </template>
 <script setup>
+import SetupDialog from '../SetupDialog.vue'
+import AccountForm from '../AccountForm.vue'
+import ConfirmDialog from '../common/ConfirmDialog.vue'
+import { useLogout } from '../../composables/useLogout.js'
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n as useWebI18n } from 'vue-i18n'
 import SidebarMenu from '@/components/SidebarMenu.vue'
@@ -17,6 +26,9 @@ import '@/styles/dialog.less'
 import { useBackground } from '../../composables/useBackground.js'
 
 const sidebar = ref(null)
+const accountOpen = ref(false)
+const { logout } = useLogout()
+const closeAccount = () => { accountOpen.value = false; history.replaceState(null, '', location.pathname + location.search + '#system') }
 const path = ref(location.pathname + location.search + location.hash)
 const hostStatus = ref({ state: 'connecting' })
 const { locale: shellLocale } = useShellI18n()
@@ -42,8 +54,14 @@ watch(shellLocale, async (value) => {
     locale.value = value
   } catch { /* Existing page language remains usable if fetching fails. */ }
 })
-const updatePath = () => { path.value = location.pathname + location.search + location.hash }
+const updatePath = () => {
+  path.value = location.pathname + location.search + location.hash
+  if (location.hash === '#account') accountOpen.value = true
+  if (location.hash === '#logout') { history.replaceState(null, '', location.pathname); logout() }
+}
+
 onMounted(async () => {
+  updatePath()
   setShellLocale(locale.value)
   document.documentElement.dataset.sunshineNavigation = 'shared'
   loadBackground()

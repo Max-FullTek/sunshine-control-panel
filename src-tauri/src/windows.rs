@@ -42,9 +42,28 @@ const HEARTBEAT_STARTUP_GRACE_SECS: u64 = 90;
 const MAIN_WINDOW_ID: &str = "main";
 const ABOUT_WINDOW_ID: &str = "about";
 const LOG_CONSOLE_WINDOW_ID: &str = "log_console";
-const PIN_WINDOW_ID: &str = "pin_pairing";
-#[cfg(debug_assertions)]
-const DEBUG_PAGE_WINDOW_ID: &str = "debug_page";
+static PANEL_DESTINATION: Lazy<Mutex<Option<String>>> = Lazy::new(|| Mutex::new(None));
+
+#[tauri::command]
+pub fn take_panel_destination() -> Option<String> {
+    PANEL_DESTINATION.lock().ok()?.take()
+}
+
+fn open_panel_page<R: Runtime>(app: &AppHandle<R>, path: &str) -> Result<(), String> {
+    if app.get_webview_window(MAIN_WINDOW_ID).is_none() {
+        *PANEL_DESTINATION.lock().map_err(|e| e.to_string())? = Some(path.to_string());
+        create_main_window(app).map_err(|e| e.to_string())?;
+    } else if let Some(window) = app.get_webview_window(MAIN_WINDOW_ID) {
+        show_and_activate_window(&window);
+        if window.url().map(|url| url.path().ends_with("sunshine-frame.html")).unwrap_or(false) {
+            *PANEL_DESTINATION.lock().map_err(|e| e.to_string())? = Some(path.to_string());
+            return Ok(());
+        }
+        let target = format!("{}{}", proxy_server::get_proxy_url(), path);
+        navigate_to_url(&window, &target);
+    }
+    Ok(())
+}
 
 #[cfg(target_os = "windows")]
 pub fn register_agent_restart() {
@@ -528,30 +547,9 @@ where
     Ok(window)
 }
 
-/// 打开关于窗口（单例模式）
+/// Open the shared Help/About page in the main control panel.
 pub fn open_about_window<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
-    let window = get_or_create_window(app, ABOUT_WINDOW_ID, |app| {
-        tauri::WebviewWindowBuilder::new(
-            app,
-            ABOUT_WINDOW_ID,
-            tauri::WebviewUrl::App("about/index.html".into()),
-        )
-        .title("About Foundation Desktop")
-        .inner_size(540.0, 620.0)
-        .resizable(false)
-        .maximizable(false)
-        .minimizable(true)
-        .decorations(true)
-        .center()
-        .build()
-    })?;
-
-    #[cfg(target_os = "windows")]
-    configure_webview_security(&window);
-
-    disable_context_menu(&window);
-    debug!("✅ 关于窗口已打开");
-    Ok(())
+    open_panel_page(app, "/config#help")
 }
 
 /// 打开日志控制台窗口（单例模式）
@@ -582,68 +580,7 @@ pub fn open_log_console<R: Runtime>(app: &AppHandle<R>) {
 }
 
 pub fn open_pin_window<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error>> {
-    if let Some(window) = app.get_webview_window(PIN_WINDOW_ID) {
-        let _ = window.unminimize();
-        let _ = window.show();
-        let _ = window.set_focus();
-        debug!("✅ PIN 窗口已激活");
-        crate::power::refresh_ecoqos_state(app);
-        return Ok(());
-    }
-
-    let window = tauri::WebviewWindowBuilder::new(
-        app,
-        PIN_WINDOW_ID,
-        tauri::WebviewUrl::App("pin/index.html".into()),
-    )
-    .title("PIN 配对")
-    .fullscreen(true)
-    .decorations(false)
-    .transparent(true)
-    .always_on_top(true)
-    .skip_taskbar(true)
-    .visible(false)
-    .build()
-    .map_err(|e| format!("创建 PIN 窗口失败: {}", e))?;
-
-    disable_context_menu(&window);
-
-    // 禁用自动填充和密码保存提示
-    #[cfg(target_os = "windows")]
-    configure_webview_security(&window);
-
-    tauri::async_runtime::spawn(async move {
-        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
-        let _ = window.show();
-    });
-
-    debug!("✅ PIN 配对窗口创建成功");
-    crate::power::refresh_ecoqos_state(app);
-    Ok(())
-}
-
-/// 打开调试页面窗口（仅开发环境）
-#[cfg(debug_assertions)]
-pub fn open_debug_page<R: Runtime>(app: &AppHandle<R>) {
-    match get_or_create_window(app, DEBUG_PAGE_WINDOW_ID, |app| {
-        tauri::WebviewWindowBuilder::new(
-            app,
-            DEBUG_PAGE_WINDOW_ID,
-            tauri::WebviewUrl::App("console/drag-drop-demo.html".into()),
-        )
-        .title("调试页面 - 拖拽测试")
-        .inner_size(1200.0, 800.0)
-        .resizable(true)
-        .maximizable(true)
-        .minimizable(true)
-        .decorations(true)
-        .disable_drag_drop_handler()
-        .center()
-        .build()
-    }) {
-        Ok(_) => debug!("✅ 调试页面窗口已打开"),
-        Err(e) => error!("❌ {}", e),
-    }
+    open_panel_page(app, "/pin").map_err(Into::into)
 }
 
 /// 创建主窗口
@@ -796,7 +733,7 @@ pub fn activate_main_window(app: &tauri::AppHandle, target_url: Option<String>) 
 }
 
 /// 导航到指定 URL
-fn navigate_to_url(window: &WebviewWindow, url: &str) {
+fn navigate_to_url<R: Runtime>(window: &WebviewWindow<R>, url: &str) {
     debug!("🔄 正在导航到: {}", url);
 
     let Ok(parsed_url) = url::Url::parse(url) else {
@@ -813,13 +750,9 @@ fn navigate_to_url(window: &WebviewWindow, url: &str) {
             .unwrap_or_default()
     );
 
-    if path.contains("/pin") {
-        debug!("🔐 检测到 /pin 路径，跳过导航");
-        return;
-    }
-
     let proxy_url = proxy_server::get_proxy_url();
-    let destination = serde_json::to_string(&format!("{}{}", proxy_url, path))
+    let fragment = parsed_url.fragment().map(|v| format!("#{v}")).unwrap_or_default();
+    let destination = serde_json::to_string(&format!("{}{}{}", proxy_url, path, fragment))
         .expect("navigation URL is serializable");
     let script = format!("window.location.assign({destination});");
 

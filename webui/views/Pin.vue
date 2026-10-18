@@ -65,35 +65,7 @@
         </div>
       </ConfirmDialog>
 
-      <form action="" class="form d-flex flex-column align-items-center" id="form">
-        <div class="card flex-column d-flex p-4 mb-4">
-          <input
-            type="text"
-            pattern="\d*"
-            inputmode="numeric"
-            :aria-label="$t('navbar.pin')"
-            :placeholder="`${$t('navbar.pin')}`"
-            autofocus
-            id="pin-input"
-            class="form-control mt-2"
-            required
-          />
-          <input
-            type="text"
-            v-model="pairingDeviceName"
-            :aria-label="$t('pin.device_name')"
-            :placeholder="`${$t('pin.device_name')}`"
-            id="name-input"
-            class="form-control my-4"
-            required
-          />
-          <button class="btn btn-primary">{{ shellT.pairingCopy.verify }}</button>
-        </div>
-        <div class="alert alert-warning">
-          <b>{{ $t('_common.warning') }}</b> {{ $t('pin.warning_msg') }}
-        </div>
-        <div id="status"></div>
-      </form>
+      <PairingRequests @paired="refreshClients" />
 
       <!-- Unpair all Clients -->
       <div class="card my-4">
@@ -359,6 +331,7 @@
 </template>
 
 <script setup>
+import PairingRequests from '../components/PairingRequests.vue'
 import PageHeader from '../components/common/PageHeader.vue'
 import ConfirmDialog from '../components/common/ConfirmDialog.vue'
 import { useI18n as useShellI18n } from '@/desktop/i18n/index.js'
@@ -378,7 +351,6 @@ const closeQrPanel = () => {
 }
 
 const {
-  pairingDeviceName,
   unpairAllPressed,
   unpairAllStatus,
   showApplyMessage,
@@ -396,7 +368,6 @@ const {
   startEdit,
   cancelEdit,
   hasUnsavedChanges,
-  initPinForm,
   clickedApplyBanner,
   loadConfig,
   loadColorProfiles,
@@ -460,7 +431,6 @@ onMounted(async () => {
   await refreshClients()
   await loadColorProfiles()
 
-  initPinForm(() => setTimeout(refreshClients, 0))
 
   initTooltips()
 })

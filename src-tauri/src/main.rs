@@ -220,6 +220,7 @@ fn main() {
             clipboard::clipboard_sync_status,
             windows::webview_heartbeat,
             windows::resize_about_window,
+            windows::take_panel_destination,
             tray::set_locale_preferences,
             tray::get_tray_locale,
             tray::main_panel_loading,

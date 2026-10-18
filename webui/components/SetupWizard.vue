@@ -379,6 +379,7 @@ export default {
   name: 'SetupWizard',
   components: { ConfirmDialog },
   props: {
+    initialConfig: { type: Object, default: () => ({}) },
     adapters: {
       type: Array,
       default: () => []
@@ -398,11 +399,11 @@ export default {
       // 已有 locale 时向导会跳过第一步，不预置，避免 saveConfiguration() 覆盖已有设置（如 de / ja）
       // 首次进入向导时保留繁体中文、简体中文或英语预选。
       selectedLocale: this.hasLocale ? null : detectInitialWizardLocale(),
-      selectedDisplay: null,
+      selectedDisplay: this.initialConfig?.output_name || null,
       savedConfig: null,
       restartController: null,
-      selectedAdapter: '',
-      displayDevicePrep: 'ensure_only_display', // 默认选择：确保唯一显示器（VDD 和普通模式通用）
+      selectedAdapter: this.initialConfig?.adapter_name || '',
+      displayDevicePrep: this.initialConfig?.display_device_prep || 'ensure_only_display',
       saveError: null,
       saving: false,
       showSkipModal: false, // 跳过向导确认弹窗
@@ -429,7 +430,7 @@ export default {
     }
     
     // 如果只有一个显卡，自动选择
-    if (this.uniqueAdapters.length === 1) {
+    if (!this.initialConfig?.adapter_name && this.uniqueAdapters.length === 1) {
       this.selectedAdapter = this.uniqueAdapters[0].name
     }
     this.refreshVddStatus()
@@ -536,7 +537,7 @@ export default {
         writeInterfaceLocale(window.localStorage, this.selectedLocale)
         markLanguageSavedForReload()
         // 重新加载页面以应用新语言
-        window.location.reload()
+        window.location.hash = 'setup'; window.location.reload()
       } catch (error) {
         console.error('Failed to save language:', error)
         this.saveError = `${this.$t('setup.save_error')}: ${error.message}`
@@ -654,7 +655,7 @@ export default {
         this.$emit('setup-complete', config)
 
         // Leave the forced setup URL after a successful save.
-        window.location.replace('/config')
+
       } catch (error) {
         console.error('Failed to skip wizard:', error)
         this.saveError = `${this.$t('setup.skip_error')}: ${error.message}`
@@ -695,7 +696,7 @@ export default {
       this.showRestartModal = false
       this.restartController?.abort()
       this.$emit('setup-complete', this.savedConfig)
-      window.location.replace('/apps')
+
     },
     getDisplayName(device) {
       // 解析 device.data，提取友好名称
@@ -1347,3 +1348,11 @@ export default {
 }
 </style>
 
+
+<style scoped>
+.setup-container { position:static; inset:auto; padding:0; display:block; background:transparent; }
+.setup-card { width:100%; max-width:none; min-height:0; border:0; border-radius:0; box-shadow:none; overflow:visible; }
+.setup-header { padding:0 0 1rem; }
+.setup-header h1 { display:none; }
+.setup-content { overflow:visible; }
+</style>

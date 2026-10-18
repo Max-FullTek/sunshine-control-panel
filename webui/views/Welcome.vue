@@ -1,6 +1,18 @@
 <template>
   <div id="content" class="container welcome-page">
-    <div class="row justify-content-center my-4">
+    <p v-if="accountError" class="alert alert-danger my-4" role="alert">{{ copy.error }}</p>
+    <section v-if="hasAccount" class="welcome-overview card my-4">
+      <div class="card-body p-4">
+        <h1>{{ copy.welcome }}</h1><p class="text-muted">{{ copy.overview }}</p>
+        <dl v-if="hostConfig" class="my-4"><dt>{{ copy.host }}</dt><dd>{{ hostConfig.sunshine_name }}</dd><dt>{{ copy.version }}</dt><dd>{{ hostConfig.version }}</dd></dl>
+        <div class="d-flex flex-wrap gap-3">
+          <a class="btn btn-primary" href="/config">{{ copy.panel }}</a>
+          <button type="button" class="btn btn-outline-secondary" @click="openWizard">{{ copy.setup }}</button>
+        </div>
+      </div>
+    </section>
+    <SetupDialog v-if="hasAccount" />
+    <div v-if="accountLoaded && !hasAccount" class="row justify-content-center my-4">
       <div class="col-lg-10">
         <!-- 语言选择器 -->
         <div class="text-end mb-3">
@@ -153,18 +165,34 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWelcome } from '../composables/useWelcome.js'
+import SetupDialog from '../components/SetupDialog.vue'
+import { apiJson } from '../utils/apiFetch.js'
+import { useNavigationCopy } from '@/shared/navigationCopy.js'
+import { setShellLocale } from '@/desktop/i18n/index.js'
 import { getBootstrapLocale } from '../config/bootstrapData.js'
 import { useTheme } from '@/desktop/composables/useTheme.js'
 
 const { locale, setLocaleMessage } = useI18n()
 const selectedLocale = ref('en')
+const hasAccount = ref(false), accountLoaded = ref(false), accountError = ref(false), hostConfig = ref(null)
+const copy = useNavigationCopy()
+const openWizard = () => window.dispatchEvent(new Event('open-setup-wizard'))
 
 const { error, success, loading, passwordData, passwordsMatch, isFormValid, save } = useWelcome()
 
 useTheme()
 
 // 加载语言（使用静态嵌入的翻译数据）
-const loadLanguage = (lang) => {
+const loadLanguage = async (lang) => {
+  if (hasAccount.value) {
+    const catalog = await apiJson(`/assets/locale/${lang}.json`)
+    setLocaleMessage(lang, catalog)
+    locale.value = lang
+    setShellLocale(lang)
+    document.documentElement.lang = lang.replaceAll('_', '-')
+    return
+  }
+  setShellLocale(lang)
   const welcomeLocales = window.__WELCOME_LOCALES__
   
   if (welcomeLocales && welcomeLocales[lang]) {
@@ -184,13 +212,20 @@ onMounted(async () => {
   try {
     // 使用 /api/configLocale，这个 API 不需要认证（在 welcome 页面时可能还没有账号）
     const config = await getBootstrapLocale()
+    hasAccount.value = config.has_account === true || config.has_account === 'true'
+    accountLoaded.value = true
+    if (hasAccount.value) {
+      hostConfig.value = await apiJson('/api/config')
+      if (hostConfig.value.setup_wizard_completed !== true && hostConfig.value.setup_wizard_completed !== 'true') openWizard()
+    }
     if (config.locale) {
       selectedLocale.value = config.locale
-      loadLanguage(config.locale)
+      await loadLanguage(config.locale)
     } else {
       loadLanguage('en')
     }
   } catch (e) {
+    accountError.value = true
     console.error('Failed to load locale config', e)
     loadLanguage('en')
   }
@@ -648,3 +683,5 @@ svg {
   }
 }
 </style>
+
+<style scoped>.welcome-overview { max-width:900px; margin-inline:auto; } .welcome-overview h1 { font-size:26px; font-weight:650; }</style>

@@ -52,14 +52,14 @@
               <strong>{{ t.sidebar.accountCredentials }}</strong>
               <p>{{ t.sidebar.accountDescription }}</p>
             </div>
-            <el-button @click="emit('webui-navigate', '/password')">{{ t.sidebar.configure }}</el-button>
+            <el-button @click="emit('webui-navigate', '/config#account')">{{ t.sidebar.configure }}</el-button>
           </div>
           <div class="settings-row">
             <div>
               <strong>{{ t.sidebar.logout }}</strong>
               <p>{{ t.sidebar.logoutDescription }}</p>
             </div>
-            <el-button type="danger" plain @click="emit('webui-navigate', '/password#logout')">
+            <el-button type="danger" plain @click="emit('webui-navigate', '/config#logout')">
               {{ t.sidebar.logout }}
             </el-button>
           </div>
@@ -104,6 +104,7 @@
         <a :href="liteRepositoryUrl" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(liteRepositoryUrl)">{{ t.aboutLite.forkLink }} ↗</a>
       </section>
       <p class="version-note">Foundation Sunshine Lite · {{ displayVersion }}</p>
+      <p class="version-note">{{ t.lite.licenseNotice }}</p>
     </template>
   </div>
 </template>

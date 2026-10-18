@@ -236,13 +236,7 @@ pub(super) fn build_tray_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<M
     )?;
 
     let log_console = MenuItem::with_id(app, "log_console", s.log_console, true, None::<&str>)?;
-    #[cfg(debug_assertions)]
-    let debug_page = MenuItem::with_id(app, "debug_page", s.debug_page, true, None::<&str>)?;
-
-    #[allow(unused_mut)]
-    let mut tools_items: Vec<&dyn tauri::menu::IsMenuItem<R>> = vec![&log_console];
-    #[cfg(debug_assertions)]
-    tools_items.push(&debug_page);
+    let tools_items: Vec<&dyn tauri::menu::IsMenuItem<R>> = vec![&log_console];
     let tools_submenu = Submenu::with_id_and_items(app, "tools", s.tools_menu, true, &tools_items)?;
 
     let lang_zh = CheckMenuItem::with_id(

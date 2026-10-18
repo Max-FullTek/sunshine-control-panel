@@ -4,7 +4,7 @@
     <div class="container config-heading-container">
     <PageHeader page="stream-settings">
     <template #actions>
-    <a class="btn btn-outline-secondary" href="/?setup=1">{{ $t('setup.rerun') }}</a>
+    <button type="button" class="btn btn-outline-secondary" @click="openSetupWizard">{{ $t('setup.rerun') }}</button>
     <div class="config-floating-buttons">
       <PageAction
         primary icon="save"
@@ -238,6 +238,7 @@
 </template>
 
 <script setup>
+const openSetupWizard = () => window.dispatchEvent(new Event('open-setup-wizard'))
 import PageHeader from '../components/common/PageHeader.vue'
 import PageAction from '@/components/PageAction.vue'
 import { ref, watch, onMounted, provide, computed, onUnmounted, nextTick, defineAsyncComponent } from 'vue'

@@ -241,40 +241,6 @@ export function usePin() {
     return client && original && editableFields.some((field) => client[field] !== original[field])
   }
 
-  const initPinForm = (onSuccess) => {
-    const form = document.querySelector('#form')
-    if (!form) return
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault()
-      const pinInput = document.querySelector('#pin-input')
-      const nameInput = document.querySelector('#name-input')
-      const statusDiv = document.querySelector('#status')
-
-      if (!pinInput || !nameInput || !statusDiv) return
-
-      statusDiv.innerHTML = ''
-
-      try {
-        const data = await apiPostJson('/api/pin', { pin: pinInput.value, name: nameInput.value })
-
-        if (data.status.toString().toLowerCase() === 'true') {
-          statusDiv.innerHTML =
-            '<div class="alert alert-success" role="alert">Success! Please check Moonlight to continue</div>'
-          pinInput.value = ''
-          nameInput.value = ''
-          onSuccess?.()
-        } else {
-          statusDiv.innerHTML =
-            '<div class="alert alert-danger" role="alert">Pairing Failed: Check if the PIN is typed correctly</div>'
-        }
-      } catch (error) {
-        console.error('Pairing failed:', error)
-        statusDiv.innerHTML = '<div class="alert alert-danger" role="alert">Pairing Failed: Network error</div>'
-      }
-    })
-  }
-
   const clickedApplyBanner = async () => {
     showApplyMessage.value = false
     try {
@@ -340,7 +306,6 @@ export function usePin() {
     cancelEdit,
     hasUnsavedChanges,
     serialize,
-    initPinForm,
     clickedApplyBanner,
     loadConfig,
     loadColorProfiles,

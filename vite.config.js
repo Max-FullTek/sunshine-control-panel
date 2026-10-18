@@ -41,8 +41,6 @@ export default defineConfig(() => ({
         index: resolve(rendererSrcPath, 'index.html'),
         sunshineFrame: resolve(rendererSrcPath, 'sunshine-frame.html'),
         console: resolve(rendererSrcPath, 'console/index.html'),
-        about: resolve(rendererSrcPath, 'about/index.html'),
-        pin: resolve(rendererSrcPath, 'pin/index.html'),
       },
     },
   },

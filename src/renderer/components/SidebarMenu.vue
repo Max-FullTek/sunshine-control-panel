@@ -2,7 +2,7 @@
   <div class="sidebar-wrapper" @pointermove="onEdgePointerMove" @pointerleave="resetEdge">
     <aside ref="sidebarElement" class="sidebar" :class="{ collapsed: isCollapsed }">
       <div class="sidebar-header" data-tauri-drag-region @pointerdown="onTouchWindowDragStart">
-        <a class="brand-link" href="https://github.com/AlkaidLab/foundation-sunshine" target="_blank" rel="noopener noreferrer" aria-label="Foundation Sunshine GitHub" @pointerdown.stop @click.prevent="openAuthorRepo">
+        <a class="brand-link" href="/welcome" aria-label="Foundation Sunshine Lite" @pointerdown.stop @click.prevent="openWebUi('/welcome')">
           <img :src="sunshineLogo" class="brand-logo" alt="Foundation Sunshine" />
         </a>
         <h3 v-if="!isCollapsed" class="app-name">
@@ -123,7 +123,7 @@
 </template>
 
 <script setup>
-import { computed, toRef, watch, onMounted } from 'vue'
+import { computed, toRef, watch, onMounted, onUnmounted } from 'vue'
 import DesktopOnly from './DesktopOnly.vue'
 import { hasDesktopRuntime } from '../shared/runtime.js'
 import { isNativeUiPreview } from '../shared/preview.js'
@@ -148,14 +148,6 @@ const props = defineProps({
 })
 const emit = defineEmits(['route-change', 'webui-navigate'])
 const { t, locale } = useI18n()
-const openAuthorRepo = () => {
-  const url = 'https://github.com/AlkaidLab/foundation-sunshine'
-  if (!desktopAvailable) {
-    window.open(url, '_blank', 'noopener,noreferrer')
-    return
-  }
-  openUrl(url)
-}
 const {
   isCollapsed,
   isMaximized,
@@ -183,9 +175,16 @@ const {
   initClipboardSyncStatus,
   clipboardSyncEnabled,
 } = useTools()
+const syncPanelRoute = () => {
+  if (location.hash === '#help') router.navigate(ROUTES.HELP)
+  if (['#account', '#logout', '#system'].includes(location.hash)) router.navigate(ROUTES.PANEL_SETTINGS)
+}
 onMounted(() => {
+  syncPanelRoute()
+  window.addEventListener('hashchange', syncPanelRoute)
   initClipboardSyncStatus()
 })
+onUnmounted(() => window.removeEventListener('hashchange', syncPanelRoute))
 const openWebUi = (path) => {
   emit('webui-navigate', path)
   router.goHome()

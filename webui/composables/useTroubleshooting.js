@@ -187,25 +187,7 @@ export function useTroubleshooting({ fetchLogs = fetchLogsFromApi } = {}) {
     }
   }
 
-  const reopenSetupWizard = async (t) => {
-    try {
-      const config = await apiJson('/api/config')
-      config.setup_wizard_completed = false
-
-      const saveResponse = await apiFetch('/api/config', {
-        method: 'POST',
-        body: config,
-      })
-
-      if (saveResponse.ok) {
-        window.location.href = '/'
-      } else {
-        alert(t('troubleshooting.reopen_setup_wizard_error'))
-      }
-    } catch {
-      alert(t('troubleshooting.reopen_setup_wizard_error'))
-    }
-  }
+  const reopenSetupWizard = () => window.dispatchEvent(new Event('open-setup-wizard'))
 
   const loadPlatform = async () => {
     try {

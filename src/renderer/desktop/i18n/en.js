@@ -623,7 +623,7 @@ export const en = {
     "clientPairing": "Client Pairing",
     "streamSettings": "Streaming Settings",
     "toolbox": "Toolbox",
-    "panelSettings": "Panel Settings",
+    "panelSettings": "System Settings",
     "helpAbout": "Help & About",
     "toolboxDescription": "Streaming utilities and input diagnostics.",
     "panelSettingsDescription": "Appearance, software updates, account, and maintenance.",

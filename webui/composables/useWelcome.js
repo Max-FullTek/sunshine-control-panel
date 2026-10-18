@@ -43,7 +43,7 @@ export function useWelcome() {
       if (result.status?.toString() === 'true') {
         success.value = true
         setTimeout(() => {
-          window.location.href = '/'
+          window.location.href = '/welcome?setup=1'
         }, 2000)
       } else {
         // 如果服务器返回了错误消息，使用它；否则使用翻译键

@@ -25,7 +25,8 @@ async function connect(signal) {
     signal.throwIfAborted()
     const result = await probeConnection(proxy.origin + '/', { signal })
     if (result === 'ready') {
-      const requested = await sunshine.getCommandLineUrl()
+      const page = await invoke('take_panel_destination')
+      const requested = page ? new URL(page, proxy).href : await sunshine.getCommandLineUrl()
       destination = proxy.origin + sharedUiPath(requested)
     } else await invoke('main_panel_ready').catch(() => {})
     return result

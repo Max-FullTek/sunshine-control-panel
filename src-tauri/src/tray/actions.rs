@@ -47,11 +47,6 @@ pub fn handle_tray_menu_event<R: Runtime + 'static>(app: &AppHandle<R>, menu_id:
         "log_console" => windows::open_log_console(app),
         #[cfg(target_os = "windows")]
         "prevent_sleep" => toggle_prevent_sleep(app),
-        #[cfg(debug_assertions)]
-        "debug_page" => {
-            info!("🐛 托盘菜单：打开调试页面");
-            windows::open_debug_page(app);
-        }
         "about" => {
             info!("ℹ️ 托盘菜单：显示关于对话框");
             let _ = windows::open_about_window(app);

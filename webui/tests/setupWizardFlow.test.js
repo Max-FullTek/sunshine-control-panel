@@ -114,12 +114,12 @@ for (const action of ['saveLanguage', 'skipDisplayConfiguration', 'confirmSkipWi
   })
 }
 
-test('skip all preserves config and exits to config without forced setup query', async t => {
+test('skip all preserves config and completes the modal without navigation', async t => {
   const original = { output_name: 'existing', display_device_prep: 'ensure_primary', adapter_name: 'old-gpu', locale: 'de' }
   const { wizard, requests, redirects, events } = createWizard(t, original)
   await wizard.confirmSkipWizard()
   assert.deepEqual(JSON.parse(requests[1].options.body), { ...original, setup_wizard_completed: true })
-  assert.deepEqual(redirects, ['/config'])
+  assert.deepEqual(redirects, [])
   assert.equal(events[0][0], 'setup-complete')
 })
 
@@ -133,7 +133,7 @@ for (const immediate of [false, true]) {
     if (immediate) wizard.skipRestartCountdown()
     else for (let i = 0; i < 8; i++) intervals.get(1)()
     await pending
-    assert.deepEqual(redirects, ['/apps'])
+    assert.deepEqual(redirects, [])
     assert.equal(requests[0].options.signal.aborted, true)
     assert.equal(intervals.size, 0)
     assert.equal(events[0][0], 'setup-complete')

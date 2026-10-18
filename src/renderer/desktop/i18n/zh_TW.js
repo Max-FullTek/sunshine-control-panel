@@ -1,6 +1,6 @@
 export const zh_TW = {
   "setupLite": {"title": "快速設定精靈"},
-  "localeHelp": {"host": "主機的預設介面語言，儲存後生效；與介面設定的語言選擇共用。", "interface": "立即切換介面語言並記住選擇，切換頁面後仍會保留。Desktop 也會同步主機偏好。"},
+  "localeHelp": {"host": "主機的預設介面語言，儲存後生效；與系統設定的語言選擇共用。", "interface": "立即切換介面語言並記住選擇，切換頁面後仍會保留。Desktop 也會同步主機偏好。"},
   "pairingCopy": {
   "description": [
     "產生 QR Code 快速配對。",
@@ -627,7 +627,7 @@ export const zh_TW = {
     "clientPairing": "裝置配對",
     "streamSettings": "串流設定",
     "toolbox": "工具箱",
-    "panelSettings": "介面設定",
+    "panelSettings": "系統設定",
     "helpAbout": "說明與關於",
     "toolboxDescription": "串流過程中的輔助工具與輸入診斷。",
     "panelSettingsDescription": "介面偏好、軟體更新、帳戶和維護。",
