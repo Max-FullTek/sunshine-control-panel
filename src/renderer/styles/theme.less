@@ -9,15 +9,15 @@
 @morandi-mid-bg: #3d3235;
 @morandi-light-bg: #4a3f42;
 
-// ========== 浅色模式 - Gura 蓝色主题 ==========
-@gura-blue: #4a9eff;
-@gura-light-blue: #7ab8ff;
-@gura-pale-blue: #a2d2ff;
+// ========== 浅色模式 - 兼容旧组件名称，颜色来自共享调色板 ==========
+@gura-blue: var(--ui-accent);
+@gura-light-blue: var(--ui-accent-secondary);
+@gura-pale-blue: var(--ui-accent-secondary);
 @gura-yellow: #ffc107;
-@gura-bg-light: #f0f8ff;
-@gura-bg-mid: #e6f2ff;
-@gura-accent: #5ba3ff;
-@gura-text: #3a7ed5;
+@gura-bg-light: var(--ui-shell-bg);
+@gura-bg-mid: var(--ui-shell-soft);
+@gura-accent: var(--ui-action-primary);
+@gura-text: var(--ui-accent-text);
 
 // ========== 通用尺寸变量 ==========
 @sidebar-width: 220px;

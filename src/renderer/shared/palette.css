@@ -1,33 +1,33 @@
 /* Shared palette for WebUI, desktop chrome and the self-contained recovery page.
-   Pink is the dark primary action; cream is the navigation/decorative accent.
+   Light uses cream and brown; dark uses pink actions and cream navigation.
    Keep opaque shell/dialog surfaces separate from translucent content surfaces. */
 :root,
 [data-bs-theme] { --ui-dialog-bg: var(--ui-shell-surface); }
 :root,
 [data-bs-theme='light'] {
-  --ui-page-bg: #e6f2ff;
-  --ui-page-overlay: rgba(30, 41, 59, 0.18);
-  --ui-overlay: rgba(15, 23, 42, 0.5);
-  --ui-nav-bg: rgba(240, 248, 255, 0.92);
-  --ui-surface: rgba(255, 255, 255, 0.62);
-  --ui-surface-strong: rgba(240, 248, 255, 0.88);
-  --ui-surface-hover: rgba(255, 255, 255, 0.8);
-  --ui-border: rgba(74, 158, 255, 0.22);
-  --ui-border-strong: rgba(74, 158, 255, 0.42);
-  --ui-text-primary: #1e293b;
-  --ui-text-secondary: #64748b;
-  --ui-secondary-rgb: 100, 116, 139;
-  --ui-text-muted: #68788e;
-  --ui-action-primary: #286bc2;
+  --ui-page-bg: #f5efe5;
+  --ui-page-overlay: rgba(63, 52, 43, 0.12);
+  --ui-overlay: rgba(43, 33, 24, 0.5);
+  --ui-nav-bg: rgba(250, 246, 238, 0.92);
+  --ui-surface: rgba(255, 253, 248, 0.72);
+  --ui-surface-strong: rgba(255, 250, 242, 0.9);
+  --ui-surface-hover: rgba(255, 253, 248, 0.9);
+  --ui-border: rgba(164, 126, 83, 0.22);
+  --ui-border-strong: rgba(164, 126, 83, 0.42);
+  --ui-text-primary: #3f342b;
+  --ui-text-secondary: #756655;
+  --ui-secondary-rgb: 117, 102, 85;
+  --ui-text-muted: #7d6d5b;
+  --ui-action-primary: #8b6542;
   --ui-action-contrast: #ffffff;
   --ui-action-danger: #b94251;
-  --ui-accent: #4a9eff;
-  --ui-accent-text: #306fae;
-  --ui-accent-text-rgb: 48, 111, 174;
-  --ui-accent-rgb: 74, 158, 255;
-  --ui-accent-soft: rgba(74, 158, 255, 0.12);
-  --ui-accent-contrast: #102941;
-  --ui-accent-secondary: #7ab8ff;
+  --ui-accent: #c9a477;
+  --ui-accent-text: #795535;
+  --ui-accent-text-rgb: 121, 85, 53;
+  --ui-accent-rgb: 201, 164, 119;
+  --ui-accent-soft: rgba(201, 164, 119, 0.15);
+  --ui-accent-contrast: #3f2f21;
+  --ui-accent-secondary: #e6d3b2;
   --ui-success: #4ecdc4;
   --ui-success-rgb: 78, 205, 196;
   --ui-warning: #ffc107;
@@ -55,32 +55,32 @@
   --ui-danger-border: rgba(255, 107, 107, 0.34);
   --ui-info-soft: rgba(122, 184, 255, 0.12);
   --ui-info-border: rgba(122, 184, 255, 0.34);
-  --ui-skeleton-base: rgba(74, 158, 255, 0.08);
-  --ui-skeleton-highlight: rgba(74, 158, 255, 0.18);
+  --ui-skeleton-base: rgba(164, 126, 83, 0.08);
+  --ui-skeleton-highlight: rgba(164, 126, 83, 0.18);
   --ui-radius-sm: 8px;
   --ui-radius-md: 12px;
   --ui-radius-lg: 16px;
-  --ui-shadow-sm: 0 4px 16px rgba(74, 158, 255, 0.1);
-  --ui-shadow-md: 0 12px 32px rgba(58, 126, 213, 0.14);
-  --ui-shadow-lg: 0 20px 48px rgba(58, 126, 213, 0.18);
-  --ui-shell-bg: #f0f8ff;
-  --ui-shell-bg-rgb: 240, 248, 255;
-  --ui-shell-surface: #ffffff;
-  --ui-shell-surface-rgb: 255, 255, 255;
-  --ui-shell-soft: #e6f2ff;
-  --ui-shell-soft-rgb: 230, 242, 255;
-  --ui-shell-text: #17212f;
-  --ui-shell-text-rgb: 23, 33, 47;
-  --ui-shell-muted: #465264;
-  --ui-shell-faint: #5d6878;
-  --ui-sidebar-bg: #eaf3ff;
-  --ui-nav-text: #31425a;
-  --ui-nav-muted: #687c95;
+  --ui-shadow-sm: 0 4px 16px rgba(124, 90, 56, 0.08);
+  --ui-shadow-md: 0 12px 32px rgba(124, 90, 56, 0.12);
+  --ui-shadow-lg: 0 20px 48px rgba(124, 90, 56, 0.16);
+  --ui-shell-bg: #faf6ef;
+  --ui-shell-bg-rgb: 250, 246, 239;
+  --ui-shell-surface: #fffdf8;
+  --ui-shell-surface-rgb: 255, 253, 248;
+  --ui-shell-soft: #f1e7d8;
+  --ui-shell-soft-rgb: 241, 231, 216;
+  --ui-shell-text: #3b3027;
+  --ui-shell-text-rgb: 59, 48, 39;
+  --ui-shell-muted: #6d5e50;
+  --ui-shell-faint: #796959;
+  --ui-sidebar-bg: #f3eadc;
+  --ui-nav-text: #594939;
+  --ui-nav-muted: #7c6a57;
   --ui-nav-active: var(--ui-accent-text);
-  --ui-nav-selected: #d8eaff;
-  --ui-nav-line: #dce7f5;
-  --ui-connection-line: #cbdff0;
-  --ui-accent-secondary-rgb: 122, 184, 255;
+  --ui-nav-selected: #eaddc8;
+  --ui-nav-line: #e5d8c7;
+  --ui-connection-line: #dbc9b0;
+  --ui-accent-secondary-rgb: 230, 211, 178;
 }
 
 [data-bs-theme='dark'] {

@@ -267,12 +267,12 @@ onMounted(() => {
 // ========== 浅色模式 ==========
 [data-bs-theme='light'] {
   .vmouse-header {
-    border-bottom: 1px solid rgba(74, 158, 255, 0.2);
-    background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(122, 184, 255, 0.05));
+    border-bottom: 1px solid rgba(var(--ui-accent-rgb), 0.2);
+    background: linear-gradient(135deg, rgba(var(--ui-accent-rgb), 0.1), rgba(var(--ui-accent-secondary-rgb), 0.05));
 
     h2 {
-      color: #3a7ed5;
-      text-shadow: 0 1px 2px rgba(74, 158, 255, 0.2);
+      color: var(--ui-accent-text);
+      text-shadow: 0 1px 2px rgba(var(--ui-accent-rgb), 0.2);
 
       .header-icon {
         color: @gura-blue;
@@ -281,12 +281,12 @@ onMounted(() => {
   }
 
   .vmouse-form {
-    background: linear-gradient(135deg, rgba(240, 248, 255, 0.8), rgba(230, 242, 255, 0.6));
-    border: 1px solid rgba(74, 158, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(74, 158, 255, 0.15), 0 2px 8px rgba(74, 158, 255, 0.1);
+    background: linear-gradient(135deg, rgba(var(--ui-shell-bg-rgb), 0.8), rgba(var(--ui-shell-soft-rgb), 0.6));
+    border: 1px solid rgba(var(--ui-accent-rgb), 0.2);
+    box-shadow: 0 8px 32px rgba(var(--ui-accent-rgb), 0.15), 0 2px 8px rgba(var(--ui-accent-rgb), 0.1);
 
     :deep(.el-form-item__label) {
-      color: #3a7ed5;
+      color: var(--ui-accent-text);
     }
 
     :deep(.el-switch.is-checked .el-switch__core) {
@@ -295,19 +295,19 @@ onMounted(() => {
   }
 
   .form-tip {
-    color: rgba(58, 126, 213, 0.6);
+    color: rgba(var(--ui-accent-text-rgb), 0.6);
   }
 
   .status-detail {
-    color: rgba(58, 126, 213, 0.5);
+    color: rgba(var(--ui-accent-text-rgb), 0.5);
   }
 
   .driver-path {
-    color: rgba(58, 126, 213, 0.4);
+    color: rgba(var(--ui-accent-text-rgb), 0.4);
   }
 
   .description {
-    color: rgba(58, 126, 213, 0.6);
+    color: rgba(var(--ui-accent-text-rgb), 0.6);
   }
 }
 

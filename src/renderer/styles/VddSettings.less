@@ -303,9 +303,9 @@
 
 :global([data-bs-theme='light']) {
   .vdd-settings-wrapper {
-    --page-title-icon-color: #3a7ed5;
-    --page-title-icon-bg: rgba(58, 126, 213, 0.1);
-    --page-title-icon-border: rgba(58, 126, 213, 0.2);
+    --page-title-icon-color: var(--ui-accent-text);
+    --page-title-icon-bg: rgba(var(--ui-accent-text-rgb), 0.1);
+    --page-title-icon-border: rgba(var(--ui-accent-text-rgb), 0.2);
     --driver-notice-bg: rgba(230, 162, 60, 0.07);
     --driver-notice-border: rgba(230, 162, 60, 0.26);
     --driver-notice-title: #9a5f08;
@@ -313,26 +313,26 @@
   }
 
   .vdd-prerequisite-card {
-    --prerequisite-accent: #3a7ed5;
-    --prerequisite-accent-soft: rgba(58, 126, 213, 0.12);
-    --prerequisite-icon-border: rgba(58, 126, 213, 0.24);
-    --prerequisite-status-bg: rgba(58, 126, 213, 0.05);
-    --prerequisite-status-border: rgba(58, 126, 213, 0.14);
-    --prerequisite-title: #245f9f;
-    --prerequisite-copy: rgba(36, 95, 159, 0.68);
+    --prerequisite-accent: var(--ui-accent-text);
+    --prerequisite-accent-soft: rgba(var(--ui-accent-text-rgb), 0.12);
+    --prerequisite-icon-border: rgba(var(--ui-accent-text-rgb), 0.24);
+    --prerequisite-status-bg: rgba(var(--ui-accent-text-rgb), 0.05);
+    --prerequisite-status-border: rgba(var(--ui-accent-text-rgb), 0.14);
+    --prerequisite-title: var(--ui-accent-text);
+    --prerequisite-copy: var(--ui-text-secondary);
   }
 
   .driver-detection-card {
-    --detection-accent: #3a7ed5;
-    --detection-accent-rgb: 58, 126, 213;
-    --detection-title: #245f9f;
-    --detection-copy: rgba(36, 95, 159, 0.7);
-    --detection-chip-bg: rgba(58, 126, 213, 0.05);
-    --detection-chip-border: rgba(58, 126, 213, 0.14);
+    --detection-accent: var(--ui-accent-text);
+    --detection-accent-rgb: var(--ui-accent-text-rgb);
+    --detection-title: var(--ui-accent-text);
+    --detection-copy: var(--ui-text-secondary);
+    --detection-chip-bg: rgba(var(--ui-accent-text-rgb), 0.05);
+    --detection-chip-border: rgba(var(--ui-accent-text-rgb), 0.14);
   }
 
   .apply-vdd-theme(
-    #245f9f,
+    var(--ui-accent-text),
     @gura-blue,
     rgba(15, 23, 42, 0.08),
     rgba(255, 255, 255, 0.82),
@@ -340,39 +340,39 @@
     rgba(255, 255, 255, 0.86),
     rgba(15, 23, 42, 0.08),
     0 1px 2px rgba(15, 23, 42, 0.06),
-    #526b82,
-    #245f9f,
-    rgba(30, 68, 101, 0.14),
-    #274f73,
+    var(--ui-text-secondary),
+    var(--ui-accent-text),
+    var(--ui-border),
+    var(--ui-text-primary),
     rgba(255, 255, 255, 0.92),
     rgba(15, 23, 42, 0.08),
-    #274f73,
+    var(--ui-text-primary),
     rgba(255, 255, 255, 0.92),
     rgba(15, 23, 42, 0.08),
-    #111827,
+    var(--ui-text-primary),
     rgba(255, 255, 255, 0.92),
     rgba(15, 23, 42, 0.08),
-    #245f9f,
+    var(--ui-accent-text),
     rgba(255, 255, 255, 0.72),
     rgba(15, 23, 42, 0.08)
   );
 
   .vdd-settings-wrapper {
-    --el-text-color-primary: #1f3448;
-    --el-text-color-regular: #39566f;
-    --el-text-color-secondary: #5b7186;
-    --el-text-color-placeholder: #74879a;
-    --el-text-color-disabled: #8797a7;
-    --el-border-color: #bfd0df;
-    --el-border-color-light: #cbd9e5;
-    --el-border-color-lighter: #d8e3ec;
-    --el-fill-color-light: rgba(58, 126, 213, 0.075);
-    --el-fill-color-lighter: rgba(58, 126, 213, 0.045);
+    --el-text-color-primary: var(--ui-text-primary);
+    --el-text-color-regular: var(--ui-text-primary);
+    --el-text-color-secondary: var(--ui-text-secondary);
+    --el-text-color-placeholder: var(--ui-text-muted);
+    --el-text-color-disabled: var(--ui-text-muted);
+    --el-border-color: var(--ui-border-strong);
+    --el-border-color-light: var(--ui-border);
+    --el-border-color-lighter: var(--ui-border);
+    --el-fill-color-light: rgba(var(--ui-accent-text-rgb), 0.075);
+    --el-fill-color-lighter: rgba(var(--ui-accent-text-rgb), 0.045);
 
     :deep(.el-button.is-disabled) {
-      color: #7c8d9d;
-      border-color: #d0dce6;
-      background: #edf3f8;
+      color: var(--ui-text-muted);
+      border-color: var(--ui-border);
+      background: var(--ui-shell-soft);
       opacity: 1;
     }
   }
@@ -386,7 +386,7 @@
     }
 
     .cert-sub {
-      color: rgba(58, 126, 213, 0.58);
+      color: rgba(var(--ui-accent-text-rgb), 0.58);
     }
   }
 }
@@ -1630,13 +1630,13 @@
 
 :global([data-bs-theme='light']) {
   .vdd-settings-wrapper {
-    --vdd-tabs-bg: rgba(58, 126, 213, 0.045);
+    --vdd-tabs-bg: rgba(var(--ui-accent-text-rgb), 0.045);
     --vdd-tab-active-bg: rgba(255, 255, 255, 0.9);
-    --vdd-tab-active-text: #3a7ed5;
-    --vdd-callout-bg: linear-gradient(135deg, rgba(74, 158, 255, 0.09), rgba(255, 255, 255, 0.86));
-    --vdd-callout-border: rgba(58, 126, 213, 0.14);
-    --vdd-callout-icon-bg: rgba(58, 126, 213, 0.1);
-    --vdd-callout-icon-color: #3a7ed5;
+    --vdd-tab-active-text: var(--ui-accent-text);
+    --vdd-callout-bg: linear-gradient(135deg, rgba(var(--ui-accent-rgb), 0.09), rgba(255, 255, 255, 0.86));
+    --vdd-callout-border: rgba(var(--ui-accent-text-rgb), 0.14);
+    --vdd-callout-icon-bg: rgba(var(--ui-accent-text-rgb), 0.1);
+    --vdd-callout-icon-color: var(--ui-accent-text);
   }
 }
 

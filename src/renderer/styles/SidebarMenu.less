@@ -381,7 +381,7 @@ button:focus-visible {
     --nav-active: var(--ui-nav-active);
     --nav-selected: var(--ui-nav-selected);
     --nav-line: var(--ui-nav-line);
-    background: #f5f9ff;
+    background: var(--ui-shell-bg);
   }
   .sidebar {
     background: var(--nav-surface);
@@ -390,16 +390,16 @@ button:focus-visible {
     .gura-gradient();
   }
   .main-content {
-    background: #f5f9ff;
+    background: var(--ui-shell-bg);
   }
   .drag-region:hover {
-    background: rgba(74, 158, 255, 0.03);
+    background: rgba(var(--ui-accent-rgb), 0.03);
   }
   .control-btn:not(.close):hover {
-    background: rgba(74, 158, 255, 0.3);
+    background: rgba(var(--ui-accent-rgb), 0.3);
   }
   .control-btn:not(.close):active {
-    background: rgba(74, 158, 255, 0.4);
+    background: rgba(var(--ui-accent-rgb), 0.4);
   }
 }
 .sidebar-header,
