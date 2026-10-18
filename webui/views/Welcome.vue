@@ -1,32 +1,10 @@
 <template>
-  <div id="content" class="container welcome-page">
-    <p v-if="accountError" class="alert alert-danger my-4" role="alert">{{ copy.error }}</p>
-    <section v-if="hasAccount" class="welcome-overview card my-4">
-      <div class="card-body p-4">
-        <h1>{{ copy.welcome }}</h1><p class="text-muted">{{ copy.overview }}</p>
-        <dl v-if="hostConfig" class="my-4"><dt>{{ copy.host }}</dt><dd>{{ hostConfig.sunshine_name }}</dd><dt>{{ copy.version }}</dt><dd>{{ hostConfig.version }}</dd></dl>
-        <div class="d-flex flex-wrap gap-3">
-          <a class="btn btn-primary" href="/config">{{ copy.panel }}</a>
-          <button type="button" class="btn btn-outline-secondary" @click="openWizard">{{ copy.setup }}</button>
-        </div>
-      </div>
-    </section>
-    <SetupDialog v-if="hasAccount" />
-    <div v-if="accountLoaded && !hasAccount" class="row justify-content-center my-4">
-      <div class="col-lg-10">
-        <!-- 语言选择器 -->
-        <div class="text-end mb-3">
-          <div class="language-selector">
-            <label for="localeSelect" class="form-label me-2">
-              <i class="fas fa-language"></i>
-            </label>
-            <select
-              id="localeSelect"
-              class="form-select form-select-sm d-inline-block"
-              style="width: auto;"
-              v-model="selectedLocale"
-              @change="changeLanguage"
-            >
+  <div class="foundation-connection welcome-page" :data-found="Boolean(hostConfig)" :data-first-run="accountLoaded && !hasAccount">
+    <div class="ss-page">
+      <header class="ss-chrome">
+        <span class="welcome-brand">Foundation Sunshine Lite</span>
+        <select v-if="accountLoaded && !hasAccount" id="localeSelect" v-model="selectedLocale"
+          class="form-select form-select-sm" aria-label="Language" @change="changeLanguage">
               <option value="en">English</option>
               <option value="en_GB">English (UK)</option>
               <option value="en_US">English (US)</option>
@@ -47,30 +25,35 @@
               <option value="tr">Türkçe</option>
               <option value="cs">Čeština</option>
               <option value="bg">Български</option>
-            </select>
-          </div>
+        </select>
+      </header>
+      <main id="content">
+        <div class="welcome-artwork" aria-hidden="true" v-html="radar"></div>
+        <h1>{{ !accountLoaded ? copy.loading : hasAccount ? copy.welcome : $t('welcome.greeting') }}</h1>
+        <p v-if="accountLoaded" class="welcome-description">{{ hasAccount ? copy.overview : $t('welcome.create_creds') }}</p>
+        <div class="ss-status" role="status">
+          <span class="ss-dot" aria-hidden="true"></span>
+          <span>{{ accountError ? copy.error : !accountLoaded ? copy.loading : hasAccount ? copy.ready : copy.firstSetup }}</span>
         </div>
-
-        <div class="card my-4">
-          <div class="card-body">
-            <header class="text-center mb-4">
-              <h1 class="mb-3">
-                {{ $t('welcome.greeting') }}
-              </h1>
-              <p class="lead text-muted">{{ $t('welcome.create_creds') }}</p>
-            </header>
-
-            <div class="alert alert-warning">
-              <i class="fas fa-exclamation-triangle me-2"></i>
-              {{ $t('welcome.create_creds_alert') }}
-              <br>
-              <i class="fas fa-shield-alt me-2 mt-2"></i>
-              {{ $t('welcome.creds_local_only') }}
-            </div>
-
+        <p v-if="accountError" class="alert alert-danger mt-4" role="alert">{{ copy.error }}</p>
+        <section v-if="hasAccount" class="welcome-overview" :aria-label="copy.host">
+          <dl v-if="hostConfig" class="welcome-details">
+            <div><dt>{{ copy.host }}</dt><dd>{{ hostConfig.sunshine_name }}</dd></div>
+            <div><dt>{{ copy.version }}</dt><dd>{{ hostConfig.version }}</dd></div>
+          </dl>
+          <div class="welcome-actions">
+            <a class="btn btn-primary" href="/config">{{ copy.panel }} <i class="fas fa-arrow-right ms-2" aria-hidden="true"></i></a>
+            <button type="button" class="btn btn-outline-secondary" @click="openWizard">{{ copy.setup }}</button>
+          </div>
+        </section>
+        <section v-if="accountLoaded && !hasAccount" class="welcome-account" :aria-label="$t('welcome.create_creds')">
+          <div class="alert alert-warning welcome-account-note">
+            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+            <div>{{ $t('welcome.create_creds_alert') }}<br>{{ $t('welcome.creds_local_only') }}</div>
+          </div>
             <form @submit.prevent="save">
               <div class="row justify-content-center">
-                <div class="col-md-8">
+                <div class="col-12">
                   <div class="mb-3">
                     <label for="usernameInput" class="form-label">
                       <i class="fas fa-user me-2"></i>{{ $t('welcome.username') }}
@@ -154,17 +137,19 @@
                 </div>
               </div>
             </form>
-          </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   </div>
+  <SetupDialog v-if="hasAccount" />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWelcome } from '../composables/useWelcome.js'
+import radar from '@/shared/connection-radar.html?raw'
+import '@/shared/connection-screen.css'
 import SetupDialog from '../components/SetupDialog.vue'
 import { apiJson } from '../utils/apiFetch.js'
 import { useNavigationCopy } from '@/shared/navigationCopy.js'
@@ -237,451 +222,40 @@ const changeLanguage = () => {
 }
 </script>
 
-<style scoped>  
-.welcome-page {
-  --sketch-black: var(--ui-text-primary);
-  --sketch-blue: var(--ui-accent);
-  --sketch-green: var(--ui-success);
-  --sketch-red: var(--ui-danger);
-  --sketch-yellow: var(--ui-warning);
-  --paper-bg: var(--ui-surface-strong);
-  --pencil-gray: var(--ui-text-secondary);
-}
-
-/* 容器定位 */
-#content {
-  position: relative;
-  z-index: 1;
-  padding-top: 1rem;
-  padding-bottom: 2rem;
-}
-
-/* 主认证卡片 */
-.card {
-  background: var(--ui-surface-strong);
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-lg);
-  box-shadow: var(--ui-shadow-md);
-  position: relative;
-  transform: none;
-  filter: none;
-  backdrop-filter: blur(20px);
-  overflow: hidden;
-}
-
-.card-body {
-  padding: clamp(1.25rem, 4vw, 2.5rem);
-}
-
-/* 旧装饰层已停用 */
-.card::before {
-  display: none;
-}
-
-/* 旧装饰层已停用 */
-.card::after {
-  display: none;
-}
-
-/* 页面标题 */
-h1 {
-  font-family: inherit;
-  color: var(--sketch-black);
-  font-weight: 700;
-  text-shadow: none;
-  transform: none;
-  position: relative;
-}
-
-/* 标题下划线效果 */
-h1::after {
-  content: '';
-  position: absolute;
-  bottom: -0.55rem;
-  left: 34%;
-  right: 34%;
-  height: 2px;
-  background: var(--sketch-blue);
-  border-radius: 999px;
-  opacity: 0.75;
-}
-
-/* Logo 效果 */
-header img {
-  filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, 0.1));
-}
-
-/* 副标题 */
-.lead {
-  font-family: inherit;
-  color: var(--pencil-gray);
-  font-size: 1.1rem;
-  transform: none;
-}
-
-/* 安全提示 */
-.alert-warning {
-  background: color-mix(in srgb, var(--ui-warning) 12%, var(--ui-surface-strong));
-  border: 1px solid color-mix(in srgb, var(--ui-warning) 34%, transparent);
-  border-radius: var(--ui-radius-md);
-  box-shadow: none;
-  transform: none;
-  position: relative;
-  font-family: inherit;
-  color: var(--ui-warning-text);
-  font-size: 0.95rem;
-  font-weight: 500;
-  padding: 1rem 1.25rem;
-}
-
-.alert-warning i {
-  color: var(--ui-warning);
-  filter: none;
-}
-
-/* 表单标签 */
-.form-label {
-  font-family: inherit;
-  color: var(--sketch-black);
-  font-size: 0.95rem;
-  font-weight: 600;
-  transform: none;
-  display: inline-block;
-  position: relative;
-}
-
-/* 标签强调下划线 */
-.form-label::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: var(--sketch-blue);
-  opacity: 0.3;
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
-
-.form-label:hover::after {
-  transform: scaleX(1);
-}
-
-.form-label i {
-  color: var(--sketch-blue);
-  margin-right: 0.3rem;
-}
-
-/* 输入控件 */
-.form-control {
-  background: var(--ui-surface);
-  border: 1px solid var(--ui-border);
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-family: inherit;
-  font-size: 1rem;
-  color: var(--sketch-black);
-  box-shadow: none;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: var(--sketch-blue);
-  background: var(--ui-surface-hover);
-  box-shadow: 0 0 0 0.2rem var(--ui-accent-soft);
-  transform: none;
-}
-
-.form-control::placeholder {
-  color: var(--pencil-gray);
-  opacity: 0.6;
-}
-
-/* 验证状态 */
-.form-control.is-invalid {
-  border-color: var(--sketch-red);
-  background: var(--ui-danger-soft);
-  animation: shake 0.5s;
-}
-
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0) rotate(0deg);
-  }
-  25% {
-    transform: translateX(-5px) rotate(-1deg);
-  }
-  75% {
-    transform: translateX(5px) rotate(1deg);
-  }
-}
-
-.form-control:focus.is-invalid {
-  border-color: var(--sketch-red);
-  box-shadow: 0 0 0 0.2rem var(--ui-danger-soft);
-}
-
-/* 反馈信息 */
-.invalid-feedback,
-.valid-feedback {
-  display: block;
-  margin-top: 0.5rem;
-  font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.invalid-feedback {
-  color: var(--sketch-red);
-}
-
-.valid-feedback {
-  color: var(--sketch-green);
-}
-
-.invalid-feedback i,
-.valid-feedback i {
-  display: inline-block;
-}
-
-/* 主要操作 */
-.btn-primary {
-  background: var(--ui-action-primary);
-  border: 1px solid var(--ui-action-primary);
-  border-radius: 10px;
-  padding: 12px 28px;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--ui-action-contrast);
-  text-shadow: none;
-  box-shadow: var(--ui-shadow-sm);
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-/* 按钮装饰线条 */
-.btn-primary::before {
-  display: none;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--ui-shadow-md);
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: var(--ui-shadow-sm);
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: var(--ui-action-primary);
-}
-
-.btn-primary i {
-  display: inline-block;
-}
-
-/* 加载动画 */
-.spinner-border {
-  border-color: rgba(255, 255, 255, 0.3);
-  border-right-color: #fff;
-}
-
-/* 错误提示 */
-.alert-danger {
-  background: var(--ui-danger-soft);
-  border: 1px solid var(--ui-danger-border);
-  border-radius: 10px;
-  color: var(--ui-danger-text);
-  box-shadow: none;
-  transform: none;
-  animation: errorPop 0.5s ease;
-  position: relative;
-}
-
-@keyframes errorPop {
-  0% {
-    transform: scale(0.8) rotate(0.5deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.05) rotate(0.5deg);
-  }
-  100% {
-    transform: scale(1) rotate(0.5deg);
-    opacity: 1;
-  }
-}
-
-.alert-danger::before {
-  content: '❌';
-  position: absolute;
-  top: -12px;
-  left: 10px;
-  font-size: 1.5rem;
-}
-
-/* 成功提示 */
-.alert-success {
-  background: color-mix(in srgb, var(--ui-success) 12%, var(--ui-surface-strong));
-  border: 1px solid color-mix(in srgb, var(--ui-success) 34%, transparent);
-  border-radius: 10px;
-  color: var(--ui-success-text);
-  box-shadow: none;
-  transform: none;
-  animation: successPop 0.6s ease;
-  position: relative;
-}
-
-@keyframes successPop {
-  0% {
-    transform: scale(0.8) rotate(-0.5deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.05) rotate(-0.5deg);
-  }
-  100% {
-    transform: scale(1) rotate(-0.5deg);
-    opacity: 1;
-  }
-}
-
-.alert-success::before {
-  content: '✓';
-  position: absolute;
-  top: -12px;
-  left: 10px;
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: var(--sketch-green);
-}
-
-.alert-danger::before,
-.alert-success::before {
-  display: none;
-}
-
-/* Vue 过渡动画 */
-.fade-enter-active {
-  animation: sketchIn 0.5s ease;
-}
-
-.fade-leave-active {
-  animation: sketchOut 0.3s ease;
-}
-
-@keyframes sketchIn {
-  0% {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes sketchOut {
-  0% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-12px);
-  }
-}
-
-/* SVG 滤镜 */
-svg {
-  position: absolute;
-  width: 0;
-  height: 0;
-}
-
-/* 响应式优化 */
-@media (max-width: 768px) {
-  .card {
-    transform: rotate(0deg);
-    margin: 1rem 0.5rem;
-  }
-
-  h1 {
-    font-size: 1.5rem;
-  }
-
-  .btn-primary {
-    font-size: 1rem;
-    padding: 12px 24px;
-  }
-
-  .col-md-8 {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-}
-
-/* 语言选择器样式 */
-.language-selector {
-  display: inline-block;
-  position: relative;
-}
-
-.language-selector .form-label {
-  font-family: inherit;
-  color: var(--sketch-black);
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0;
-  vertical-align: middle;
-}
-
-.language-selector .form-select-sm {
-  font-family: inherit;
-  border: 1px solid var(--ui-border);
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 0.95rem;
-  color: var(--ui-text-primary);
-  background: var(--ui-surface-strong);
-  box-shadow: var(--ui-shadow-sm);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.language-selector .form-select-sm:focus {
-  outline: none;
-  border-color: var(--sketch-blue);
-  background: var(--ui-surface-hover);
-  box-shadow: 0 0 0 0.2rem var(--ui-accent-soft);
-  transform: none;
-}
-
-.language-selector .form-select-sm:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--ui-shadow-md);
-}
-
-/* 打印样式优化 */
-@media print {
-  .card::after,
-  .alert-warning::before,
-  .alert-danger::before,
-  .alert-success::before,
-  .language-selector {
-    display: none;
-  }
+<style scoped>
+.welcome-page { position: relative; z-index: 1; }
+.welcome-page .ss-page { border-radius: 0; }
+.welcome-page .ss-chrome { justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.welcome-brand { font-weight: 600; }
+.ss-chrome .form-select { width: auto; max-width: 100%; }
+.welcome-page main { padding-top: clamp(32px, 6vh, 64px); }
+.welcome-page h1 { font-size: clamp(24px, 3vw, 30px); font-weight: 600; line-height: 1.4; margin: 26px 0 10px; }
+.welcome-page .welcome-description { max-width: 540px; }
+.welcome-artwork { width: 244px; height: 244px; flex-shrink: 0; }
+.welcome-page[data-first-run='true'] main { padding-top: 28px; }
+.welcome-page[data-first-run='true'] .welcome-artwork { height: 172px; }
+.welcome-page[data-first-run='true'] :deep(.ss-radar) { transform: scale(.7); transform-origin: top center; }
+.welcome-artwork :deep(.ss-ray) { --ss-distance: 48px; --ss-direction: -40deg; }
+.welcome-page[data-found='false'] :deep(.ss-sweep) { animation: welcome-sweep 7s linear infinite; }
+@keyframes welcome-sweep { to { transform: rotate(360deg); } }
+.welcome-overview, .welcome-account { width: min(100%, 540px); margin-top: 30px; }
+.welcome-details { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; text-align: left; padding: 20px 24px; border: 1px solid var(--ui-border); border-radius: 14px; background: var(--ui-surface); margin: 0 0 24px; }
+.welcome-details dt { color: var(--ui-text-secondary); font-size: 12px; font-weight: 500; margin-bottom: 6px; }
+.welcome-details dd { overflow-wrap: anywhere; font-size: 14px; margin: 0; }
+.welcome-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+.welcome-actions .btn { padding: 10px 20px; font-size: 14px; }
+.welcome-page .btn-outline-secondary { color: var(--ui-text-primary); background: transparent; border-color: var(--ui-border); }
+.welcome-page .btn-outline-secondary:hover { background: var(--ui-surface-hover); }
+.welcome-account { text-align: left; padding: 24px; border: 1px solid var(--ui-border); border-radius: 16px; background: var(--ui-surface); }
+.welcome-account-note { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; line-height: 1.7; }
+.welcome-account-note i { margin-top: 4px; }
+.welcome-account .form-label { font-size: 14px; font-weight: 500; }
+.welcome-account .form-control { min-height: 44px; }
+.welcome-account .alert { max-width: none; }
+@media(max-width: 480px) {
+  .welcome-details { grid-template-columns: 1fr; gap: 16px; padding: 18px; }
+  .welcome-account { padding: 18px; }
+  .welcome-actions { flex-direction: column; }
+  .welcome-actions .btn { width: 100%; }
 }
 </style>
-
-<style scoped>.welcome-overview { max-width:900px; margin-inline:auto; } .welcome-overview h1 { font-size:26px; font-weight:650; }</style>

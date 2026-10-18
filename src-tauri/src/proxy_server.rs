@@ -243,6 +243,7 @@ const ERROR_404_PAGE: &str = include_str!("../error-404.html");
 const PALETTE_STYLE: &str = include_str!("../../src/renderer/shared/palette.css");
 const CONNECTION_STYLE: &str = include_str!("../../src/renderer/shared/connection-screen.css");
 const CONNECTION_MARKUP: &str = include_str!("../../src/renderer/shared/connection-screen.html");
+const CONNECTION_RADAR: &str = include_str!("../../src/renderer/shared/connection-radar.html");
 const CONNECTION_SCRIPT: &str = include_str!("../../src/renderer/shared/connection-screen.js");
 
 fn connection_recovery_page() -> String {
@@ -250,6 +251,7 @@ fn connection_recovery_page() -> String {
         .replace("/* PALETTE_STYLE */", PALETTE_STYLE)
         .replace("/* CONNECTION_STYLE */", CONNECTION_STYLE)
         .replace("<!-- CONNECTION_MARKUP -->", CONNECTION_MARKUP)
+        .replace("<!-- CONNECTION_RADAR -->", CONNECTION_RADAR)
         .replace("/* CONNECTION_SCRIPT */", CONNECTION_SCRIPT)
 }
 

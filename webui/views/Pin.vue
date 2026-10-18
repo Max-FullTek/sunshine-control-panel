@@ -450,7 +450,6 @@ watch(clients, initTooltips, { deep: true })
   min-height: 100%;
   padding-bottom: var(--spacing-xl);
   color: var(--ui-text-primary);
-  background: linear-gradient(180deg, rgba(var(--ui-accent-rgb), 0.06), transparent 28rem);
 
   .page-title {
     color: var(--ui-text-primary) !important;

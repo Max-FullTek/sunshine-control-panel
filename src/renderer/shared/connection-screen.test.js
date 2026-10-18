@@ -47,6 +47,11 @@ test('both desktop and offline proxy embed the same markup, styles and controlle
   }
   const markup = readFileSync(new URL('./connection-screen.html', import.meta.url), 'utf8')
   assert.ok(markup.includes('Foundation Sunshine Lite'))
+  const radar = readFileSync(new URL('./connection-radar.html', import.meta.url), 'utf8')
+  const welcome = readFileSync(new URL('../../../webui/views/Welcome.vue', import.meta.url), 'utf8')
+  assert.ok(markup.includes('<!-- CONNECTION_RADAR -->'))
+  for (const source of [desktop, proxy, welcome]) assert.ok(source.includes('connection-radar.html'))
+  assert.ok(radar.includes('ss-sunshine'))
   assert.ok(!markup.includes('data-lucide'), 'fallback icons work without network assets')
 })
 

@@ -7,6 +7,7 @@ import { checkLocalProxyHealth } from '../utils/proxyHealth.js'
 import { sharedUiPath } from '../utils/sharedUiTarget.js'
 import { mountConnectionScreen, probeConnection } from '../shared/connection-screen.js'
 import markup from '../shared/connection-screen.html?raw'
+import radar from '../shared/connection-radar.html?raw'
 import '../shared/palette.css'
 import '../shared/connection-screen.css'
 
@@ -41,7 +42,7 @@ onMounted(() => {
     location.replace('http://127.0.0.1:8081/')
     return
   }
-  host.value.innerHTML = markup
+  host.value.innerHTML = markup.replace('<!-- CONNECTION_RADAR -->', radar)
   screen = mountConnectionScreen(host.value, {
     phase: 'preparing', probe: connect,
     onReady: () => location.replace(destination),
