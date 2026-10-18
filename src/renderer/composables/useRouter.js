@@ -7,7 +7,6 @@ import { useI18n } from '../desktop/i18n/index.js'
 export const ROUTES = {
   HOME: 'home',           // 默认内容 (slot)
   VDD_SETTINGS: 'vdd-settings',
-  WELCOME: 'welcome',
   CONTROLLERS: 'controllers',
   // Compatibility alias for callers that still navigate to the original page id.
   DUALSENSE: 'dualsense',
@@ -30,11 +29,6 @@ const routeConfig = {
     name: ROUTES.VDD_SETTINGS,
     component: 'VddSettings',
     titleKey: 'virtualDisplay',
-  },
-  [ROUTES.WELCOME]: {
-    name: ROUTES.WELCOME,
-    component: 'Welcome',
-    titleKey: 'welcome',
   },
   [ROUTES.CONTROLLERS]: {
     name: ROUTES.CONTROLLERS,

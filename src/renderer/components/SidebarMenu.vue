@@ -94,7 +94,6 @@
       </div>
       <div class="page-content">
         <DesktopOnly v-if="router.isRoute(ROUTES.VDD_SETTINGS)"><VddSettings @close="goHome" /></DesktopOnly>
-        <Welcome v-if="router.isRoute(ROUTES.WELCOME)" @close="goHome" />
         <DesktopOnly v-if="[ROUTES.CONTROLLERS, ROUTES.DUALSENSE, ROUTES.CONTROLLERS_HUB].some(router.isRoute)">
           <ControllersHub @close="goHome" />
         </DesktopOnly>
@@ -131,7 +130,6 @@ const desktopAvailable = hasDesktopRuntime()
 const nativeUiPreview = isNativeUiPreview()
 import sunshineLogo from '../../assets/logo-sunshine-256.png?url'
 import VddSettings from './VddSettings.vue'
-import Welcome from './welcome.vue'
 import ControllersHub from './controllersHub/ControllersHub.vue'
 import ControlPanelPage from './ControlPanelPage.vue'
 import { useSidebarState } from '../composables/useSidebarState.js'
@@ -158,7 +156,6 @@ const {
   setTheme,
   toggleCollapse,
   openVddSettings,
-  openWelcome,
   openControllers,
   openDualSense,
   openControllersHub,
@@ -189,6 +186,8 @@ const openWebUi = (path) => {
   emit('webui-navigate', path)
   router.goHome()
 }
+// Preserve the exposed entry point while routing every welcome action to the shared page.
+const openWelcome = () => openWebUi('/welcome')
 const goHome = () => openWebUi('/config')
 const toolsCtx = {
   t,

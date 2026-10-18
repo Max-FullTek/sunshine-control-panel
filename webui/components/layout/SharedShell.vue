@@ -28,7 +28,10 @@ import { useBackground } from '../../composables/useBackground.js'
 const sidebar = ref(null)
 const accountOpen = ref(false)
 const { logout } = useLogout()
-const closeAccount = () => { accountOpen.value = false; history.replaceState(null, '', location.pathname + location.search + '#system') }
+const closeAccount = () => {
+  history.replaceState(null, '', location.pathname + location.search + '#system')
+  updatePath()
+}
 const path = ref(location.pathname + location.search + location.hash)
 const hostStatus = ref({ state: 'connecting' })
 const { locale: shellLocale } = useShellI18n()
@@ -56,7 +59,7 @@ watch(shellLocale, async (value) => {
 })
 const updatePath = () => {
   path.value = location.pathname + location.search + location.hash
-  if (location.hash === '#account') accountOpen.value = true
+  accountOpen.value = location.hash === '#account'
   if (location.hash === '#logout') { history.replaceState(null, '', location.pathname); logout() }
 }
 
@@ -66,6 +69,7 @@ onMounted(async () => {
   document.documentElement.dataset.sunshineNavigation = 'shared'
   loadBackground()
   window.addEventListener('hashchange', updatePath)
+  window.addEventListener('popstate', updatePath)
   const refresh = async () => {
     if (stopped) return
     if (window.__FOUNDATION_PREVIEW_SAMPLE__) hostStatus.value = { state: 'preview' }
@@ -98,6 +102,7 @@ onUnmounted(() => {
   stopped = true
   clearTimeout(statusTimer)
   window.removeEventListener('hashchange', updatePath)
+  window.removeEventListener('popstate', updatePath)
   cleanups.forEach((fn) => fn())
 })
 </script>

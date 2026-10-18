@@ -71,7 +71,6 @@ export function useSidebarState() {
 
   // 导航方法
   const openVddSettings = () => router.navigate(ROUTES.VDD_SETTINGS)
-  const openWelcome = () => router.navigate(ROUTES.WELCOME)
   const openControllers = () => router.navigate(ROUTES.CONTROLLERS)
   const openDualSense = openControllers
   const openControllersHub = () => router.navigate(ROUTES.CONTROLLERS_HUB)
@@ -155,7 +154,6 @@ export function useSidebarState() {
     setTheme,
     toggleCollapse,
     openVddSettings,
-    openWelcome,
     openControllers,
     openDualSense,
     openControllersHub,
