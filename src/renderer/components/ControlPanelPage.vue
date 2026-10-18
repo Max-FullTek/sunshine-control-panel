@@ -149,7 +149,7 @@ const heading = computed(() => {
   display: flex;
   flex-direction: column;
   color: var(--panel-text);
-  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-family: var(--ui-font-family);
 }
 :global([data-bs-theme='light'] .panel-page) {
   --panel-surface: var(--fd-bg-secondary);

@@ -154,14 +154,14 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWelcome } from '../composables/useWelcome.js'
 import { getBootstrapLocale } from '../config/bootstrapData.js'
-import { loadAutoTheme } from '../utils/theme.js'
+import { useTheme } from '@/desktop/composables/useTheme.js'
 
 const { locale, setLocaleMessage } = useI18n()
 const selectedLocale = ref('en')
 
 const { error, success, loading, passwordData, passwordsMatch, isFormValid, save } = useWelcome()
 
-loadAutoTheme()
+useTheme()
 
 // 加载语言（使用静态嵌入的翻译数据）
 const loadLanguage = (lang) => {
@@ -171,7 +171,7 @@ const loadLanguage = (lang) => {
     // 使用嵌入的翻译数据设置到 i18n
     setLocaleMessage(lang, welcomeLocales[lang])
     locale.value = lang
-    document.querySelector('html').setAttribute('lang', lang)
+    document.querySelector('html').setAttribute('lang', lang.replaceAll('_', '-'))
   } else {
     // 如果没有找到，使用英文
     locale.value = 'en'
@@ -415,14 +415,14 @@ header img {
 
 /* 主要操作 */
 .btn-primary {
-  background: var(--sketch-blue);
-  border: 1px solid var(--sketch-blue);
+  background: var(--ui-action-primary);
+  border: 1px solid var(--ui-action-primary);
   border-radius: 10px;
   padding: 12px 28px;
   font-family: inherit;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--ui-accent-contrast);
+  color: var(--ui-action-contrast);
   text-shadow: none;
   box-shadow: var(--ui-shadow-sm);
   transition: all 0.2s ease;
@@ -448,7 +448,7 @@ header img {
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: var(--pencil-gray);
+  background: var(--ui-action-primary);
 }
 
 .btn-primary i {

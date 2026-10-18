@@ -1,4 +1,5 @@
 import { createApp } from 'vue';
+import '../shared/palette.css';
 import LogConsoleApp from './LogConsoleApp.vue';
 import 'element-plus/theme-chalk/el-message.css';
 

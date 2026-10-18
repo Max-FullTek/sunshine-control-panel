@@ -4,13 +4,7 @@
     <div class="container py-4">
       <div class="row justify-content-center">
         <div class="col-lg-8 col-xl-7">
-          <div class="text-center mb-4">
-            <div class="icon-wrapper mb-2">
-              <Icon name="lock" :size="32" icon-class="text-primary" />
-            </div>
-            <h1 class="h4 page-title">{{ $t('password.password_change') }}</h1>
-            <p class="text-muted small mb-0">{{ $t('password.new_username_desc') }}</p>
-          </div>
+          <PageHeader :title="$t('password.password_change')" :description="$t('password.new_username_desc')" icon="fas fa-lock" />
 
           <form @submit.prevent="save" autocomplete="off">
             <div class="card border-0 shadow-sm rounded-3">
@@ -149,6 +143,7 @@
 <script setup>
 import { ref } from 'vue'
 import Navbar from '../components/layout/Navbar.vue'
+import PageHeader from '../components/common/PageHeader.vue'
 import Icon from '../components/common/Icon.vue'
 import { apiPostJson } from '../utils/apiFetch.js'
 

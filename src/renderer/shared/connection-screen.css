@@ -1,5 +1,5 @@
 
-.foundation-connection{--ss-bg:var(--ui-shell-bg);--ss-panel:var(--ui-shell-surface);--ss-soft:var(--ui-shell-soft);--ss-ink:var(--ui-shell-text);--ss-muted:var(--ui-shell-muted);--ss-accent:var(--ui-accent);--ss-button-ink:var(--ui-action-contrast);--ss-line:var(--ui-connection-line);--ss-success:var(--ui-success-text);font:14px/1.6 'Segoe UI','Microsoft JhengHei',sans-serif;color:var(--ss-ink)}
+.foundation-connection{--ss-bg:var(--ui-shell-bg);--ss-panel:var(--ui-shell-surface);--ss-soft:var(--ui-shell-soft);--ss-ink:var(--ui-shell-text);--ss-muted:var(--ui-shell-muted);--ss-accent:var(--ui-accent);--ss-button-ink:var(--ui-action-contrast);--ss-line:var(--ui-connection-line);--ss-success:var(--ui-success-text);font:14px/1.6 var(--ui-font-family);color:var(--ss-ink)}
 .foundation-connection *{box-sizing:border-box}
 .foundation-connection .ss-page{min-height:100vh;background:radial-gradient(ellipse at 50% 25%,var(--ss-soft),var(--ss-bg) 73%);border-radius:12px;overflow:hidden}
 .foundation-connection .ss-chrome{display:flex;align-items:center;gap:10px;padding:18px 24px;border-bottom:1px solid var(--ss-line);font-size:13px;letter-spacing:.03em}

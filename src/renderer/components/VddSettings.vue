@@ -321,18 +321,18 @@
                 <el-form-item :label="t.vddSettings.colorDepthProfile" class="span-two">
                   <div class="field-stack">
                     <el-radio-group v-model="colorDepthProfile" class="color-depth-group">
-                      <el-radio-button :label="COLOR_DEPTH_DEFAULT">
+                      <el-radio-button :value="COLOR_DEPTH_DEFAULT">
                         {{ t.vddSettings.colorDepthDefault }}
                       </el-radio-button>
-                      <el-radio-button :label="COLOR_DEPTH_SDR10">
+                      <el-radio-button :value="COLOR_DEPTH_SDR10">
                         {{ t.vddSettings.sdr10bit }}
                       </el-radio-button>
-                      <el-radio-button :label="COLOR_DEPTH_HDR12">
+                      <el-radio-button :value="COLOR_DEPTH_HDR12">
                         {{ t.vddSettings.hdr12bit }}
                       </el-radio-button>
                       <el-radio-button
                         v-if="isColorDepthConflict"
-                        :label="COLOR_DEPTH_CONFLICT"
+                        :value="COLOR_DEPTH_CONFLICT"
                         disabled
                       >
                         {{ t.vddSettings.colorDepthConflict }}

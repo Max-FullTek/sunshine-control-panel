@@ -166,3 +166,22 @@
 .copy-btn {
   font-weight: var(--ui-button-font-weight) !important;
 }
+
+/* Latin UI text stays consistent; CJK follows the active interface language.
+   Scope language overrides to explicit language roots, including recovery panels. */
+:root {
+  --ui-font-latin: 'Segoe UI Variable Text', 'Segoe UI', sans-serif;
+  --ui-font-family: var(--ui-font-latin);
+}
+:root:lang(zh), [lang]:lang(zh) {
+  --ui-font-family: 'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', sans-serif;
+}
+:root:lang(zh-Hant), [lang]:lang(zh-Hant),
+:root:lang(zh-TW), [lang]:lang(zh-TW),
+:root:lang(zh-HK), [lang]:lang(zh-HK),
+:root:lang(zh-MO), [lang]:lang(zh-MO) {
+  --ui-font-family: 'Segoe UI Variable Text', 'Segoe UI', 'Microsoft JhengHei UI', 'Microsoft JhengHei', 'PingFang TC', 'Noto Sans CJK TC', sans-serif;
+}
+body, button, input, select, textarea {
+  font-family: var(--ui-font-family);
+}

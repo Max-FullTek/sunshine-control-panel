@@ -79,7 +79,7 @@ watch(searchQuery, () => debouncedSearch.value?.())
 .apps-heading-search .search-input { padding:8px 32px 8px 38px; font-size:14px; }
 .apps-heading-search .search-icon { left:10px; width:20px; height:20px; font-size:14px; }
 .apps-heading-search .btn-clear-search { right:6px; }
-.apps-guide { padding:24px; background:var(--fd-bg-secondary); border:1px solid rgba(var(--fd-text-primary-rgb), .16); border-radius:var(--ui-radius-lg); font-family:'Segoe UI', 'Microsoft YaHei', sans-serif; }
+.apps-guide { padding:24px; background:var(--fd-bg-secondary); border:1px solid rgba(var(--fd-text-primary-rgb), .16); border-radius:var(--ui-radius-lg); font-family: var(--ui-font-family); }
 .apps-guide p { font-size:14px; line-height:1.9; margin:0; color:var(--fd-text-secondary); }
 .restore-inline { display:inline; padding:0; border:0; background:none; color:var(--fd-accent); font:inherit; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
 .restore-inline:hover { color:var(--fd-text-primary); }

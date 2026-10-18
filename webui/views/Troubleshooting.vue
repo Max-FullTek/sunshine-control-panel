@@ -2,12 +2,7 @@
   <div class="troubleshooting-page">
     <Navbar />
     <div class="container py-4">
-      <div class="page-header mb-4">
-        <h1 class="page-title">
-          <i class="fas fa-tools me-3"></i>
-          {{ $t('troubleshooting.troubleshooting') }}
-        </h1>
-      </div>
+      <PageHeader :title="shellT.sidebar.diagnostics" :description="shellT.sidebar.diagnosticsDescription" icon="fas fa-tools" />
 
       <LogsSection
         v-model:logFilter="logFilter"
@@ -209,11 +204,15 @@
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Navbar from '../components/layout/Navbar.vue'
+import PageHeader from '../components/common/PageHeader.vue'
+import { useI18n as useShellI18n } from '@/desktop/i18n/index.js'
 import TroubleshootingCard from '../components/TroubleshootingCard.vue'
 import LogsSection from '../components/LogsSection.vue'
 import ConfirmDialog from '../components/common/ConfirmDialog.vue'
 import { useTroubleshooting } from '../composables/useTroubleshooting.js'
 import { useLogout } from '../composables/useLogout.js'
+
+const { t: shellT } = useShellI18n()
 
 const { t } = useI18n()
 const { logout } = useLogout()
@@ -305,15 +304,6 @@ onMounted(async () => {
   background: linear-gradient(180deg, rgba(var(--ui-accent-rgb), 0.06), transparent 28rem);
 }
 
-.page-title {
-  color: var(--ui-text-primary) !important;
-  font-weight: 600;
-}
-
-.page-title i {
-  color: var(--ui-accent);
-}
-
 .btn {
   border-radius: 8px;
   padding: 0.5rem 1rem;
@@ -331,9 +321,4 @@ onMounted(async () => {
   padding: 0.75rem 1rem;
 }
 
-@media (max-width: 991.98px) {
-  .page-title {
-    font-size: 1.5rem;
-  }
-}
 </style>
