@@ -9,36 +9,36 @@ html[data-bs-theme="dark"],
 body[data-bs-theme="dark"],
 [data-bs-theme="dark"] {
   .el-overlay {
-    background: rgba(45, 38, 40, 0.5) !important;
+    background: var(--ui-overlay) !important;
     backdrop-filter: blur(8px) !important;
   }
 
   .el-dialog {
-    background: #3d3235 !important;
-    border: 1px solid rgba(212, 165, 165, 0.3) !important;
+    background: var(--ui-dialog-bg) !important;
+    border: 1px solid rgba(var(--ui-accent-rgb), 0.3) !important;
     border-radius: 12px !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
 
     .el-dialog__header {
-      border-bottom: 1px solid rgba(212, 165, 165, 0.2) !important;
+      border-bottom: 1px solid rgba(var(--ui-accent-rgb), 0.2) !important;
       padding: 16px 20px !important;
 
       .el-dialog__title {
-        color: #e6d5b8 !important;
+        color: var(--ui-text-primary) !important;
         font-size: 16px !important;
         font-weight: 600 !important;
       }
 
       .el-dialog__headerbtn {
         .el-dialog__close {
-          color: #e6d5b8 !important;
+          color: var(--ui-text-primary) !important;
         }
       }
     }
 
     .el-dialog__body {
       padding: 20px !important;
-      color: #e6d5b8 !important;
+      color: var(--ui-text-primary) !important;
       font-size: 14px !important;
     }
 
@@ -59,43 +59,43 @@ body[data-bs-theme="dark"],
       font-weight: 500 !important;
 
       &.el-button--primary {
-        background: #d4a5a5 !important;
-        color: #2d2628 !important;
+        background: var(--ui-action-primary) !important;
+        color: var(--ui-action-contrast) !important;
         border: none !important;
       }
 
       &.el-button--default {
-        background: rgba(212, 165, 165, 0.2) !important;
-        color: #e6d5b8 !important;
-        border: 1px solid rgba(212, 165, 165, 0.3) !important;
+        background: rgba(var(--ui-accent-rgb), 0.2) !important;
+        color: var(--ui-text-primary) !important;
+        border: 1px solid rgba(var(--ui-accent-rgb), 0.3) !important;
       }
     }
   }
 
   .el-message-box {
-    background: #3d3235 !important;
-    border: 1px solid rgba(212, 165, 165, 0.3) !important;
+    background: var(--ui-dialog-bg) !important;
+    border: 1px solid rgba(var(--ui-accent-rgb), 0.3) !important;
     border-radius: 12px !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
 
     .el-message-box__header {
-      border-bottom: 1px solid rgba(212, 165, 165, 0.2) !important;
+      border-bottom: 1px solid rgba(var(--ui-accent-rgb), 0.2) !important;
       padding: 16px 20px !important;
 
       .el-message-box__title {
-        color: #e6d5b8 !important;
+        color: var(--ui-text-primary) !important;
         font-weight: 600 !important;
       }
 
       .el-message-box__headerbtn {
         .el-message-box__close {
-          color: #e6d5b8 !important;
+          color: var(--ui-text-primary) !important;
         }
       }
     }
 
     .el-message-box__content {
-      color: #e6d5b8 !important;
+      color: var(--ui-text-primary) !important;
       padding: 20px !important;
     }
 
