@@ -18,6 +18,9 @@
   --ui-text-secondary: #64748b;
   --ui-secondary-rgb: 100, 116, 139;
   --ui-text-muted: #68788e;
+  --ui-action-primary: #286bc2;
+  --ui-action-contrast: #ffffff;
+  --ui-action-danger: #b94251;
   --ui-accent: #4a9eff;
   --ui-accent-text: #306fae;
   --ui-accent-text-rgb: 48, 111, 174;
@@ -94,6 +97,8 @@
   --ui-text-secondary: #d4c4a8;
   --ui-secondary-rgb: 212, 196, 168;
   --ui-text-muted: #a99d8a;
+  --ui-action-primary: #9f536c;
+  --ui-action-danger: #b94251;
   --ui-accent: #d4a5a5;
   --ui-accent-text: #f2e3c9;
   --ui-accent-text-rgb: 242, 227, 201;

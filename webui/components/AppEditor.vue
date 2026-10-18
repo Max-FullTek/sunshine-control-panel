@@ -373,8 +373,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, shallowRef, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { manageModalLifecycle } from '../utils/modalLifecycle.js'
 import { validateField as validateFieldHelper, validateAppForm } from '../utils/validation.js'
 import { nanoid } from 'nanoid'
 import CommandTable from './CommandTable.vue'
@@ -439,7 +440,8 @@ const coverFileInput = ref(null)
 const dirInput = ref(null)
 const formData = ref(null)
 const validation = ref({})
-const modalInstance = ref(null)
+const modalInstance = shallowRef(null)
+let releaseModal
 const fileSelector = ref(null)
 
 const isWindows = computed(() => props.platform === 'windows')
@@ -477,6 +479,10 @@ const initializeModal = () => {
     modalInstance.value = new Modal(modalElement.value, {
       backdrop: 'static',
       keyboard: false,
+    })
+    releaseModal = manageModalLifecycle(modalElement.value, modalInstance.value, () => {
+      resetFileSelection()
+      emit('close')
     })
   } catch (error) {
     console.warn('Modal initialization failed:', error)
@@ -563,14 +569,10 @@ const resetFileSelection = () => {
 
 const closeModal = () => {
   modalInstance.value?.hide()
-  setTimeout(() => {
-    resetFileSelection()
-    emit('close')
-  }, 300)
 }
 
 const cleanup = () => {
-  modalInstance.value?.dispose()
+  releaseModal?.()
   resetFileSelection()
 }
 

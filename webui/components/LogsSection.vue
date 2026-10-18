@@ -242,14 +242,14 @@ const handleDevTap = () => {
 }
 
 .btn-check:checked + .match-mode-btn {
-  background-color: var(--ui-accent);
-  border-color: var(--ui-accent);
-  color: var(--ui-accent-contrast);
+  background-color: var(--ui-action-primary);
+  border-color: var(--ui-action-primary);
+  color: var(--ui-action-contrast);
 }
 
 .btn-check:checked + .match-mode-btn:hover {
-  background-color: var(--ui-accent);
-  border-color: var(--ui-accent);
+  background-color: var(--ui-action-primary);
+  border-color: var(--ui-action-primary);
 }
 
 .logs-container {
@@ -301,8 +301,8 @@ const handleDevTap = () => {
   right: 12px;
   padding: 8px 12px;
   cursor: pointer;
-  color: var(--ui-accent-contrast);
-  background: var(--ui-accent);
+  color: var(--ui-action-contrast);
+  background: var(--ui-action-primary);
   border: 1px solid var(--ui-border-strong);
   border-radius: var(--ui-radius-sm);
   transition: all 0.2s ease;

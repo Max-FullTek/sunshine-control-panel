@@ -3,7 +3,7 @@
 
 @media (max-width: 768px) {
   .apps-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 260px));
     gap: 15px;
   }
 
@@ -90,13 +90,6 @@
 
   .app-card-inner {
     padding: 16px;
-  }
-
-  .app-icon-container,
-  .app-icon,
-  .app-icon-placeholder {
-    width: 60px;
-    height: 60px;
   }
 
   .app-name {

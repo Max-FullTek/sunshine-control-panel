@@ -906,8 +906,8 @@ onUnmounted(() => {
   letter-spacing: 0.02em;
 
   &.critical {
-    color: var(--ui-danger-contrast);
-    background: var(--ui-danger);
+    color: var(--ui-action-contrast);
+    background: var(--ui-action-danger);
   }
 
   &.high {
@@ -916,8 +916,8 @@ onUnmounted(() => {
   }
 
   &.medium {
-    color: var(--ui-accent-contrast);
-    background: var(--ui-accent);
+    color: var(--ui-action-contrast);
+    background: var(--ui-action-primary);
   }
 }
 
@@ -1011,12 +1011,12 @@ onUnmounted(() => {
     }
 
     &-primary {
-      background: var(--ui-accent);
-      color: var(--ui-accent-contrast);
+      background: var(--ui-action-primary);
+      color: var(--ui-action-contrast);
       box-shadow: var(--ui-shadow-sm);
 
       &:hover {
-        background: var(--ui-accent);
+        background: var(--ui-action-primary);
         box-shadow: var(--ui-shadow-md);
       }
 

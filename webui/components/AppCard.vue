@@ -2,17 +2,17 @@
   <div class="app-card" :class="{ 'app-card-dragging': isDragging }">
     <div class="app-card-inner">
       <!-- 应用图标 -->
-      <div class="app-icon-container">
+      <div class="app-cover">
         <img 
-          v-if="app['image-path']" 
+          v-if="app['image-path'] && !imageFailed"
           :src="getImageUrl()" 
           :alt="app.name"
-          class="app-icon"
+          class="app-cover-image"
           loading="lazy"
           decoding="async"
           @error="handleImageError"
         >
-        <div v-else class="app-icon-placeholder">
+        <div v-else class="app-cover-placeholder">
           <i class="fas fa-desktop"></i>
         </div>
       </div>
@@ -111,6 +111,10 @@ export default {
     }
   },
   emits: ['edit', 'delete', 'copy-success', 'copy-error'],
+  data() { return { imageFailed: false }; },
+  watch: {
+    'app.image-path'() { this.imageFailed = false; }
+  },
   computed: {
     tagItems() {
       const tags = [];
@@ -174,13 +178,7 @@ export default {
     /**
      * 处理图像错误
      */
-    handleImageError(event) {
-      const element = event.target;
-      element.style.display = 'none';
-      if (element.nextElementSibling) {
-        element.nextElementSibling.style.display = 'flex';
-      }
-    },
+    handleImageError() { this.imageFailed = true; },
     
     /**
      * 获取图片URL

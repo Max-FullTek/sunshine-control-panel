@@ -17,13 +17,13 @@
   border: 1px solid var(--ui-border-strong);
   border-radius: var(--ui-radius-sm);
   .transition-transform();
-  background: var(--ui-accent);
-  color: var(--ui-accent-contrast);
+  background: var(--ui-action-primary);
+  color: var(--ui-action-contrast);
 
   &:hover {
-    background: var(--ui-accent);
-    border-color: var(--ui-accent);
-    color: var(--ui-accent-contrast);
+    background: var(--ui-action-primary);
+    border-color: var(--ui-action-primary);
+    color: var(--ui-action-contrast);
     transform: translateY(-1px);
     box-shadow: var(--ui-shadow-sm);
   }
@@ -273,8 +273,8 @@
   }
 
   &.active {
-    background: var(--ui-accent);
-    color: var(--ui-accent-contrast);
+    background: var(--ui-action-primary);
+    color: var(--ui-action-contrast);
     box-shadow: var(--ui-shadow-sm);
     transform: none;
   }
@@ -371,8 +371,8 @@
 }
 
 .cute-btn-primary {
-  .cute-btn-variant(var(--ui-accent), var(--ui-accent));
-  color: var(--ui-accent-contrast);
+  .cute-btn-variant(var(--ui-action-primary), var(--ui-action-primary));
+  color: var(--ui-action-contrast);
 
   &.has-changes {
     animation: pulse 2s infinite;

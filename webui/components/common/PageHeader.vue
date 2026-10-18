@@ -13,7 +13,7 @@ const { t } = useI18n()
 defineProps({ page: String, title: String, description: String, icon: String })
 </script>
 <style>
-.lite-page-header .btn-primary { --bs-btn-disabled-bg:var(--ui-accent); --bs-btn-disabled-border-color:var(--ui-accent); --bs-btn-disabled-color:var(--ui-accent-contrast); }
+.lite-page-header .btn-primary { --bs-btn-disabled-bg:var(--ui-action-primary); --bs-btn-disabled-border-color:var(--ui-action-primary); --bs-btn-disabled-color:var(--ui-action-contrast); }
 .page-config > .container, .pin-page > .container, .apps-page > .container-fluid { width:100%; max-width:1440px; margin:0 auto; padding:20px 24px 32px !important; }
 .page-config > .config-heading-container { padding-bottom:0 !important; }
 .page-config > .config-content-container { padding-top:0 !important; }

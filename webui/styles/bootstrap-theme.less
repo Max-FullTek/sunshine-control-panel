@@ -2,7 +2,7 @@
 // of truth, including when data-bs-theme changes at runtime. Bootstrap declares
 // several component variables locally, so changing --bs-primary alone is not
 // enough to replace its compiled active/disabled colors and focus rings.
-.bootstrap-tone(@name, @tone, @rgb, @text, @soft, @border, @contrast) {
+.bootstrap-tone(@name, @tone, @rgb, @text, @soft, @border, @contrast, @fill: @tone) {
   :root,
   [data-bs-theme] {
     --bs-@{name}: @tone;
@@ -15,17 +15,17 @@
   .btn-@{name},
   .btn-outline-@{name} {
     --bs-btn-color: @contrast;
-    --bs-btn-bg: @tone;
-    --bs-btn-border-color: @tone;
+    --bs-btn-bg: @fill;
+    --bs-btn-border-color: @fill;
     --bs-btn-hover-color: @contrast;
-    --bs-btn-hover-bg: @tone;
-    --bs-btn-hover-border-color: @tone;
+    --bs-btn-hover-bg: @fill;
+    --bs-btn-hover-border-color: @fill;
     --bs-btn-active-color: @contrast;
-    --bs-btn-active-bg: @tone;
-    --bs-btn-active-border-color: @tone;
+    --bs-btn-active-bg: @fill;
+    --bs-btn-active-border-color: @fill;
     --bs-btn-disabled-color: @contrast;
-    --bs-btn-disabled-bg: @tone;
-    --bs-btn-disabled-border-color: @tone;
+    --bs-btn-disabled-bg: @fill;
+    --bs-btn-disabled-border-color: @fill;
     --bs-btn-focus-shadow-rgb: @rgb;
     --bs-btn-focus-box-shadow: 0 0 0 3px @soft;
 
@@ -63,11 +63,11 @@
   }
 }
 
-.bootstrap-tone(primary, var(--ui-accent), var(--ui-accent-rgb), var(--ui-accent-text), var(--ui-accent-soft), var(--ui-border-strong), var(--ui-accent-contrast));
+.bootstrap-tone(primary, var(--ui-accent), var(--ui-accent-rgb), var(--ui-accent-text), var(--ui-accent-soft), var(--ui-border-strong), var(--ui-action-contrast), var(--ui-action-primary));
 .bootstrap-tone(secondary, var(--ui-text-secondary), var(--ui-secondary-rgb), var(--ui-text-secondary), var(--ui-surface), var(--ui-border), var(--ui-page-bg));
 .bootstrap-tone(success, var(--ui-success), var(--ui-success-rgb), var(--ui-success-text), var(--ui-success-soft), var(--ui-success-border), var(--ui-success-contrast));
 .bootstrap-tone(warning, var(--ui-warning), var(--ui-warning-rgb), var(--ui-warning-text), var(--ui-warning-soft), var(--ui-warning-border), var(--ui-warning-contrast));
-.bootstrap-tone(danger, var(--ui-danger), var(--ui-danger-rgb), var(--ui-danger-text), var(--ui-danger-soft), var(--ui-danger-border), var(--ui-danger-contrast));
+.bootstrap-tone(danger, var(--ui-danger), var(--ui-danger-rgb), var(--ui-danger-text), var(--ui-danger-soft), var(--ui-danger-border), var(--ui-action-contrast), var(--ui-action-danger));
 .bootstrap-tone(info, var(--ui-info), var(--ui-info-rgb), var(--ui-info-text), var(--ui-info-soft), var(--ui-info-border), var(--ui-info-contrast));
 
 

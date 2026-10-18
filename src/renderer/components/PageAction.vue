@@ -12,9 +12,9 @@ defineProps({ label: String, icon: String, primary: Boolean, disabled: Boolean, 
 </script>
 <style scoped>
 .page-action { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:38px; padding:8px 14px; border:1px solid var(--ui-border,var(--fd-border)); border-radius:8px; background:var(--ui-surface-strong,var(--fd-bg-secondary)); color:var(--ui-text-primary,var(--fd-text-primary)); font:inherit; font-size:14px; line-height:20px; white-space:nowrap; cursor:pointer; }
-.page-action.is-primary { background:var(--ui-accent,var(--fd-accent)); border-color:var(--ui-accent,var(--fd-accent)); color:var(--ui-accent-contrast,#2d2628); }
+.page-action.is-primary { background:var(--ui-action-primary,var(--fd-accent)); border-color:var(--ui-action-primary,var(--fd-accent)); color:var(--ui-action-contrast,#fff); }
 .page-action:hover:not(:disabled) { filter:brightness(1.06); }
-.page-action:focus-visible { outline:2px solid var(--ui-accent,var(--fd-accent)); outline-offset:3px; }
+.page-action:focus-visible { outline:2px solid var(--ui-action-primary,var(--fd-accent)); outline-offset:3px; }
 .page-action:disabled { opacity:.5; cursor:default; }
 .page-action svg { width:16px; height:16px; flex-shrink:0; }
 </style>

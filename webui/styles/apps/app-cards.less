@@ -7,7 +7,7 @@
 
 .apps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 240px));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 260px));
   grid-auto-rows: 1fr;
   align-items: stretch;
   gap: 20px;
@@ -91,7 +91,7 @@
 }
 
 .apps-grid .app-card-wrapper {
-  contain-intrinsic-size: auto 278px;
+  contain-intrinsic-size: auto 340px;
   display: flex;
   min-width: 0;
   height: 100%;
@@ -118,8 +118,8 @@
   transition: background 0.15s ease;
 
   &:hover {
-    background: var(--ui-accent);
-    color: var(--ui-accent-contrast);
+    background: var(--ui-action-primary);
+    color: var(--ui-action-contrast);
   }
 
   &:focus-visible {
@@ -151,10 +151,10 @@
   touch-action: pan-y;
   display: flex;
   width: 100%;
-  height: 278px;
-  min-height: 240px;
-  max-height: 278px;
-  max-width: 240px;
+  height: 340px;
+  min-height: 340px;
+  max-height: 340px;
+  max-width: 260px;
 
   &:hover {
     transform: translateY(-2px);
@@ -173,32 +173,28 @@
   height: 100%;
 }
 
-// App icon styles
-.app-icon-container {
-  .flex-center();
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 8px;
+// Full-width cover; keep text and controls on a readable surface.
+.app-cover {
   position: relative;
+  flex: 0 0 148px;
+  height: 148px;
+  margin: -16px -16px 12px;
+  overflow: hidden;
+  background: var(--ui-surface-strong);
+  border-bottom: 1px solid var(--ui-border);
 }
-
-.app-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--border-radius-md);
-  object-fit: cover;
-  box-shadow: var(--box-shadow-md);
-}
-
-.app-icon-placeholder {
-  width: 64px;
-  height: 64px;
-  background: linear-gradient(135deg, var(--ui-accent), var(--ui-accent-secondary));
-  border-radius: var(--border-radius-md);
+.app-cover-image { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
+.app-cover-placeholder {
   .flex-center();
-  color: var(--ui-accent-contrast);
-  font-size: var(--font-size-xxl);
-  box-shadow: var(--box-shadow-md);
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, var(--ui-accent-soft), var(--ui-surface-strong));
+  color: var(--ui-accent-text);
+  font-size: 48px;
+}
+.apps-grid .drag-handle {
+  background: var(--ui-dialog-bg);
+  color: var(--ui-text-secondary);
+  border: 1px solid var(--ui-border);
 }
 
 // App info
@@ -340,9 +336,11 @@
   justify-content: center;
   gap: 10px;
   margin-top: auto;
+  flex-shrink: 0;
+  min-height: 44px;
 
   .btn {
-    .btn-rounded();
+    .btn-rounded(44px);
     color: #fff;
     font-size: var(--font-size-md);
     backdrop-filter: blur(5px);

@@ -858,9 +858,9 @@ export default {
 }
 
 .step.active .step-number {
-  background: var(--ui-accent);
-  color: var(--ui-accent-contrast);
-  border-color: var(--ui-accent);
+  background: var(--ui-action-primary);
+  color: var(--ui-action-contrast);
+  border-color: var(--ui-action-primary);
   transform: scale(1.05);
 }
 
@@ -1046,15 +1046,15 @@ export default {
 }
 
 .btn-setup-primary {
-  background: var(--ui-accent);
-  border: 1px solid var(--ui-accent);
-  color: var(--ui-accent-contrast);
+  background: var(--ui-action-primary);
+  border: 1px solid var(--ui-action-primary);
+  color: var(--ui-action-contrast);
 }
 
 .btn-setup-primary:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: var(--ui-shadow-md);
-  color: var(--ui-accent-contrast);
+  color: var(--ui-action-contrast);
 }
 
 .btn-setup-secondary {

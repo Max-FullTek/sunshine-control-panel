@@ -674,9 +674,9 @@ onBeforeUnmount(() => {
 }
 
 .vmouse-install-btn {
-  background: var(--ui-accent);
-  color: var(--ui-accent-contrast);
-  border-color: var(--ui-accent);
+  background: var(--ui-action-primary);
+  color: var(--ui-action-contrast);
+  border-color: var(--ui-action-primary);
 }
 
 .vmouse-install-btn:hover:not(:disabled) {
