@@ -28,7 +28,7 @@
 .foundation-connection[data-found=true] .ss-sweep{opacity:0}
 .foundation-connection[data-found=true] .ss-center{color:var(--ss-success)}
 .foundation-connection .ss-actions{display:flex;gap:10px;margin-top:24px}
-.foundation-connection button{font:inherit;cursor:pointer;border-radius:8px;padding:10px 20px;border:1px solid var(--ui-action-primary);background:var(--ui-action-primary);color:var(--ss-button-ink)}
+.foundation-connection button{font:inherit;font-weight:var(--ui-button-font-weight);cursor:pointer;border-radius:8px;padding:10px 20px;border:1px solid var(--ui-action-primary);background:var(--ui-action-primary);color:var(--ss-button-ink)}
 .foundation-connection button:hover{filter:brightness(.96)}
 .foundation-connection button:focus-visible{outline:2px solid var(--ss-accent);outline-offset:3px}
 .foundation-connection .ss-status{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--ss-muted);margin-top:18px;min-height:20px;font-variant-numeric:tabular-nums}
