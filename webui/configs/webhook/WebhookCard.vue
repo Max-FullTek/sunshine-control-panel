@@ -805,7 +805,7 @@ onUnmounted(() => {
   border-radius: 1.25rem;
   color: var(--bs-body-color);
   background:
-    radial-gradient(circle at 12% 20%, rgba(13, 110, 253, 0.16), transparent 34%),
+    radial-gradient(circle at 12% 20%, rgba(var(--ui-accent-rgb), 0.16), transparent 34%),
     var(--bs-body-bg);
   text-align: left;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
@@ -814,8 +814,8 @@ onUnmounted(() => {
   &:hover,
   &:focus-visible {
     transform: translateY(-2px);
-    border-color: rgba(13, 110, 253, 0.65);
-    box-shadow: 0 16px 38px rgba(13, 110, 253, 0.14);
+    border-color: var(--ui-border-strong);
+    box-shadow: 0 16px 38px rgba(var(--ui-accent-rgb), 0.14);
     outline: none;
   }
 }
@@ -826,10 +826,10 @@ onUnmounted(() => {
   display: grid;
   place-items: center;
   border-radius: 1.25rem;
-  color: #fff;
-  background: linear-gradient(135deg, #0d6efd, #6f42c1);
+  color: var(--ui-accent-contrast);
+  background: var(--gradient-primary);
   font-size: 1.75rem;
-  box-shadow: 0 10px 24px rgba(13, 110, 253, 0.28);
+  box-shadow: 0 10px 24px rgba(var(--ui-accent-rgb), 0.28);
 }
 
 .notification-card-content {
@@ -1047,7 +1047,7 @@ onUnmounted(() => {
   margin-right: 0.35rem;
   border-radius: 0.45rem;
   color: var(--bs-primary);
-  background: rgba(13, 110, 253, 0.12);
+  background: var(--ui-accent-soft);
   font-size: 0.78rem;
   font-weight: 700;
 }

@@ -554,6 +554,9 @@ body {
   color: var(--ui-accent-contrast);
 }
 
+// Complete Bootstrap's local component variables after the shared styling.
+@import './bootstrap-theme.less';
+
 // Shared empty state for application and paired-device lists.
 .empty-state {
   grid-column: 1 / -1;

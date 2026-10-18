@@ -1,0 +1,163 @@
+// Bootstrap 5.3 bridge. Keep the application palette in var.css as the source
+// of truth, including when data-bs-theme changes at runtime. Bootstrap declares
+// several component variables locally, so changing --bs-primary alone is not
+// enough to replace its compiled active/disabled colors and focus rings.
+.bootstrap-tone(@name, @tone, @rgb, @text, @soft, @border, @contrast) {
+  :root,
+  [data-bs-theme] {
+    --bs-@{name}: @tone;
+    --bs-@{name}-rgb: @rgb;
+    --bs-@{name}-text-emphasis: @text;
+    --bs-@{name}-bg-subtle: @soft;
+    --bs-@{name}-border-subtle: @border;
+  }
+
+  .btn-@{name},
+  .btn-outline-@{name} {
+    --bs-btn-color: @contrast;
+    --bs-btn-bg: @tone;
+    --bs-btn-border-color: @tone;
+    --bs-btn-hover-color: @contrast;
+    --bs-btn-hover-bg: @tone;
+    --bs-btn-hover-border-color: @tone;
+    --bs-btn-active-color: @contrast;
+    --bs-btn-active-bg: @tone;
+    --bs-btn-active-border-color: @tone;
+    --bs-btn-disabled-color: @contrast;
+    --bs-btn-disabled-bg: @tone;
+    --bs-btn-disabled-border-color: @tone;
+    --bs-btn-focus-shadow-rgb: @rgb;
+  }
+
+  .btn-outline-@{name} {
+    --bs-btn-color: @text;
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: @border;
+    --bs-btn-hover-color: @text;
+    --bs-btn-hover-bg: @soft;
+    --bs-btn-hover-border-color: @border;
+    --bs-btn-active-color: @text;
+    --bs-btn-active-bg: @soft;
+    --bs-btn-active-border-color: @border;
+    --bs-btn-disabled-color: @text;
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: @border;
+  }
+
+  .table-@{name} {
+    --bs-table-color: var(--ui-text-primary);
+    --bs-table-bg: @soft;
+    --bs-table-border-color: @border;
+    --bs-table-striped-color: var(--ui-text-primary);
+    --bs-table-striped-bg: @soft;
+    --bs-table-active-color: var(--ui-text-primary);
+    --bs-table-active-bg: @border;
+    --bs-table-hover-color: var(--ui-text-primary);
+    --bs-table-hover-bg: @border;
+  }
+}
+
+.bootstrap-tone(primary, var(--ui-accent), var(--ui-accent-rgb), var(--ui-accent-text), var(--ui-accent-soft), var(--ui-border-strong), var(--ui-accent-contrast));
+.bootstrap-tone(secondary, var(--ui-text-secondary), var(--ui-secondary-rgb), var(--ui-text-secondary), var(--ui-surface), var(--ui-border), var(--ui-page-bg));
+.bootstrap-tone(success, var(--ui-success), var(--ui-success-rgb), var(--ui-success-text), var(--ui-success-soft), var(--ui-success-border), var(--ui-success-contrast));
+.bootstrap-tone(warning, var(--ui-warning), var(--ui-warning-rgb), var(--ui-warning-text), var(--ui-warning-soft), var(--ui-warning-border), var(--ui-warning-contrast));
+.bootstrap-tone(danger, var(--ui-danger), var(--ui-danger-rgb), var(--ui-danger-text), var(--ui-danger-soft), var(--ui-danger-border), var(--ui-danger-contrast));
+.bootstrap-tone(info, var(--ui-info), var(--ui-info-rgb), var(--ui-info-text), var(--ui-info-soft), var(--ui-info-border), var(--ui-info-contrast));
+
+:root,
+[data-bs-theme] {
+  --bs-body-color: var(--ui-text-primary);
+  --bs-emphasis-color: var(--ui-text-primary);
+  --bs-secondary-color: var(--ui-text-secondary);
+  --bs-tertiary-color: var(--ui-text-muted);
+  --bs-body-bg: var(--ui-surface);
+  --bs-secondary-bg: var(--ui-surface-strong);
+  --bs-tertiary-bg: var(--ui-surface-hover);
+  --bs-border-color: var(--ui-border);
+  --bs-border-color-translucent: var(--ui-border);
+  --bs-link-color: var(--ui-accent-text);
+  --bs-link-color-rgb: var(--ui-accent-text-rgb);
+  --bs-link-hover-color: var(--ui-accent-text);
+  --bs-link-hover-color-rgb: var(--ui-accent-text-rgb);
+  --bs-focus-ring-color: var(--ui-accent-soft);
+  --bs-form-valid-color: var(--ui-success-text);
+  --bs-form-valid-border-color: var(--ui-success);
+  --bs-form-invalid-color: var(--ui-danger-text);
+  --bs-form-invalid-border-color: var(--ui-danger);
+}
+
+.dropdown-menu,
+.dropdown-menu-dark {
+  --bs-dropdown-bg: var(--ui-surface-strong);
+  --bs-dropdown-color: var(--ui-text-primary);
+  --bs-dropdown-border-color: var(--ui-border);
+  --bs-dropdown-link-color: var(--ui-text-primary);
+  --bs-dropdown-link-hover-color: var(--ui-text-primary);
+  --bs-dropdown-link-hover-bg: var(--ui-surface-hover);
+  --bs-dropdown-link-active-bg: var(--ui-accent);
+  --bs-dropdown-link-active-color: var(--ui-accent-contrast);
+}
+
+.nav-pills {
+  --bs-nav-pills-link-active-bg: var(--ui-accent);
+  --bs-nav-pills-link-active-color: var(--ui-accent-contrast);
+}
+
+.pagination {
+  --bs-pagination-active-bg: var(--ui-accent);
+  --bs-pagination-active-border-color: var(--ui-accent);
+  --bs-pagination-active-color: var(--ui-accent-contrast);
+  --bs-pagination-focus-box-shadow: 0 0 0 3px var(--ui-accent-soft);
+}
+
+.list-group {
+  --bs-list-group-active-bg: var(--ui-accent);
+  --bs-list-group-active-border-color: var(--ui-accent);
+  --bs-list-group-active-color: var(--ui-accent-contrast);
+}
+
+.progress,
+.progress-stacked {
+  --bs-progress-bar-bg: var(--ui-accent);
+  --bs-progress-bar-color: var(--ui-accent-contrast);
+}
+
+.accordion {
+  --bs-accordion-btn-focus-box-shadow: 0 0 0 3px var(--ui-accent-soft);
+}
+
+// The upstream accordion SVG embeds a blue stroke. A mask uses the current
+// theme's text color without baking either light or dark palette into the SVG.
+.accordion-button::after {
+  background-image: none !important;
+  background-color: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' d='m2 5 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.btn-close {
+  --bs-btn-close-focus-shadow: 0 0 0 3px var(--ui-accent-soft);
+}
+
+.nav-link:focus-visible {
+  box-shadow: 0 0 0 3px var(--ui-accent-soft);
+}
+
+.form-check-input[type='checkbox']:indeterminate {
+  background-color: var(--ui-accent);
+  border-color: var(--ui-accent);
+}
+
+.form-switch .form-check-input:focus:not(:checked) {
+  // Neutral thumb; Bootstrap's focus SVG otherwise embeds a light-blue fill.
+  --bs-form-switch-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3E%3Ccircle r='3' fill='%23888'/%3E%3C/svg%3E");
+}
+
+// Keep vendor pseudo-elements separate: Firefox discards WebKit selectors.
+.form-range::-webkit-slider-thumb { background-color: var(--ui-accent); }
+.form-range::-moz-range-thumb { background-color: var(--ui-accent); }
+.form-range::-webkit-slider-thumb:active { background-color: var(--ui-accent-secondary); }
+.form-range::-moz-range-thumb:active { background-color: var(--ui-accent-secondary); }
+.form-range:focus::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--ui-accent-soft); }
+.form-range:focus::-moz-range-thumb { box-shadow: 0 0 0 3px var(--ui-accent-soft); }
+.form-range:disabled::-webkit-slider-thumb { background-color: var(--ui-text-muted); }
+.form-range:disabled::-moz-range-thumb { background-color: var(--ui-text-muted); }

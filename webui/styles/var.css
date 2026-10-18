@@ -54,10 +54,12 @@
   --ui-border-strong: rgba(74, 158, 255, 0.42);
   --ui-text-primary: #1e293b;
   --ui-text-secondary: #64748b;
+  --ui-secondary-rgb: 100, 116, 139;
   /* Keep secondary copy readable on translucent GUI surfaces (4.5:1 on white). */
   --ui-text-muted: #68788e;
   --ui-accent: #4a9eff;
   --ui-accent-text: #306fae;
+  --ui-accent-text-rgb: 48, 111, 174;
   --ui-accent-rgb: 74, 158, 255;
   --ui-accent-soft: rgba(74, 158, 255, 0.12);
   --ui-accent-contrast: #ffffff;
@@ -126,9 +128,11 @@
   --ui-border-strong: rgba(230, 213, 184, 0.42);
   --ui-text-primary: #f7f0e3;
   --ui-text-secondary: #d4c4a8;
+  --ui-secondary-rgb: 212, 196, 168;
   --ui-text-muted: #a99d8a;
   --ui-accent: #d4a5a5;
   --ui-accent-text: #f2e3c9;
+  --ui-accent-text-rgb: 242, 227, 201;
   --ui-accent-rgb: 212, 165, 165;
   --ui-accent-soft: rgba(212, 165, 165, 0.14);
   --ui-accent-contrast: #2d2628;
