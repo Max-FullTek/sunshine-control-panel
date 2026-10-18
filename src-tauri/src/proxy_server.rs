@@ -238,8 +238,18 @@ const INJECT_STYLES: &str = include_str!("../inject-styles.css");
 /// 注入的 JavaScript 脚本（编译时从文件读取）
 const INJECT_SCRIPT: &str = include_str!("../inject-script.js");
 
-/// 调皮的404页面（当Sunshine未启动时显示，编译时从文件读取）
+/// Self-contained recovery page shared with the bundled desktop loader.
 const ERROR_404_PAGE: &str = include_str!("../error-404.html");
+const CONNECTION_STYLE: &str = include_str!("../../src/renderer/shared/connection-screen.css");
+const CONNECTION_MARKUP: &str = include_str!("../../src/renderer/shared/connection-screen.html");
+const CONNECTION_SCRIPT: &str = include_str!("../../src/renderer/shared/connection-screen.js");
+
+fn connection_recovery_page() -> String {
+    ERROR_404_PAGE
+        .replace("/* CONNECTION_STYLE */", CONNECTION_STYLE)
+        .replace("<!-- CONNECTION_MARKUP -->", CONNECTION_MARKUP)
+        .replace("/* CONNECTION_SCRIPT */", CONNECTION_SCRIPT)
+}
 
 fn is_trusted_local_browser_url(value: &str) -> bool {
     let Ok(url) = url::Url::parse(value) else {
@@ -602,7 +612,7 @@ fn service_unavailable_response(is_api: bool) -> Response {
         (
             axum::http::StatusCode::SERVICE_UNAVAILABLE,
             [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
-            ERROR_404_PAGE,
+            connection_recovery_page(),
         )
             .into_response()
     }
