@@ -2,7 +2,7 @@
   <div class="troubleshooting-page">
     <Navbar />
     <div class="container py-4">
-      <PageHeader :title="shellT.sidebar.diagnostics" :description="shellT.sidebar.diagnosticsDescription" icon="fas fa-tools" />
+      <PageHeader :title="shellT.sidebar.diagnostics" :description="shellT.sidebar.diagnosticsDescription" ><template #icon><IconTroubleshooting /></template></PageHeader>
 
       <LogsSection
         v-model:logFilter="logFilter"
@@ -205,6 +205,7 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Navbar from '../components/layout/Navbar.vue'
 import PageHeader from '../components/common/PageHeader.vue'
+import IconTroubleshooting from '@/desktop/icons/IconTroubleshooting.vue'
 import { useI18n as useShellI18n } from '@/desktop/i18n/index.js'
 import TroubleshootingCard from '../components/TroubleshootingCard.vue'
 import LogsSection from '../components/LogsSection.vue'

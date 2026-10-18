@@ -18,7 +18,7 @@ export const zh = {
   "pairing": "先在 Moonlight 发起配对，再输入 PIN 码；已配对设备可在下方管理。",
   "stream-settings": "调整串流画面、音频与输入设置；保存后按提示应用，必要时重新启动。",
   "virtualDisplay": "保存会写入虚拟显示器设置，并通知驱动重新加载。",
-  "deviceHub": "管理手柄模拟与输入设备；更改会立即保存。",
+  "deviceHub": "管理手柄模拟类型、动作感应与 DSU；更改会立即保存。",
   "interfaceSettings": "调整界面外观、语言与桌面版偏好；更改按各项设置的提示应用。",
   "help": "了解 Foundation Sunshine Lite，查看上游项目、支持作者与诊断入口。"
 },
@@ -666,7 +666,7 @@ export const zh = {
     "maximize": "最大化",
     "restore": "还原",
     "virtualDisplay": "虚拟显示器",
-    "deviceHub": "设备中心",
+    "deviceHub": "手柄设置",
     "hdrEnhanced": "画质增强",
     "checkUpdate": "检查更新",
     "officialWebsite": "官方网站",
@@ -688,9 +688,9 @@ export const zh = {
     "open": "管理画质增强"
   },
   "deviceHub": {
-    "eyebrow": "MANAGE / DEVICE HUB",
-    "title": "设备中心",
-    "intro": "管理手把模擬與輸入設定。",
+    "eyebrow": "GAMEPAD SETTINGS",
+    "title": "手柄设置",
+    "intro": "管理手柄模拟与手柄输入设置。",
     "refresh": "刷新",
     "available": "可用",
     "unavailable": "不可用",

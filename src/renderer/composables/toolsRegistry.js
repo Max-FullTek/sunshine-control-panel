@@ -6,9 +6,9 @@ import {
   House,
   Grid,
   QuestionFilled,
-  Tools,
 } from '@element-plus/icons-vue'
 import IconGamepad from '../desktop/icons/IconGamepad.vue'
+import IconTroubleshooting from '../desktop/icons/IconTroubleshooting.vue'
 import { ROUTES } from './useRouter.js'
 import { WEBUI_PAGES, getWebuiPage } from './webuiNavigation.js'
 
@@ -58,7 +58,7 @@ export function createFooterTools(ctx) {
   return [
     {
       id: 'troubleshooting',
-      icon: Tools,
+      icon: IconTroubleshooting,
       label: ctx.t.value.sidebar.diagnostics,
       action: () => ctx.openWebUi('/troubleshooting'),
       isActive: () =>

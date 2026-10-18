@@ -18,7 +18,7 @@ export const en = {
   "pairing": "Start pairing in Moonlight, then enter its PIN. Manage paired devices below.",
   "stream-settings": "Configure video, audio and input; save and follow the prompts to apply or restart.",
   "virtualDisplay": "Saving writes virtual display settings and asks the driver to reload.",
-  "deviceHub": "Manage controller emulation and input devices. Changes save immediately.",
+  "deviceHub": "Manage gamepad emulation, motion input and DSU. Changes save immediately.",
   "interfaceSettings": "Adjust appearance, language and desktop app preferences; follow each setting’s apply instructions.",
   "help": "Learn about Foundation Sunshine Lite, support upstream authors and find diagnostics."
 },
@@ -666,7 +666,7 @@ export const en = {
     "maximize": "Maximize",
     "restore": "Restore",
     "virtualDisplay": "Virtual Display",
-    "deviceHub": "Device Hub",
+    "deviceHub": "Gamepad Settings",
     "hdrEnhanced": "Image Enhancement",
     "checkUpdate": "Check for Updates",
     "officialWebsite": "Official Website",
@@ -688,9 +688,9 @@ export const en = {
     "open": "Manage image enhancement"
   },
   "deviceHub": {
-    "eyebrow": "MANAGE / DEVICE HUB",
-    "title": "Device Hub",
-    "intro": "Manage gamepad emulation and input options.",
+    "eyebrow": "GAMEPAD SETTINGS",
+    "title": "Gamepad Settings",
+    "intro": "Manage gamepad emulation and gamepad input options.",
     "refresh": "Refresh",
     "available": "Available",
     "unavailable": "Unavailable",

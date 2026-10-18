@@ -1,6 +1,6 @@
 <template>
   <PageHeading class="lite-page-header" :title="page ? t.sidebar[WEBUI_PAGES.find(item => item.id === page)?.label] : title" :description="description || t.pageNotes[page]">
-    <template #icon><component v-if="page" :is="WEBUI_ICONS[page]" /><i v-else :class="icon"></i></template>
+    <template #icon><slot name="icon"><component v-if="page" :is="WEBUI_ICONS[page]" /><i v-else :class="icon"></i></slot></template>
     <template v-if="$slots.actions" #actions><slot name="actions" /></template>
   </PageHeading>
 </template>
