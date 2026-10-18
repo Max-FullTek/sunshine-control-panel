@@ -7,6 +7,7 @@ import { checkLocalProxyHealth } from '../utils/proxyHealth.js'
 import { sharedUiPath } from '../utils/sharedUiTarget.js'
 import { mountConnectionScreen, probeConnection } from '../shared/connection-screen.js'
 import markup from '../shared/connection-screen.html?raw'
+import '../shared/palette.css'
 import '../shared/connection-screen.css'
 
 const host = ref(null)

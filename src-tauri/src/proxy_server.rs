@@ -240,12 +240,14 @@ const INJECT_SCRIPT: &str = include_str!("../inject-script.js");
 
 /// Self-contained recovery page shared with the bundled desktop loader.
 const ERROR_404_PAGE: &str = include_str!("../error-404.html");
+const PALETTE_STYLE: &str = include_str!("../../src/renderer/shared/palette.css");
 const CONNECTION_STYLE: &str = include_str!("../../src/renderer/shared/connection-screen.css");
 const CONNECTION_MARKUP: &str = include_str!("../../src/renderer/shared/connection-screen.html");
 const CONNECTION_SCRIPT: &str = include_str!("../../src/renderer/shared/connection-screen.js");
 
 fn connection_recovery_page() -> String {
     ERROR_404_PAGE
+        .replace("/* PALETTE_STYLE */", PALETTE_STYLE)
         .replace("/* CONNECTION_STYLE */", CONNECTION_STYLE)
         .replace("<!-- CONNECTION_MARKUP -->", CONNECTION_MARKUP)
         .replace("/* CONNECTION_SCRIPT */", CONNECTION_SCRIPT)

@@ -47,7 +47,7 @@ export default {
   --bs-accordion-border-color: var(--ui-border);
   --bs-accordion-btn-color: var(--ui-text-primary);
   --bs-accordion-btn-bg: var(--ui-surface);
-  --bs-accordion-active-color: var(--ui-accent);
+  --bs-accordion-active-color: var(--ui-accent-text);
   --bs-accordion-active-bg: var(--ui-accent-soft);
   --bs-accordion-btn-focus-box-shadow: 0 0 0 3px var(--ui-accent-soft);
 }

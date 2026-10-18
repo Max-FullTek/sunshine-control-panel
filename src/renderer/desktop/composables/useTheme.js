@@ -1,3 +1,4 @@
+import '../../shared/palette.css'
 import { ref, watch } from 'vue'
 import { normalizeTheme, themePresets } from './themePresets.js'
 

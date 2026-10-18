@@ -7,50 +7,15 @@
 // 漏掉的 token 就会静默回退到浅色，页面于是深浅混搭。
 // 这里集中声明深色模式的整套 token。页面仍可在自己的作用域里继续覆盖
 // （权重更高），但不再需要为了「别变白」而重复声明一遍。
-// 浅色模式直接沿用 Element Plus 默认值，无需覆盖。
+// 深浅色的语义色均由 shared/palette.css 提供。
 // 未收录 --el-bg-color / --el-bg-color-page：本壳层里前者只被 .el-switch__action
 // （开关滑块，两套主题都应为白色）读取，后者无人读取；弹层与下拉走的是
 // --el-bg-color-overlay，对话框由 dialog.less 硬覆盖。
 
 @import './theme.less';
+@import '../shared/palette.css';
 
 [data-bs-theme='dark'] {
-  // 强调色：深色模式跟随莫兰迪红，与侧边栏、对话框一致
-  --el-color-primary: @morandi-red;
-  --el-color-primary-light-3: rgba(212, 165, 165, 0.55);
-  --el-color-primary-light-5: rgba(212, 165, 165, 0.38);
-  --el-color-primary-light-7: rgba(212, 165, 165, 0.28);
-  --el-color-primary-light-8: rgba(212, 165, 165, 0.2);
-  --el-color-primary-light-9: rgba(212, 165, 165, 0.12);
-  --el-color-primary-dark-2: #e0bcbc;
-
-  // 状态色：基色两套主题一致，只重算深色底上的浅色档与 hover 档
-  --el-color-success-light-3: rgba(103, 194, 58, 0.45);
-  --el-color-success-light-5: rgba(103, 194, 58, 0.34);
-  --el-color-success-light-8: rgba(103, 194, 58, 0.18);
-  --el-color-success-light-9: rgba(103, 194, 58, 0.11);
-  --el-color-success-dark-2: #85ce61;
-  --el-color-warning-light-3: rgba(230, 162, 60, 0.5);
-  --el-color-warning-light-5: rgba(230, 162, 60, 0.38);
-  --el-color-warning-light-8: rgba(230, 162, 60, 0.2);
-  --el-color-warning-light-9: rgba(230, 162, 60, 0.12);
-  --el-color-warning-dark-2: #f0bd70;
-  --el-color-danger-light-3: rgba(245, 108, 108, 0.48);
-  --el-color-danger-light-5: rgba(245, 108, 108, 0.36);
-  --el-color-danger-light-8: rgba(245, 108, 108, 0.19);
-  --el-color-danger-light-9: rgba(245, 108, 108, 0.11);
-  --el-color-danger-dark-2: #f78989;
-  --el-color-error-light-3: rgba(245, 108, 108, 0.48);
-  --el-color-error-light-5: rgba(245, 108, 108, 0.36);
-  --el-color-error-light-8: rgba(245, 108, 108, 0.19);
-  --el-color-error-light-9: rgba(245, 108, 108, 0.11);
-  --el-color-error-dark-2: #f78989;
-  --el-color-info-light-3: rgba(230, 213, 184, 0.3);
-  --el-color-info-light-5: rgba(230, 213, 184, 0.2);
-  --el-color-info-light-8: rgba(230, 213, 184, 0.14);
-  --el-color-info-light-9: rgba(230, 213, 184, 0.08);
-  --el-color-info-dark-2: #cbbfa8;
-
   // 文字
   --el-text-color-primary: #f0dfc3;
   --el-text-color-regular: #d6c3a7;
@@ -75,3 +40,55 @@
   --el-fill-color-extra-light: rgba(255, 255, 255, 0.025);
   --el-mask-color-extra-light: rgba(45, 38, 40, 0.3);
 }
+
+// Shared semantic colors for both themes, including derived interaction shades.
+.element-tone(@name, @tone, @rgb, @text) {
+  --el-color-@{name}: @tone;
+  --el-color-@{name}-rgb: @rgb;
+  --el-color-@{name}-light-3: rgba(@rgb, .55);
+  --el-color-@{name}-light-5: rgba(@rgb, .38);
+  --el-color-@{name}-light-7: rgba(@rgb, .28);
+  --el-color-@{name}-light-8: rgba(@rgb, .2);
+  --el-color-@{name}-light-9: rgba(@rgb, .12);
+  --el-color-@{name}-dark-2: @text;
+}
+:root,
+[data-bs-theme] {
+  .element-tone(primary, var(--ui-accent), var(--ui-accent-rgb), var(--ui-accent-text));
+  .element-tone(success, var(--ui-success), var(--ui-success-rgb), var(--ui-success-text));
+  .element-tone(warning, var(--ui-warning), var(--ui-warning-rgb), var(--ui-warning-text));
+  .element-tone(danger, var(--ui-danger), var(--ui-danger-rgb), var(--ui-danger-text));
+  .element-tone(error, var(--ui-danger), var(--ui-danger-rgb), var(--ui-danger-text));
+  .element-tone(info, var(--ui-info), var(--ui-info-rgb), var(--ui-info-text));
+}
+// Text on solid buttons must follow the background, rather than vendor white.
+.element-button-tone(@name, @tone, @text, @contrast) {
+  .el-button--@{name} {
+    --el-button-bg-color: @tone;
+    --el-button-hover-bg-color: @tone;
+    --el-button-active-bg-color: @tone;
+    --el-button-disabled-bg-color: @tone;
+    --el-button-border-color: @tone;
+    --el-button-hover-border-color: @tone;
+    --el-button-active-border-color: @tone;
+    --el-button-text-color: @contrast;
+    --el-button-hover-text-color: @contrast;
+    --el-button-active-text-color: @contrast;
+    --el-button-disabled-text-color: @contrast;
+    &.is-plain, &.is-text, &.is-link {
+      --el-button-bg-color: transparent;
+      --el-button-hover-bg-color: var(--ui-surface-hover);
+      --el-button-active-bg-color: var(--ui-surface-hover);
+      --el-button-disabled-bg-color: transparent;
+      --el-button-text-color: @text;
+      --el-button-hover-text-color: @text;
+      --el-button-active-text-color: @text;
+      --el-button-disabled-text-color: @text;
+    }
+  }
+}
+.element-button-tone(primary, var(--ui-accent), var(--ui-accent-text), var(--ui-accent-contrast));
+.element-button-tone(success, var(--ui-success), var(--ui-success-text), var(--ui-success-contrast));
+.element-button-tone(warning, var(--ui-warning), var(--ui-warning-text), var(--ui-warning-contrast));
+.element-button-tone(danger, var(--ui-danger), var(--ui-danger-text), var(--ui-danger-contrast));
+.element-button-tone(info, var(--ui-info), var(--ui-info-text), var(--ui-info-contrast));

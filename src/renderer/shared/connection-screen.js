@@ -65,7 +65,8 @@ export function mountConnectionScreen(host, options = {}) {
       const desktop = JSON.parse(localStorage.getItem('foundation-desktop-theme') || 'null')
       theme ||= desktop?.mode || desktop?.preset || localStorage.getItem('theme')
     } catch { /* Use system appearance. */ }
-    root.style.colorScheme = theme === 'light' || theme === 'dark' ? theme : media.matches ? 'dark' : 'light'
+    root.dataset.bsTheme = theme === 'light' || theme === 'dark' ? theme : media.matches ? 'dark' : 'light'
+    root.style.colorScheme = root.dataset.bsTheme
   }
   function render() {
     const text = connectionMessages[connectionLocale(locale)]

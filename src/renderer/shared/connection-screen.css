@@ -1,5 +1,5 @@
 
-.foundation-connection{--ss-bg:light-dark(#f0f8ff,#2d2628);--ss-panel:light-dark(#fff,#3d3235);--ss-soft:light-dark(#e6f2ff,#4a3f42);--ss-ink:light-dark(#17212f,#f5f0eb);--ss-muted:light-dark(#465264,#ddd1d4);--ss-accent:light-dark(#4a9eff,#e6d5b8);--ss-button-ink:light-dark(#102941,#2d2628);--ss-line:light-dark(#cbdff0,#5c4e52);--ss-success:light-dark(#16804a,#75d7a0);font:14px/1.6 'Segoe UI','Microsoft JhengHei',sans-serif;color:var(--ss-ink)}
+.foundation-connection{--ss-bg:var(--ui-shell-bg);--ss-panel:var(--ui-shell-surface);--ss-soft:var(--ui-shell-soft);--ss-ink:var(--ui-shell-text);--ss-muted:var(--ui-shell-muted);--ss-accent:var(--ui-accent);--ss-button-ink:var(--ui-accent-contrast);--ss-line:var(--ui-connection-line);--ss-success:var(--ui-success-text);font:14px/1.6 'Segoe UI','Microsoft JhengHei',sans-serif;color:var(--ss-ink)}
 .foundation-connection *{box-sizing:border-box}
 .foundation-connection .ss-page{min-height:100vh;background:radial-gradient(ellipse at 50% 25%,var(--ss-soft),var(--ss-bg) 73%);border-radius:12px;overflow:hidden}
 .foundation-connection .ss-chrome{display:flex;align-items:center;gap:10px;padding:18px 24px;border-bottom:1px solid var(--ss-line);font-size:13px;letter-spacing:.03em}

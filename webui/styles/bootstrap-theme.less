@@ -1,4 +1,4 @@
-// Bootstrap 5.3 bridge. Keep the application palette in var.css as the source
+// Bootstrap 5.3 bridge. Keep the application palette in shared/palette.css as the source
 // of truth, including when data-bs-theme changes at runtime. Bootstrap declares
 // several component variables locally, so changing --bs-primary alone is not
 // enough to replace its compiled active/disabled colors and focus rings.
@@ -27,6 +27,12 @@
     --bs-btn-disabled-bg: @tone;
     --bs-btn-disabled-border-color: @tone;
     --bs-btn-focus-shadow-rgb: @rgb;
+    --bs-btn-focus-box-shadow: 0 0 0 3px @soft;
+
+    &:hover,
+    &:focus-visible,
+    &:active,
+    &.active { box-shadow: var(--bs-btn-focus-box-shadow); }
   }
 
   .btn-outline-@{name} {
@@ -63,6 +69,42 @@
 .bootstrap-tone(warning, var(--ui-warning), var(--ui-warning-rgb), var(--ui-warning-text), var(--ui-warning-soft), var(--ui-warning-border), var(--ui-warning-contrast));
 .bootstrap-tone(danger, var(--ui-danger), var(--ui-danger-rgb), var(--ui-danger-text), var(--ui-danger-soft), var(--ui-danger-border), var(--ui-danger-contrast));
 .bootstrap-tone(info, var(--ui-info), var(--ui-info-rgb), var(--ui-info-text), var(--ui-info-soft), var(--ui-info-border), var(--ui-info-contrast));
+
+
+// Preserve the panel's soft secondary and information buttons using Bootstrap's
+// local variables, so hover, active and disabled share the same color contract.
+.btn-secondary,
+.btn-outline-secondary {
+  --bs-btn-color: var(--ui-text-secondary);
+  --bs-btn-bg: var(--ui-surface-strong);
+  --bs-btn-border-color: var(--ui-border);
+  --bs-btn-hover-color: var(--ui-text-primary);
+  --bs-btn-hover-bg: var(--ui-surface-hover);
+  --bs-btn-hover-border-color: var(--ui-border-strong);
+  --bs-btn-active-color: var(--ui-text-primary);
+  --bs-btn-active-bg: var(--ui-surface-hover);
+  --bs-btn-active-border-color: var(--ui-border-strong);
+  --bs-btn-disabled-color: var(--ui-text-secondary);
+  --bs-btn-disabled-bg: var(--ui-surface-strong);
+  --bs-btn-disabled-border-color: var(--ui-border);
+}
+
+.btn-info {
+  --bs-btn-color: var(--ui-info-text);
+  --bs-btn-bg: var(--ui-info-soft);
+  --bs-btn-border-color: var(--ui-info-border);
+  --bs-btn-hover-color: var(--ui-info-text);
+  --bs-btn-hover-bg: rgba(var(--ui-info-rgb), .2);
+  --bs-btn-hover-border-color: var(--ui-info-border);
+  --bs-btn-active-color: var(--ui-info-text);
+  --bs-btn-active-bg: rgba(var(--ui-info-rgb), .2);
+  --bs-btn-active-border-color: var(--ui-info-border);
+  --bs-btn-disabled-color: var(--ui-info-text);
+  --bs-btn-disabled-bg: var(--ui-info-soft);
+  --bs-btn-disabled-border-color: var(--ui-info-border);
+}
+
+.btn-info.text-white { color: var(--ui-info-text) !important; }
 
 :root,
 [data-bs-theme] {
@@ -122,7 +164,15 @@
   --bs-progress-bar-color: var(--ui-accent-contrast);
 }
 
+.modal {
+  --bs-modal-bg: var(--ui-dialog-bg);
+  --bs-modal-color: var(--ui-text-primary);
+  --bs-modal-border-color: var(--ui-border);
+}
+
 .accordion {
+  --bs-accordion-active-color: var(--ui-accent-text);
+  --bs-accordion-active-bg: var(--ui-accent-soft);
   --bs-accordion-btn-focus-box-shadow: 0 0 0 3px var(--ui-accent-soft);
 }
 
