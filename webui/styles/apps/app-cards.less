@@ -7,7 +7,7 @@
 
 .apps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 196px), 224px));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 176px), 202px));
   grid-auto-rows: 1fr;
   align-items: stretch;
   gap: 20px;
@@ -69,7 +69,7 @@
 }
 
 .apps-grid .app-card-wrapper {
-  contain-intrinsic-size: auto 335px;
+  contain-intrinsic-size: auto 304px;
   display: flex;
   min-width: 0;
   height: 100%;
@@ -117,7 +117,7 @@
 
 .app-card {
   width: 100%;
-  max-width: 224px;
+  max-width: 202px;
   position: relative;
   touch-action: pan-y;
 }
@@ -149,6 +149,7 @@
   font-size: 16px;
   line-height: 1.5;
   font-weight: 500;
+  text-shadow: 0 1px 2px color-mix(in srgb, var(--ui-text-primary) 20%, transparent);
   text-align: center;
   .text-ellipsis();
 }
