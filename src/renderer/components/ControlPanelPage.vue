@@ -68,44 +68,46 @@
       <DesktopOnly v-if="!isAdmin"><el-button @click="actions.restartAsAdmin">{{ t.sidebar.restartAsAdmin }}</el-button></DesktopOnly>
     </template>
     <template v-else>
-      <article class="about-introduction settings-card">
-        <img :src="sunshineLiteLogo" class="about-brand" alt="Sunshine Lite" />
-        <h2>{{ t.aboutLite.introTitle }}</h2>
-        <section v-for="section in t.aboutLite.introSections" :key="section.title">
-          <h3>{{ section.title }}</h3>
-          <p>{{ section.body }}</p>
-        </section>
-      </article>
-      <section class="panel-section">
-      <h2>{{ t.aboutLite.referencesTitle }}</h2>
-      <div class="settings-card">
-        <div v-for="link in referenceLinks" :key="link.url" class="settings-row">
-          <div class="reference-copy"><strong>{{ link.name }}</strong><p>{{ t.aboutLite.referenceDescriptions[link.id] }}</p></div>
-          <el-button @click="actions.openUrl(link.url)">{{ t.sidebar.visit }}</el-button>
-        </div>
-        <div class="settings-row">
-          <div>
-            <strong>{{ t.sidebar.diagnostics }}</strong>
-            <p>{{ t.sidebar.diagnosticsDescription }}</p>
+      <div class="about-layout">
+        <article class="about-hero settings-card">
+          <div class="about-hero-copy">
+            <span class="about-eyebrow">FOUNDATION SUNSHINE LITE</span>
+            <h2>{{ t.aboutLite.introSections[0].title }}</h2>
+            <p>{{ t.aboutLite.introSections[0].body }}</p>
+            <a class="about-repository" :href="liteRepositoryUrl" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(liteRepositoryUrl)">{{ t.aboutLite.forkLink }} <span aria-hidden="true">↗</span></a>
+            <span class="about-version">{{ displayVersion }}</span>
           </div>
-          <el-button @click="emit('webui-navigate', '/troubleshooting')">{{ t.sidebar.open }}</el-button>
+          <div class="about-art"><img :src="sunshineLiteLogo" class="about-brand" alt="Sunshine Lite" /></div>
+        </article>
+        <div class="about-principles">
+          <section v-for="(section, index) in t.aboutLite.introSections.slice(1)" :key="section.title" class="about-principle">
+            <span class="about-number" aria-hidden="true">0{{ index + 1 }}</span>
+            <div><h3>{{ section.title }}</h3><p>{{ section.body }}</p></div>
+          </section>
         </div>
+        <section class="about-references">
+          <div class="about-section-heading"><h2>{{ t.aboutLite.referencesTitle }}</h2></div>
+          <div class="about-reference-grid">
+            <a v-for="link in referenceLinks" :key="link.id" class="about-reference settings-card" :href="link.url" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(link.url)">
+              <div><h3>{{ link.name }}</h3><p>{{ t.aboutLite.referenceDescriptions[link.id] }}</p></div>
+              <span class="about-reference-arrow" aria-hidden="true">↗</span>
+              <span class="about-reference-action">{{ link.id === 'resources' ? t.sidebar.visit : t.aboutLite.starLink }}</span>
+            </a>
+          </div>
+          <p class="about-support-note"><strong>{{ t.aboutLite.supportTitle }}</strong> {{ t.aboutLite.supportBody }}</p>
+        </section>
+        <div class="about-footer-grid">
+          <section class="about-footer-card settings-card">
+            <h2>{{ t.aboutLite.forkTitle }}</h2><p>{{ t.aboutLite.forkBody }}</p>
+            <a :href="liteRepositoryUrl" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(liteRepositoryUrl)">{{ t.aboutLite.forkLink }} ↗</a>
+          </section>
+          <section class="about-footer-card settings-card">
+            <h2>{{ t.sidebar.diagnostics }}</h2><p>{{ t.sidebar.diagnosticsDescription }}</p>
+            <el-button @click="emit('webui-navigate', '/troubleshooting')">{{ t.sidebar.open }} <span aria-hidden="true">→</span></el-button>
+          </section>
+        </div>
+        <p class="about-license">{{ t.lite.licenseNotice }}</p>
       </div>
-      </section>
-      <section class="support-section settings-card">
-        <h2>{{ t.aboutLite.supportTitle }}</h2>
-        <p>{{ t.aboutLite.supportBody }}</p>
-        <div class="support-links">
-          <a v-for="link in referenceLinks.filter(link => link.id !== 'resources')" :key="link.id" :href="link.url" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(link.url)"><strong>{{ link.name }}</strong><span>{{ t.aboutLite.starLink }} ↗</span></a>
-        </div>
-      </section>
-      <section class="fork-section settings-card">
-        <h2>{{ t.aboutLite.forkTitle }}</h2>
-        <p>{{ t.aboutLite.forkBody }}</p>
-        <a :href="liteRepositoryUrl" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(liteRepositoryUrl)">{{ t.aboutLite.forkLink }} ↗</a>
-      </section>
-      <p class="version-note">Foundation Sunshine Lite · {{ displayVersion }}</p>
-      <p class="version-note">{{ t.lite.licenseNotice }}</p>
     </template>
   </div>
 </template>
@@ -141,11 +143,8 @@ const heading = computed(() => {
 <style scoped lang="less">
 .about-brand {
   display: block;
-  width: min(100%, 360px);
+  width: 100%;
   height: auto;
-  margin-bottom: 24px;
-  border-radius: 16px;
-  background: #fffbf8;
 }
 .panel-page {
   --panel-surface: var(--fd-bg-secondary);
@@ -281,26 +280,50 @@ const heading = computed(() => {
     margin-left: auto;
   }
 }
-.version-note {
-  color: var(--panel-muted);
-  margin-top: 20px;
-  font-size: 12px;
-  text-align: right;
-  padding-top: 20px;
-  margin-bottom: 0;
-  margin-top: auto;
-}
 .reference-copy { flex:1; min-width:180px; }
-.about-introduction, .support-section, .fork-section { padding:24px; margin-bottom:24px; }
-.about-introduction h2, .support-section h2, .fork-section h2 { font-size:19px; margin:0 0 18px; font-weight:600; }
-.about-introduction h3 { font-size:15px; font-weight:600; margin:20px 0 8px; }
-.about-introduction p, .support-section p, .fork-section p { font-size:14px; line-height:1.9; margin:0; color:var(--panel-muted); }
-.support-links { display:flex; flex-direction:column; margin-top:16px; }
-.support-links a { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; padding:12px 0; border-top:1px solid var(--panel-border); }
-.support-links a, .fork-section a { color:var(--panel-accent); text-decoration:none; font-size:14px; }
-.support-links a:hover, .fork-section a:hover { text-decoration:underline; }
-.support-links strong { font-weight:500; }
-.fork-section a { display:inline-block; margin-top:14px; }
+.about-layout { --panel-accent:var(--ui-accent-text); display:grid; gap:28px; }
+.about-hero.settings-card { display:grid; grid-template-columns:minmax(0, 1.15fr) minmax(240px, .85fr); padding:0; overflow:hidden; }
+.about-hero-copy { padding:clamp(24px, 3vw, 44px); align-self:center; }
+.about-eyebrow { display:block; color:var(--panel-accent); font-size:11px; font-weight:600; letter-spacing:.13em; margin-bottom:16px; }
+.about-hero h2 { font-size:clamp(25px, 2.6vw, 34px); font-weight:600; margin:0 0 18px; line-height:1.35; }
+.about-layout p { font-size:14px; color:var(--panel-muted); line-height:1.85; margin:0; }
+.about-layout a { text-decoration:none; }
+.about-repository { display:inline-flex; align-items:center; gap:14px; background:var(--ui-action-primary, var(--panel-accent)); color:var(--ui-action-contrast, #fff); border-radius:9px; padding:11px 16px; margin-top:24px; font-size:13px; font-weight:500; }
+.about-repository:hover { filter:brightness(1.1); }
+.about-version { display:block; color:var(--panel-muted); font-size:11px; margin-top:12px; }
+.about-art { display:flex; align-items:center; justify-content:center; background:#fffbf8; padding:20px; border-left:1px solid var(--panel-border); }
+.about-principles { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:28px; }
+.about-principle { display:flex; gap:16px; padding:4px 0; }
+.about-number { font-size:13px; color:var(--panel-accent); padding-top:3px; font-variant-numeric:tabular-nums; }
+.about-layout h3 { font-size:15px; font-weight:600; margin:0 0 8px; line-height:1.5; }
+.about-section-heading h2, .about-footer-card h2 { font-size:17px; font-weight:600; margin:0 0 16px; }
+.about-reference-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
+.about-reference.settings-card { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; padding:22px; color:var(--panel-text); transition:border-color .18s, transform .18s; }
+.about-reference:hover { border-color:var(--panel-accent); transform:translateY(-2px); }
+.about-reference p { font-size:12px; }
+.about-reference-arrow { color:var(--panel-accent); font-size:21px; }
+.about-reference-action { grid-column:1 / -1; font-size:12px; color:var(--panel-accent); }
+.about-support-note { padding:14px 2px 0; font-size:12px !important; }
+.about-support-note strong { color:var(--panel-text); font-weight:500; margin-right:8px; }
+.about-footer-grid { display:grid; grid-template-columns:minmax(0, 1.4fr) minmax(0, 1fr); gap:12px; }
+.about-footer-card.settings-card { padding:22px; }
+.about-footer-card p { font-size:13px; }
+.about-footer-card a { display:inline-block; color:var(--panel-accent); font-size:13px; margin-top:16px; }
+.about-footer-card .el-button { margin-top:16px; }
+.about-layout a:focus-visible { outline:2px solid var(--panel-accent); outline-offset:4px; }
+.about-license { border-top:1px solid var(--panel-border); padding-top:18px; font-size:11px !important; }
+@media (max-width: 1000px) {
+  .about-hero.settings-card { grid-template-columns:minmax(0, 1fr) minmax(200px, .7fr); }
+  .about-hero-copy { padding:24px; }
+  .about-art { padding:12px; }
+}
+@media (max-width: 650px) {
+  .about-hero.settings-card, .about-principles, .about-reference-grid, .about-footer-grid { grid-template-columns:minmax(0, 1fr); }
+  .about-art { grid-row:1; border-left:0; border-bottom:1px solid var(--panel-border); padding:12px; }
+  .about-brand { max-width:270px; }
+  .about-layout { gap:22px; }
+  .about-principles { gap:20px; }
+}
 :deep(.page-heading) { padding-top:0; }
 @media (max-width: 850px) {
   .panel-page {
