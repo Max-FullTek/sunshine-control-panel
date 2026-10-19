@@ -6,12 +6,20 @@
           class="app-cover-image" loading="lazy" decoding="async" draggable="false" @error="handleImageError" />
         <div v-else class="app-cover-placeholder" aria-hidden="true"><i class="fas fa-desktop"></i></div>
         <div v-if="hasTags" class="app-tags">
-          <span v-for="tag in visibleTags" :key="tag.key" class="app-status-bubble" :class="tag.className"
-            role="img" :aria-label="tag.label" :title="`${tag.label}: ${tag.title}`">
-            <span v-if="tag.count">{{ tag.count }}</span>
-            <i v-else class="fas" :class="tag.icon" aria-hidden="true"></i>
-          </span>
-          <span v-if="hiddenTagCount > 0" class="app-status-bubble tag-more" role="img" :aria-label="tagSummaryTitle" :title="tagSummaryTitle">+{{ hiddenTagCount }}</span>
+          <div v-for="tag in visibleTags" :key="tag.key" class="app-tag-trigger">
+            <button type="button" class="app-status-bubble" :class="tag.className" :disabled="disabled"
+              :aria-label="`${tag.label}: ${tag.title}`" @click="$emit('edit', tag.key)">
+              <span v-if="tag.count">{{ tag.count }}</span>
+              <i v-else class="fas" :class="tag.icon" aria-hidden="true"></i>
+              <span class="app-tag-details" aria-hidden="true"><span class="app-tag-detail-content"><strong>{{ tag.label }}</strong><span>{{ tag.title }}</span></span></span>
+            </button>
+          </div>
+          <div v-if="hiddenTagCount > 0" class="app-tag-trigger">
+            <button type="button" class="app-status-bubble tag-more" :disabled="disabled" :aria-label="tagSummaryTitle">+{{ hiddenTagCount }}</button>
+            <div class="app-tag-details"><div class="app-tag-detail-content">
+              <button v-for="tag in hiddenTags" :key="tag.key" type="button" class="app-tag-detail-link" :disabled="disabled" @click="$emit('edit', tag.key)"><strong>{{ tag.label }}</strong><span>{{ tag.title }}</span></button>
+            </div></div>
+          </div>
         </div>
         <div class="app-actions">
           <button class="app-bubble btn-edit" type="button" :disabled="disabled" :aria-label="`${$t('apps.edit')}: ${app.name}`"
@@ -91,6 +99,9 @@ export default {
     },
     hiddenTagCount() {
       return Math.max(0, this.tagItems.length - this.visibleTags.length);
+    },
+    hiddenTags() {
+      return this.tagItems.slice(this.visibleTags.length);
     },
     tagSummaryTitle() {
       return this.tagItems.map(tag => tag.title).join(' / ');

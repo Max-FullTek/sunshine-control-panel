@@ -11,7 +11,7 @@
               <button v-if="searchQuery" type="button" class="btn-clear-search" :aria-label="$t('apps.clear_search')" @click="clearSearch"><i class="fas fa-times" aria-hidden="true"></i></button>
             </div>
           </div>
-          <button class="btn btn-primary" type="button" :disabled="isSaving" @click="newApp">{{ $t('apps.add_new') }}</button>
+          <button class="btn btn-primary" type="button" :disabled="isSaving" @click="editorFocusTarget = ''; newApp()">{{ $t('apps.add_new') }}</button>
         </template>
       </PageHeader>
       <section class="apps-guide mb-4">
@@ -21,19 +21,19 @@
         <draggable v-if="!searchQuery" v-model="apps" :item-key="getAppRenderKey" class="apps-grid" handle=".drag-handle" :disabled="isSaving" :delay="180" :delay-on-touch-only="true" :touch-start-threshold="8" :fallback-tolerance="8" ghost-class="app-card-ghost" @start="onDragStart" @end="onDragEnd">
           <template #item="{ element: app, index }">
             <div class="app-card-wrapper">
-              <AppCard :app="app" :disabled="isSaving" :is-dragging="isDragging" @edit="editApp(index)" @delete="showDeleteForm(index)" />
+              <AppCard :app="app" :disabled="isSaving" :is-dragging="isDragging" @edit="openEditor(index, $event)" @delete="showDeleteForm(index)" />
             </div>
           </template>
         </draggable>
         <div v-else class="apps-grid">
           <div v-for="{ app, index } in filteredAppsWithIndex" :key="getAppRenderKey(app)" class="app-card-wrapper">
-            <AppCard :app="app" :disabled="isSaving" :draggable="false" @edit="editApp(index)" @delete="showDeleteForm(index)" />
+            <AppCard :app="app" :disabled="isSaving" :draggable="false" @edit="openEditor(index, $event)" @delete="showDeleteForm(index)" />
           </div>
         </div>
         <div v-if="!filteredAppsWithIndex.length" class="empty-state" role="status"><p>{{ $t(searchQuery ? 'apps.scan_result_no_matches' : 'apps.no_apps') }}</p></div>
       </div>
       <div v-if="message" class="alert app-status mt-3" :class="messageClass" role="status">{{ message }}</div>
-      <AppEditor v-if="editingApp" :app="editingApp" :platform="platform" :disabled="isSaving" @save-app="handleSaveApp" @close="closeAppEditor" />
+      <AppEditor v-if="editingApp" :app="editingApp" :focus-target="editorFocusTarget" :platform="platform" :disabled="isSaving" @save-app="handleSaveApp" @close="closeAppEditor" />
       <ConfirmDialog :show="deleteConfirmIndex !== null" dialog-id="delete-app-confirm" :title="$t('_common.delete')" :close-label="$t('_common.cancel')" @close="cancelDeleteApp">
         <p>{{ apps[deleteConfirmIndex]?.name }}</p>
         <template #actions>
@@ -45,7 +45,7 @@
   </div>
 </template>
 <script setup>
-import { defineAsyncComponent, onMounted, watch } from 'vue'
+import { defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useI18n as useShellI18n } from '@/desktop/i18n/index.js'
 import Navbar from '../components/layout/Navbar.vue'
@@ -55,6 +55,11 @@ import { useApps } from '../composables/useApps.js'
 import AppCard from '../components/AppCard.vue'
 import draggable from 'vuedraggable-es'
 const AppEditor = defineAsyncComponent(() => import('../components/AppEditor.vue'))
+const editorFocusTarget = ref('')
+const openEditor = (index, target = '') => {
+  editorFocusTarget.value = target
+  editApp(index)
+}
 const { t } = useI18n()
 const { t: shellT } = useShellI18n()
 const { apps, filteredAppsWithIndex, getAppRenderKey, searchQuery, clearSearch, debouncedSearch, editingApp, platform, isSaving, isDragging, message, messageClass, init, loadApps, loadPlatform, newApp, editApp, closeAppEditor, handleSaveApp, showDeleteForm, deleteConfirmIndex, cancelDeleteApp, confirmDeleteApp, restoreDefaultApps, onDragStart, onDragEnd } = useApps()

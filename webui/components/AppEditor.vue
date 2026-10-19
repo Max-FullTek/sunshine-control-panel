@@ -21,7 +21,7 @@
                 icon="fa-info-circle"
                 :title="t('apps.basic_info')"
                 parent-id="appFormAccordion"
-                :show="true"
+                :show="!focusDestination"
               >
                 <FormField
                   id="appName"
@@ -154,7 +154,7 @@
                 </FormField>
               </AccordionItem>
 
-              <AccordionItem id="commands" icon="fa-terminal" :title="t('apps.command_settings')" parent-id="appFormAccordion">
+              <AccordionItem id="commands" icon="fa-terminal" :title="t('apps.command_settings')" parent-id="appFormAccordion" :show="focusDestination?.section === 'commands'">
                 <div class="form-group-enhanced">
                   <div class="form-check form-switch">
                     <input
@@ -186,9 +186,9 @@
                 </div>
 
                 <div class="form-group-enhanced">
-                  <label class="form-label-enhanced">{{ t('apps.menu_cmd_name') }}</label>
+                  <label class="form-label-enhanced" id="appMenuCommandsLabel">{{ t('apps.menu_cmd_name') }}</label>
                   <div class="field-hint mb-3">{{ t('apps.menu_cmd_desc') }}</div>
-                  <CommandTable
+                  <div id="appMenuCommands" role="group" aria-labelledby="appMenuCommandsLabel"><CommandTable
                     :commands="formData['menu-cmd']"
                     :platform="platform"
                     type="menu"
@@ -196,7 +196,7 @@
                     @remove-command="removeMenuCommand"
                     @test-command="testMenuCommand"
                     @order-changed="handleMenuCommandOrderChanged"
-                  />
+                  /></div>
                 </div>
 
                 <div class="form-group-enhanced">
@@ -274,7 +274,7 @@
                 </template>
               </AccordionItem>
 
-              <AccordionItem id="advanced" icon="fa-cogs" :title="t('apps.advanced_options')" parent-id="appFormAccordion">
+              <AccordionItem id="advanced" icon="fa-cogs" :title="t('apps.advanced_options')" parent-id="appFormAccordion" :show="focusDestination?.section === 'advanced'">
                 <CheckboxField
                   v-if="isWindows"
                   id="appElevation"
@@ -428,7 +428,21 @@ const props = defineProps({
   app: { type: Object, default: null },
   platform: { type: String, default: 'linux' },
   disabled: { type: Boolean, default: false },
+  focusTarget: { type: String, default: '' },
 })
+
+const focusDestination = computed(() => ({
+  'exclude-global-prep-cmd': { section: 'commands', selector: '#excludeGlobalPrepSwitch' },
+  'menu-cmd': { section: 'commands', selector: '#appMenuCommands input, #appMenuCommands button' },
+  elevated: { section: 'advanced', selector: '#appElevation' },
+  'auto-detach': { section: 'advanced', selector: '#autoDetach' },
+}[props.focusTarget]))
+const focusRequestedField = () => {
+  const field = focusDestination.value && modalElement.value?.querySelector(focusDestination.value.selector)
+  if (!field) return
+  field.scrollIntoView({ block: 'center' })
+  field.focus({ preventScroll: true })
+}
 
 const emit = defineEmits(['close', 'save-app'])
 
@@ -480,6 +494,7 @@ const initializeModal = () => {
       backdrop: 'static',
       keyboard: false,
     })
+    modalElement.value.addEventListener('shown.bs.modal', focusRequestedField)
     releaseModal = manageModalLifecycle(modalElement.value, modalInstance.value, () => {
       resetFileSelection()
       emit('close')
@@ -572,6 +587,7 @@ const closeModal = () => {
 }
 
 const cleanup = () => {
+  modalElement.value?.removeEventListener('shown.bs.modal', focusRequestedField)
   releaseModal?.()
   resetFileSelection()
 }

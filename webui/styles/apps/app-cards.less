@@ -184,8 +184,40 @@
 .app-card .drag-handle:active { cursor: grabbing; }
 .app-card .app-actions { display: flex; justify-content: space-between; position: absolute; bottom: 10px; left: 10px; right: 10px; pointer-events: none; }
 .app-card .app-actions > button { pointer-events: auto; }
-.app-card .app-tags { display: flex; position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); gap: 4px; }
+.app-card .app-tags { display: flex; justify-content: center; position: absolute; bottom: 16px; left: 10px; right: 10px; gap: 4px; pointer-events: none; }
+.app-tag-trigger { pointer-events: auto; }
 .app-card .app-status-bubble { width: 24px; height: 24px; font-size: 11px; }
+.app-card button.app-status-bubble { cursor: pointer; }
+.app-card .app-status-bubble:focus-visible { outline: 2px solid var(--ui-action-primary); outline-offset: 2px; }
+.app-card .app-status-bubble:disabled { opacity: .5; cursor: default; }
+.app-tag-details {
+  position: absolute; bottom: 100%; left: 0; right: 0;
+  padding-bottom: 10px;
+  color: var(--ui-text-primary);
+  font-size: 13px; line-height: 1.5; text-align: left;
+  opacity: 0; visibility: hidden; transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease, visibility .18s;
+  z-index: 2;
+}
+.app-tag-trigger:hover .app-tag-details, .app-tag-trigger:focus-within .app-tag-details {
+  opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto;
+}
+.app-tag-detail-content {
+  display: flex; flex-direction: column; gap: 4px; padding: 12px;
+  border: 1px solid var(--ui-border-strong); border-radius: var(--ui-radius-md);
+  background: var(--ui-dialog-bg); box-shadow: var(--ui-shadow-md);
+  white-space: normal; overflow-wrap: anywhere;
+}
+.app-tag-detail-content strong { font-weight: 600; }
+.app-tag-detail-content span { color: var(--ui-text-secondary); }
+.app-tag-detail-link {
+  display: flex; flex-direction: column; gap: 4px; padding: 6px;
+  background: none; border: 0; border-radius: var(--ui-radius-sm);
+  color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.app-tag-detail-link:hover, .app-tag-detail-link:focus-visible { background: var(--ui-accent-soft); }
+@media (prefers-reduced-motion: reduce) { .app-tag-details { transition: none; transform: none; } }
 .app-card .tag-elevated { color: var(--ui-warning-text); }
 .app-card .tag-detach { color: var(--ui-info-text); }
 .app-card .tag-exclude-global-prep-cmd { color: var(--ui-danger-text); }
