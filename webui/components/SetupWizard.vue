@@ -870,9 +870,9 @@ export default {
 }
 
 .step.completed .step-number {
-  background: var(--ui-success);
-  color: white;
-  border-color: var(--ui-success);
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent-text);
+  border-color: color-mix(in srgb, var(--ui-accent) 45%, var(--ui-border));
 }
 
 .step-connector {
