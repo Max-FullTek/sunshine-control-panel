@@ -1,23 +1,22 @@
 <template>
-  <article class="app-card" :class="{ 'app-card-dragging': isDragging }">
+  <article class="app-card" :class="{ 'app-card-can-drag': draggable && !disabled }">
     <div class="app-card-inner">
       <div class="app-cover">
         <img v-if="app['image-path'] && !imageFailed" :src="getImageUrl()" alt=""
           class="app-cover-image" loading="lazy" decoding="async" draggable="false" @error="handleImageError" />
         <div v-else class="app-cover-placeholder" aria-hidden="true"><i class="fas fa-desktop"></i></div>
         <div v-if="hasTags" class="app-tags">
-          <div v-for="tag in visibleTags" :key="tag.key" class="app-tag-trigger">
+          <div v-for="(tag, index) in visibleTags" :key="tag.key" class="app-tag-trigger" :style="badgeOrigin(index)">
             <button type="button" class="app-status-bubble" :class="tag.className" :disabled="disabled"
               :aria-label="`${tag.label}: ${tag.title}`" @click="$emit('edit', tag.key)">
-              <span v-if="tag.count">{{ tag.count }}</span>
-              <i v-else class="fas" :class="tag.icon" aria-hidden="true"></i>
-              <span class="app-tag-details" aria-hidden="true"><span class="app-tag-detail-content"><strong>{{ tag.label }}</strong><span>{{ tag.title }}</span></span></span>
+              <span class="app-tag-glyph" aria-hidden="true"><span v-if="tag.count">{{ tag.count }}</span><i v-else class="fas" :class="tag.icon"></i></span>
+              <span class="app-tag-details" aria-hidden="true"><span class="app-tag-detail-content"><span class="app-tag-detail-heading"><span class="app-tag-detail-icon"><span v-if="tag.count">{{ tag.count }}</span><i v-else class="fas" :class="tag.icon"></i></span><strong>{{ tag.label }}</strong></span><span class="app-tag-description">{{ tag.title }}</span></span></span>
             </button>
           </div>
-          <div v-if="hiddenTagCount > 0" class="app-tag-trigger">
-            <button type="button" class="app-status-bubble tag-more" :disabled="disabled" :aria-label="tagSummaryTitle">+{{ hiddenTagCount }}</button>
+          <div v-if="hiddenTagCount > 0" class="app-tag-trigger" :style="badgeOrigin(visibleTags.length)">
+            <button type="button" class="app-status-bubble tag-more" :disabled="disabled" :aria-label="tagSummaryTitle"><span class="app-tag-glyph">+{{ hiddenTagCount }}</span></button>
             <div class="app-tag-details"><div class="app-tag-detail-content">
-              <button v-for="tag in hiddenTags" :key="tag.key" type="button" class="app-tag-detail-link" :disabled="disabled" @click="$emit('edit', tag.key)"><strong>{{ tag.label }}</strong><span>{{ tag.title }}</span></button>
+              <button v-for="tag in hiddenTags" :key="tag.key" type="button" class="app-tag-detail-link" :disabled="disabled" @click="$emit('edit', tag.key)"><span class="app-tag-detail-heading"><span class="app-tag-detail-icon" aria-hidden="true"><span v-if="tag.count">{{ tag.count }}</span><i v-else class="fas" :class="tag.icon"></i></span><strong>{{ tag.label }}</strong></span><span class="app-tag-description">{{ tag.title }}</span></button>
             </div></div>
           </div>
         </div>
@@ -26,9 +25,6 @@
             :title="$t('apps.edit')" @click="$emit('edit')"><i class="fas fa-edit" aria-hidden="true"></i></button>
           <button class="app-bubble btn-delete" type="button" :disabled="disabled" :aria-label="`${$t('_common.delete')}: ${app.name}`"
             :title="$t('apps.delete')" @click="$emit('delete')"><i class="fas fa-trash" aria-hidden="true"></i></button>
-        </div>
-        <div v-if="draggable" class="app-bubble drag-handle" role="img" :aria-label="$t('apps.menu_cmd_drag_sort')" :title="$t('apps.menu_cmd_drag_sort')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
         </div>
       </div>
       <h3 class="app-name" :title="app.name">{{ app.name }}</h3>
@@ -43,7 +39,6 @@ export default {
     disabled: { type: Boolean, default: false },
     app: { type: Object, required: true },
     draggable: { type: Boolean, default: true },
-    isDragging: { type: Boolean, default: false },
   },
   emits: ['edit', 'delete'],
   data() { return { imageFailed: false } },
@@ -111,6 +106,10 @@ export default {
     }
   },
   methods: {
+    badgeOrigin(index) {
+      const count = this.visibleTags.length + (this.hiddenTagCount > 0 ? 1 : 0)
+      return { '--badge-x': `calc(50% + ${(index - (count - 1) / 2) * 28}px)` }
+    },
     handleImageError() { this.imageFailed = true },
     getImageUrl() { return getImagePreviewUrl(this.app['image-path']) },
   },

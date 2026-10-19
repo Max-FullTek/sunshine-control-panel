@@ -18,10 +18,10 @@
         <p>{{ shellT.appsGuide.body }} {{ shellT.appsGuide.restorePrefix }} <button class="restore-inline" type="button" :disabled="isSaving" @click="restoreDefaultApps">{{ shellT.appsGuide.restoreLabel }}</button> {{ shellT.appsGuide.restoreSuffix }}</p>
       </section>
       <div class="apps-grid-container">
-        <draggable v-if="!searchQuery" v-model="apps" :item-key="getAppRenderKey" class="apps-grid" handle=".drag-handle" :disabled="isSaving" :delay="180" :delay-on-touch-only="true" :touch-start-threshold="8" :fallback-tolerance="8" ghost-class="app-card-ghost" @start="onDragStart" @end="onDragEnd">
+        <draggable v-if="!searchQuery" v-model="apps" :item-key="getAppRenderKey" class="apps-grid" :class="{ 'is-sorting': isDragging }" filter="button, input, a, .app-tag-details" :prevent-on-filter="false" :disabled="isSaving" :delay="220" :touch-start-threshold="8" :fallback-tolerance="6" :force-fallback="true" :fallback-on-body="true" ghost-class="app-card-ghost" chosen-class="app-card-chosen" drag-class="app-card-drag" @start="onDragStart" @end="onDragEnd">
           <template #item="{ element: app, index }">
             <div class="app-card-wrapper">
-              <AppCard :app="app" :disabled="isSaving" :is-dragging="isDragging" @edit="openEditor(index, $event)" @delete="showDeleteForm(index)" />
+              <AppCard :app="app" :disabled="isSaving" @edit="openEditor(index, $event)" @delete="showDeleteForm(index)" />
             </div>
           </template>
         </draggable>

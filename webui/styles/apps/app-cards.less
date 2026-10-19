@@ -122,6 +122,8 @@
   touch-action: pan-y;
 }
 .app-card-inner { width: 100%; min-width: 0; }
+.app-card-can-drag { cursor: grab; user-select: none; }
+.app-card-can-drag:active { cursor: grabbing; }
 .app-cover {
   position: relative;
   aspect-ratio: 3 / 4;
@@ -173,16 +175,17 @@
   aspect-ratio: 1;
   font-size: 14px;
   cursor: pointer;
-  transition: background .15s ease, color .15s ease;
+  background: var(--ui-dialog-bg);
+  opacity: .2;
+  transition: opacity .18s ease, background .15s ease, color .15s ease;
 }
-.app-card .app-bubble:hover { background: var(--ui-action-primary); color: var(--ui-action-contrast); }
+.app-card:hover .app-bubble, .app-card:focus-within .app-bubble { opacity: .5; }
+.app-card .app-bubble:hover, .app-card .app-bubble:focus-visible { opacity: 1; background: var(--ui-action-primary); color: var(--ui-action-contrast); }
 .app-card .app-bubble:focus-visible { outline: 2px solid var(--ui-action-primary); outline-offset: 2px; }
-.app-card .app-bubble:disabled { opacity: .5; cursor: default; }
+.app-card .app-bubble:disabled { opacity: .2; cursor: default; }
 .app-card .btn-delete { color: var(--ui-danger-text); }
 .app-card .btn-delete:hover { background: var(--ui-action-danger); color: #fff; }
-.app-card .drag-handle { position: absolute; top: 10px; right: 10px; cursor: grab; touch-action: none; }
-.app-card .drag-handle:active { cursor: grabbing; }
-.app-card .app-actions { display: flex; justify-content: space-between; position: absolute; bottom: 10px; left: 10px; right: 10px; pointer-events: none; }
+.app-card .app-actions { display: flex; flex-direction: column; position: absolute; top: 10px; right: 10px; gap: 8px; pointer-events: none; }
 .app-card .app-actions > button { pointer-events: auto; }
 .app-card .app-tags { display: flex; justify-content: center; position: absolute; bottom: 16px; left: 10px; right: 10px; gap: 4px; pointer-events: none; }
 .app-tag-trigger { pointer-events: auto; }
@@ -191,33 +194,44 @@
 .app-card .app-status-bubble:focus-visible { outline: 2px solid var(--ui-action-primary); outline-offset: 2px; }
 .app-card .app-status-bubble:disabled { opacity: .5; cursor: default; }
 .app-tag-details {
-  position: absolute; bottom: 100%; left: 0; right: 0;
-  padding-bottom: 10px;
+  position: absolute; bottom: 0; left: 0; right: 0;
   color: var(--ui-text-primary);
   font-size: 13px; line-height: 1.5; text-align: left;
-  opacity: 0; visibility: hidden; transform: translateY(-10px);
+  opacity: 0; visibility: hidden; transform: scale(.12);
+  transform-origin: var(--badge-x, 50%) calc(100% - 12px);
   pointer-events: none;
-  transition: opacity .18s ease, transform .18s ease, visibility .18s;
+  transition: opacity .22s ease, transform .28s cubic-bezier(.2,.8,.2,1), visibility .28s;
   z-index: 2;
 }
 .app-tag-trigger:hover .app-tag-details, .app-tag-trigger:focus-within .app-tag-details {
-  opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto;
+  opacity: 1; visibility: visible; transform: scale(1); pointer-events: auto;
 }
+.app-tag-glyph { transition: opacity .16s ease; }
+.app-tag-trigger:hover .app-tag-glyph, .app-tag-trigger:focus-within .app-tag-glyph { opacity: 0; }
 .app-tag-detail-content {
-  display: flex; flex-direction: column; gap: 4px; padding: 12px;
+  display: flex; flex-direction: column; gap: 8px; padding: 12px;
   border: 1px solid var(--ui-border-strong); border-radius: var(--ui-radius-md);
   background: var(--ui-dialog-bg); box-shadow: var(--ui-shadow-md);
   white-space: normal; overflow-wrap: anywhere;
 }
 .app-tag-detail-content strong { font-weight: 600; }
-.app-tag-detail-content span { color: var(--ui-text-secondary); }
+.app-tag-detail-heading { display: flex; align-items: center; gap: 8px; color: var(--ui-text-primary); }
+.app-tag-detail-icon {
+  display: inline-flex; align-items: center; justify-content: center; flex: 0 0 24px;
+  width: 24px; height: 24px; color: var(--ui-accent-text);
+  transform: scale(3); transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.app-tag-trigger:hover .app-tag-detail-icon, .app-tag-trigger:focus-within .app-tag-detail-icon { transform: scale(1); }
+.app-tag-description { color: var(--ui-text-secondary); }
+.app-card .tag-elevated .app-tag-detail-icon { color: var(--ui-warning-text); }
+.app-card .tag-detach .app-tag-detail-icon { color: var(--ui-info-text); }
+.app-card .tag-exclude-global-prep-cmd .app-tag-detail-icon { color: var(--ui-danger-text); }
 .app-tag-detail-link {
   display: flex; flex-direction: column; gap: 4px; padding: 6px;
   background: none; border: 0; border-radius: var(--ui-radius-sm);
   color: inherit; font: inherit; text-align: left; cursor: pointer;
 }
 .app-tag-detail-link:hover, .app-tag-detail-link:focus-visible { background: var(--ui-accent-soft); }
-@media (prefers-reduced-motion: reduce) { .app-tag-details { transition: none; transform: none; } }
 .app-card .tag-elevated { color: var(--ui-warning-text); }
 .app-card .tag-detach { color: var(--ui-info-text); }
 .app-card .tag-exclude-global-prep-cmd { color: var(--ui-danger-text); }
@@ -226,30 +240,42 @@
   .app-card .app-tags { bottom: 20px; }
 }
 @media (hover: none) {
-  .app-card .app-bubble, .app-card .app-status-bubble { background: var(--ui-dialog-bg); }
+  .app-card .app-bubble { opacity: .5; }
+  .app-card .app-bubble:focus-visible { opacity: 1; }
+  .app-card .app-status-bubble { background: var(--ui-dialog-bg); }
 }
 
 // ============================================================================
 // DRAG STATES
 // ============================================================================
 
-.app-card-dragging {
-  opacity: 0.8;
-  transform: scale(0.98);
-}
 .app-card-ghost {
-  opacity: 0.3;
-  transform: scale(0.95);
-  background: rgba(255, 255, 255, 0.05) !important;
+  opacity: .18;
 }
-.app-card-chosen {
-  transform: scale(1.02);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3) !important;
+.apps-grid .app-card-chosen, .app-card-drag {
+  content-visibility: visible;
   z-index: 1000;
 }
-.app-card-drag {
-  transform: rotate(5deg) scale(1.05);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
+.apps-grid .app-card-chosen .app-card, .app-card-drag .app-card {
+  cursor: grabbing;
+  animation: app-card-lift .18s ease-out both, app-card-sway .7s ease-in-out .18s infinite;
+}
+.app-card-chosen .app-cover, .app-card-drag .app-cover { box-shadow: 0 18px 30px #0004; }
+.apps-grid .app-card-ghost .app-card { animation: none; transform: none; }
+.is-sorting .app-tag-details, .app-card-chosen .app-tag-details, .app-card-drag .app-tag-details { visibility: hidden; opacity: 0; pointer-events: none; }
+@keyframes app-card-lift {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-8px) scale(1.04); }
+}
+@keyframes app-card-sway {
+  0%, 100% { transform: translateY(-8px) scale(1.04) rotate(-1.5deg); }
+  50% { transform: translateY(-8px) scale(1.04) rotate(1.5deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-tag-details, .app-tag-detail-icon, .app-tag-glyph { transition: none; }
+  .app-tag-details, .app-tag-detail-icon { transform: none; }
+  .apps-grid .app-card-chosen .app-card, .app-card-drag .app-card { animation: none; transform: translateY(-8px) scale(1.04); }
+  .apps-grid .app-card-ghost .app-card { transform: none; }
 }
 
 // ============================================================================
