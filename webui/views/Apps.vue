@@ -21,13 +21,13 @@
         <draggable v-if="!searchQuery" v-model="apps" :item-key="getAppRenderKey" class="apps-grid" handle=".drag-handle" :disabled="isSaving" :delay="180" :delay-on-touch-only="true" :touch-start-threshold="8" :fallback-tolerance="8" ghost-class="app-card-ghost" @start="onDragStart" @end="onDragEnd">
           <template #item="{ element: app, index }">
             <div class="app-card-wrapper">
-              <AppCard :app="app" :disabled="isSaving" :is-dragging="isDragging" @edit="editApp(index)" @delete="showDeleteForm(index)" @copy-success="handleCopySuccess" @copy-error="handleCopyError" />
+              <AppCard :app="app" :disabled="isSaving" :is-dragging="isDragging" @edit="editApp(index)" @delete="showDeleteForm(index)" />
             </div>
           </template>
         </draggable>
         <div v-else class="apps-grid">
           <div v-for="{ app, index } in filteredAppsWithIndex" :key="getAppRenderKey(app)" class="app-card-wrapper">
-            <AppCard :app="app" :disabled="isSaving" :draggable="false" :is-search-result="true" @edit="editApp(index)" @delete="showDeleteForm(index)" @copy-success="handleCopySuccess" @copy-error="handleCopyError" />
+            <AppCard :app="app" :disabled="isSaving" :draggable="false" @edit="editApp(index)" @delete="showDeleteForm(index)" />
           </div>
         </div>
         <div v-if="!filteredAppsWithIndex.length" class="empty-state" role="status"><p>{{ $t(searchQuery ? 'apps.scan_result_no_matches' : 'apps.no_apps') }}</p></div>
@@ -37,14 +37,9 @@
       <ConfirmDialog :show="deleteConfirmIndex !== null" dialog-id="delete-app-confirm" :title="$t('_common.delete')" :close-label="$t('_common.cancel')" @close="cancelDeleteApp">
         <p>{{ apps[deleteConfirmIndex]?.name }}</p>
         <template #actions>
-      <div class="search-container apps-heading-search">
-        <div class="search-box">
-          <i class="fas fa-search search-icon" aria-hidden="true"></i>
-          <input class="form-control search-input" v-model="searchQuery" :placeholder="$t('apps.search_placeholder')" :aria-label="$t('apps.search_placeholder')" />
-          <button v-if="searchQuery" type="button" class="btn-clear-search" :aria-label="$t('apps.clear_search')" @click="clearSearch"><i class="fas fa-times" aria-hidden="true"></i></button>
-        </div>
-      </div>
-<button class="btn btn-danger" @click="confirmDeleteApp">{{ $t('_common.delete') }}</button></template>
+          <button type="button" class="btn btn-secondary" @click="cancelDeleteApp">{{ $t('_common.cancel') }}</button>
+          <button type="button" class="btn btn-danger" @click="confirmDeleteApp">{{ $t('_common.delete') }}</button>
+        </template>
       </ConfirmDialog>
     </main>
   </div>
@@ -62,7 +57,7 @@ import draggable from 'vuedraggable-es'
 const AppEditor = defineAsyncComponent(() => import('../components/AppEditor.vue'))
 const { t } = useI18n()
 const { t: shellT } = useShellI18n()
-const { apps, filteredAppsWithIndex, getAppRenderKey, searchQuery, clearSearch, debouncedSearch, editingApp, platform, isSaving, isDragging, message, messageClass, init, loadApps, loadPlatform, newApp, editApp, closeAppEditor, handleSaveApp, showDeleteForm, deleteConfirmIndex, cancelDeleteApp, confirmDeleteApp, restoreDefaultApps, onDragStart, onDragEnd, handleCopySuccess, handleCopyError } = useApps()
+const { apps, filteredAppsWithIndex, getAppRenderKey, searchQuery, clearSearch, debouncedSearch, editingApp, platform, isSaving, isDragging, message, messageClass, init, loadApps, loadPlatform, newApp, editApp, closeAppEditor, handleSaveApp, showDeleteForm, deleteConfirmIndex, cancelDeleteApp, confirmDeleteApp, restoreDefaultApps, onDragStart, onDragEnd } = useApps()
 onMounted(async () => { init(t); await Promise.all([loadApps(), loadPlatform()]) })
 watch(searchQuery, () => debouncedSearch.value?.())
 </script>

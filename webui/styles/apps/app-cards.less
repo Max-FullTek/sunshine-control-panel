@@ -7,34 +7,12 @@
 
 .apps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 260px));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 196px), 224px));
   grid-auto-rows: 1fr;
   align-items: stretch;
   gap: 20px;
 
-  .drag-handle {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    color: var(--ui-text-muted);
-    cursor: grab;
-    font-size: var(--font-size-lg);
-    padding: 0;
-    border-radius: 10px;
-    touch-action: none;
-    .transition-default();
-    z-index: 10;
 
-    &:hover {
-      color: var(--ui-text-primary);
-      background: var(--ui-accent-soft);
-    }
-  }
 }
 
 .apps-list {
@@ -91,7 +69,7 @@
 }
 
 .apps-grid .app-card-wrapper {
-  contain-intrinsic-size: auto 340px;
+  contain-intrinsic-size: auto 210px;
   display: flex;
   min-width: 0;
   height: 100%;
@@ -138,238 +116,77 @@
 // ============================================================================
 
 .app-card {
-  background: var(--ui-surface);
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-lg);
-  overflow: hidden;
-  .glass-effect-light();
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
-  cursor: default;
+  width: 100%;
+  max-width: 224px;
   position: relative;
-  box-shadow: var(--ui-shadow-sm);
-  animation: fadeIn 0.5s ease;
   touch-action: pan-y;
-  display: flex;
-  width: 100%;
-  height: 340px;
-  min-height: 340px;
-  max-height: 340px;
-  max-width: 260px;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--ui-shadow-md);
-    background: var(--ui-surface-hover);
-    border-color: var(--ui-border-strong);
-  }
 }
-
-.app-card-inner {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  padding: 16px;
-  width: 100%;
-  height: 100%;
-}
-
-// Full-width cover; keep text and controls on a readable surface.
+.app-card-inner { width: 100%; min-width: 0; }
 .app-cover {
   position: relative;
-  flex: 0 0 148px;
-  height: 148px;
-  margin: -16px -16px 12px;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
+  border-radius: var(--ui-radius-lg);
+  border: 1px solid var(--ui-border);
   background: var(--ui-surface-strong);
-  border-bottom: 1px solid var(--ui-border);
+  box-shadow: var(--ui-shadow-sm);
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
-.app-cover-image { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
+.app-card:hover .app-cover { border-color: var(--ui-border-strong); box-shadow: var(--ui-shadow-md); }
+.app-cover-image { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .app-cover-placeholder {
   .flex-center();
   width: 100%; height: 100%;
   background: linear-gradient(135deg, var(--ui-accent-soft), var(--ui-surface-strong));
   color: var(--ui-accent-text);
-  font-size: 48px;
+  font-size: 44px;
 }
-.apps-grid .drag-handle {
-  background: var(--ui-dialog-bg);
-  color: var(--ui-text-secondary);
-  border: 1px solid var(--ui-border);
-}
-
-// App info
-.app-info {
-  text-align: center;
-  margin-bottom: 8px;
-  cursor: default;
-  position: relative;
-  padding: 4px;
-  border-radius: var(--border-radius-md);
-  .transition-default();
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
-
-  &.copy-success {
-    animation: copySuccess 0.4s ease;
-  }
-}
-
-.app-name {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
+.app-card .app-name {
+  margin: 10px 4px 0;
   color: var(--ui-text-primary);
-  margin-bottom: 8px;
-  .text-ellipsis();
-
-}
-
-.app-command {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.2rem;
-  text-align: left;
-  font-size: var(--font-size-xs);
-  color: var(--ui-text-secondary);
-  margin-bottom: 5px;
-  font-family: 'Courier New', monospace;
-  background: var(--ui-surface-strong);
-  border: 1px solid var(--ui-border);
-  padding: 5px 10px;
-  border-radius: var(--border-radius-sm);
-  max-width: 100%;
-  .text-ellipsis();
-  .transition-default();
-
-  &:hover {
-    background: var(--ui-surface-hover);
-    color: var(--ui-text-primary);
-    transform: translateY(-1px);
-  }
-}
-
-.app-command-copy {
-  width: fit-content;
-  max-width: 100%;
-  margin-inline: auto;
-  font: inherit;
-  cursor: copy;
-  appearance: none;
-}
-
-.app-command-text {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.app-command-copy-icon {
-  flex: 0 0 auto;
-  color: var(--ui-text-muted);
-  font-size: 0.78em;
-}
-
-// ============================================================================
-// APP TAGS
-// ============================================================================
-
-.app-tags {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  height: 28px;
-  overflow: hidden;
-  min-width: 0;
-}
-
-.app-tag {
-  background: var(--ui-surface-strong);
-  color: var(--ui-text-primary);
-  padding: 4px 8px;
-  border-radius: var(--border-radius-md);
-  font-size: var(--font-size-xs);
-  line-height: 1.2;
+  font-size: 16px;
+  line-height: 1.5;
   font-weight: 500;
-  max-width: 100%;
-  min-width: 0;
+  text-align: center;
   .text-ellipsis();
 }
-
-.tag-more {
-  flex: 0 0 auto;
-  background: var(--ui-accent-soft);
-  color: var(--ui-accent-text);
-}
-
-// Tag variants
-.tag-exclude-global-prep-cmd {
-  background: var(--ui-danger-soft);
-  border: 1px solid var(--ui-danger-border);
-  color: var(--ui-danger-text);
-}
-.tag-menu {
-  background: var(--ui-accent-soft);
-  border: 1px solid var(--ui-border-strong);
-  color: var(--ui-accent-text);
-}
-.tag-elevated {
-  background: var(--ui-warning-soft);
-  border: 1px solid var(--ui-warning-border);
-  color: var(--ui-warning-text);
-}
-.tag-detach {
-  background: var(--ui-info-soft);
-  border: 1px solid var(--ui-info-border);
-  color: var(--ui-info-text);
-}
-
-// ============================================================================
-// APP ACTIONS
-// ============================================================================
-
-.app-actions {
+.app-card .app-bubble, .app-card .app-status-bubble {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-top: auto;
-  flex-shrink: 0;
-  min-height: 44px;
-
-  .btn {
-    .btn-rounded(44px);
-    color: #fff;
-    font-size: var(--font-size-md);
-    backdrop-filter: blur(5px);
-  }
-}
-
-.btn-edit {
-  background: var(--ui-accent-soft);
+  padding: 0;
+  box-sizing: border-box;
   border: 1px solid var(--ui-border-strong);
-  color: var(--ui-accent-text) !important;
-
-  &:hover {
-    background: rgba(var(--ui-accent-rgb), 0.22);
-    transform: scale(1.08);
-  }
+  border-radius: 50%;
+  background: var(--ui-dialog-bg);
+  color: var(--ui-text-primary);
+  box-shadow: 0 2px 8px #0002;
+  flex: 0 0 auto;
+  font: inherit;
 }
-
-.btn-delete {
-  background: var(--ui-danger-soft);
-  border: 1px solid var(--ui-danger-border);
-  color: var(--ui-danger-text) !important;
-
-  &:hover {
-    background: rgba(var(--ui-danger-rgb), 0.22);
-    border-color: var(--ui-danger-border);
-    color: var(--ui-danger-text) !important;
-    transform: scale(1.08);
-  }
+.app-card .app-bubble {
+  width: 36px; min-width: 36px; max-width: 36px;
+  height: 36px; min-height: 36px; max-height: 36px;
+  aspect-ratio: 1;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.app-card .app-bubble:hover { background: var(--ui-action-primary); color: var(--ui-action-contrast); }
+.app-card .app-bubble:focus-visible { outline: 2px solid var(--ui-action-primary); outline-offset: 2px; }
+.app-card .app-bubble:disabled { opacity: .5; cursor: default; }
+.app-card .btn-delete { color: var(--ui-danger-text); }
+.app-card .btn-delete:hover { background: var(--ui-action-danger); color: #fff; }
+.app-card .drag-handle { position: absolute; top: 10px; right: 10px; cursor: grab; touch-action: none; }
+.app-card .drag-handle:active { cursor: grabbing; }
+.app-card .app-actions { display: flex; position: absolute; bottom: 10px; left: 10px; gap: 8px; }
+.app-card .app-tags { display: flex; position: absolute; top: 10px; left: 10px; gap: 6px; }
+.app-card .app-status-bubble { width: 28px; height: 28px; font-size: 11px; }
+.app-card .tag-elevated { color: var(--ui-warning-text); }
+.app-card .tag-detach { color: var(--ui-info-text); }
+.app-card .tag-exclude-global-prep-cmd { color: var(--ui-danger-text); }
+@media (pointer: coarse) {
+  .app-card .app-bubble { width: 44px; min-width: 44px; max-width: 44px; height: 44px; min-height: 44px; max-height: 44px; }
 }
 
 // ============================================================================

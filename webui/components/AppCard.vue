@@ -1,120 +1,45 @@
 <template>
-  <div class="app-card" :class="{ 'app-card-dragging': isDragging }">
+  <article class="app-card" :class="{ 'app-card-dragging': isDragging }">
     <div class="app-card-inner">
-      <!-- 应用图标 -->
       <div class="app-cover">
-        <img 
-          v-if="app['image-path'] && !imageFailed"
-          :src="getImageUrl()" 
-          :alt="app.name"
-          class="app-cover-image"
-          loading="lazy"
-          decoding="async"
-          @error="handleImageError"
-        >
-        <div v-else class="app-cover-placeholder">
-          <i class="fas fa-desktop"></i>
-        </div>
-      </div>
-      
-      <!-- 应用信息 -->
-      <div class="app-info" :title="app.cmd || undefined">
-        <h3 class="app-name">{{ app.name }}</h3>
-        <button
-          v-if="app.cmd"
-          type="button"
-          class="app-command app-command-copy"
-          :title="`${$t('_common.copy')}: ${app.name}`"
-          :aria-label="`${$t('_common.copy')}: ${app.name}`"
-          @click="copyToClipboard(app.cmd, app.name, $event)"
-        >
-          <i class="fas fa-terminal me-1"></i>
-          <span class="app-command-text">{{ truncateText(app.cmd, 50) }}</span>
-          <i class="fas fa-copy app-command-copy-icon" aria-hidden="true"></i>
-        </button>
+        <img v-if="app['image-path'] && !imageFailed" :src="getImageUrl()" alt=""
+          class="app-cover-image" loading="lazy" decoding="async" draggable="false" @error="handleImageError" />
+        <div v-else class="app-cover-placeholder" aria-hidden="true"><i class="fas fa-desktop"></i></div>
         <div v-if="hasTags" class="app-tags">
-          <span
-            v-for="tag in visibleTags"
-            :key="tag.key"
-            class="app-tag"
-            :class="tag.className"
-            :title="tag.title"
-          >
-            <span v-if="tag.count" class="badge rounded-pill bg-secondary me-1">{{ tag.count }}</span>
-            <i v-else class="fas me-1" :class="tag.icon"></i>{{ tag.label }}
+          <span v-for="tag in visibleTags" :key="tag.key" class="app-status-bubble" :class="tag.className"
+            role="img" :aria-label="tag.label" :title="`${tag.label}: ${tag.title}`">
+            <span v-if="tag.count">{{ tag.count }}</span>
+            <i v-else class="fas" :class="tag.icon" aria-hidden="true"></i>
           </span>
-          <span v-if="hiddenTagCount > 0" class="app-tag tag-more" :title="tagSummaryTitle">
-            +{{ hiddenTagCount }}
-          </span>
+          <span v-if="hiddenTagCount > 0" class="app-status-bubble tag-more" role="img" :aria-label="tagSummaryTitle" :title="tagSummaryTitle">+{{ hiddenTagCount }}</span>
+        </div>
+        <div class="app-actions">
+          <button class="app-bubble btn-edit" type="button" :disabled="disabled" :aria-label="`${$t('apps.edit')}: ${app.name}`"
+            :title="$t('apps.edit')" @click="$emit('edit')"><i class="fas fa-edit" aria-hidden="true"></i></button>
+          <button class="app-bubble btn-delete" type="button" :disabled="disabled" :aria-label="`${$t('_common.delete')}: ${app.name}`"
+            :title="$t('apps.delete')" @click="$emit('delete')"><i class="fas fa-trash" aria-hidden="true"></i></button>
+        </div>
+        <div v-if="draggable" class="app-bubble drag-handle" role="img" :aria-label="$t('apps.menu_cmd_drag_sort')" :title="$t('apps.menu_cmd_drag_sort')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
         </div>
       </div>
-      
-      <!-- 操作按钮 -->
-      <div class="app-actions">
-        <button 
-          class="btn btn-edit" 
-          type="button"
-          :disabled="disabled"
-          :aria-label="$t('apps.edit')"
-          @click="$emit('edit')"
-          :title="$t('apps.edit')"
-        >
-          <i class="fas fa-edit"></i>
-        </button>
-        <button 
-          class="btn btn-delete" 
-          type="button"
-          :disabled="disabled"
-          :aria-label="$t('_common.delete')"
-          @click="$emit('delete')"
-          :title="$t('apps.delete')"
-        >
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-      
-      <!-- 拖拽手柄 -->
-      <div v-if="draggable" class="drag-handle">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
-      </div>
-      
-      <!-- 搜索状态指示 -->
-      <div v-if="isSearchResult" class="search-indicator">
-        <i class="fas fa-search"></i>
-      </div>
+      <h3 class="app-name" :title="app.name">{{ app.name }}</h3>
     </div>
-  </div>
+  </article>
 </template>
-
 <script>
-import { getImagePreviewUrl } from '../utils/imageUtils.js';
-
+import { getImagePreviewUrl } from '../utils/imageUtils.js'
 export default {
   name: 'AppCard',
   props: {
     disabled: { type: Boolean, default: false },
-    app: {
-      type: Object,
-      required: true
-    },
-    draggable: {
-      type: Boolean,
-      default: true
-    },
-    isSearchResult: {
-      type: Boolean,
-      default: false
-    },
-    isDragging: {
-      type: Boolean,
-      default: false
-    }
+    app: { type: Object, required: true },
+    draggable: { type: Boolean, default: true },
+    isDragging: { type: Boolean, default: false },
   },
-  emits: ['edit', 'delete', 'copy-success', 'copy-error'],
-  data() { return { imageFailed: false }; },
-  watch: {
-    'app.image-path'() { this.imageFailed = false; }
-  },
+  emits: ['edit', 'delete'],
+  data() { return { imageFailed: false } },
+  watch: { 'app.image-path'() { this.imageFailed = false } },
   computed: {
     tagItems() {
       const tags = [];
@@ -175,85 +100,8 @@ export default {
     }
   },
   methods: {
-    /**
-     * 处理图像错误
-     */
-    handleImageError() { this.imageFailed = true; },
-    
-    /**
-     * 获取图片URL
-     */
-    getImageUrl() {
-      return getImagePreviewUrl(this.app['image-path']);
-    },
-    
-    /**
-     * 截断文本
-     */
-    truncateText(text, length) {
-      if (!text) return '';
-      if (text.length <= length) return text;
-      return text.substring(0, length) + '...';
-    },
-    
-    /**
-     * 复制到剪贴板
-     */
-    async copyToClipboard(text, appName, event) {
-      if (!text) {
-        this.$emit('copy-error', this.$t('apps.copy_no_command'));
-        return;
-      }
-      
-      const targetElement = event.currentTarget;
-      
-      try {
-        // 使用现代的 Clipboard API
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-          this.showCopySuccess(targetElement, appName);
-        } else {
-          // 回退方案：使用传统的 execCommand
-          const textArea = document.createElement('textarea');
-          textArea.value = text;
-          textArea.style.position = 'fixed';
-          textArea.style.left = '-999999px';
-          textArea.style.top = '-999999px';
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
-          
-          try {
-            document.execCommand('copy');
-            this.showCopySuccess(targetElement, appName);
-          } catch (err) {
-            console.error('复制失败:', err);
-            this.$emit('copy-error', this.$t('apps.copy_failed_manual'));
-          } finally {
-            document.body.removeChild(textArea);
-          }
-        }
-      } catch (err) {
-        console.error('复制到剪贴板失败:', err);
-        this.$emit('copy-error', this.$t('apps.copy_failed_permissions'));
-      }
-    },
-    
-    /**
-     * 显示复制成功动画和消息
-     */
-    showCopySuccess(element, appName) {
-      // 添加动画类
-      element.classList.add('copy-success');
-      
-      // 发出成功事件
-      this.$emit('copy-success', this.$t('apps.copy_command_success', { name: appName }));
-      
-      // 400ms后移除动画类
-      setTimeout(() => {
-        element.classList.remove('copy-success');
-      }, 400);
-    },
-  }
+    handleImageError() { this.imageFailed = true },
+    getImageUrl() { return getImagePreviewUrl(this.app['image-path']) },
+  },
 }
 </script>
