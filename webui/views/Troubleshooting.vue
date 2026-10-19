@@ -325,10 +325,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .troubleshooting-page {
-  min-height: 100vh;
+  min-height: 100%;
   padding-bottom: var(--spacing-xl);
   color: var(--ui-text-primary);
-  background: linear-gradient(180deg, rgba(var(--ui-accent-rgb), 0.06), transparent 28rem);
 }
 
 .btn {

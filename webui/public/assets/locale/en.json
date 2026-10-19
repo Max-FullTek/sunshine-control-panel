@@ -1311,7 +1311,7 @@
     "match_exact": "Exact",
     "match_regex": "Regex",
     "reopen_setup_wizard": "Reopen Setup Wizard",
-    "reopen_setup_wizard_desc": "Reopen the setup wizard page to reconfigure initial settings.",
+    "reopen_setup_wizard_desc": "Open the setup wizard dialog to adjust basic streaming settings.",
     "reopen_setup_wizard_error": "Failed to reopen setup wizard",
     "reset_display_device_desc_windows": "If Sunshine is stuck trying to restore the changed display device settings, you can reset the settings and proceed to restore the display state manually.\nThis could happen for various reasons: device is no longer available, has been plugged to a different port and so on.",
     "reset_display_device_error_windows": "Error while resetting persistence!",

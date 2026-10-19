@@ -71,7 +71,7 @@ defineProps({
 
 .setting-desc {
   font-size: 14px;
-  color: rgba(var(--fd-text-primary-rgb, 255, 255, 255), 0.5);
+  color: var(--ui-text-secondary);
   line-height: 1.45;
 }
 .setting-info { min-width:0; flex:1; }
