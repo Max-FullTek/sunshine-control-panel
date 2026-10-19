@@ -55,7 +55,7 @@ pub(super) fn apply_disconnected_tray_icon<R: Runtime>(app: &AppHandle<R>) {
     let Some(tray) = app.tray_by_id(TRAY_ID) else {
         return;
     };
-    let file_name = "sunshine.ico";
+    let file_name = "sunshine-offline.ico";
     let icon_path = core_tray_icon_path(file_name);
     match load_disconnected_icon(&icon_path, file_name) {
         Ok(mut image) => {
@@ -117,6 +117,7 @@ fn bundled_tray_icon_bytes(file_name: &str) -> &'static [u8] {
         "sunshine-playing.ico" => include_bytes!("../../icons/tray/sunshine-playing.ico"),
         "sunshine-pausing.ico" => include_bytes!("../../icons/tray/sunshine-pausing.ico"),
         "sunshine-locked.ico" => include_bytes!("../../icons/tray/sunshine-locked.ico"),
+        "sunshine-offline.ico" => include_bytes!("../../icons/tray/sunshine-offline.ico"),
         _ => include_bytes!("../../icons/tray/sunshine.ico"),
     }
 }

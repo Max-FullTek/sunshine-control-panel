@@ -69,6 +69,7 @@
     </template>
     <template v-else>
       <article class="about-introduction settings-card">
+        <img :src="sunshineLiteLogo" class="about-brand" alt="Sunshine Lite" />
         <h2>{{ t.aboutLite.introTitle }}</h2>
         <section v-for="section in t.aboutLite.introSections" :key="section.title">
           <h3>{{ section.title }}</h3>
@@ -110,6 +111,7 @@
 </template>
 <script setup>
 import PageHeading from './PageHeading.vue'
+import sunshineLiteLogo from '../../assets/sunshine-lite-logo.png?url'
 import DesktopOnly from './DesktopOnly.vue'
 import { Setting, QuestionFilled } from '@element-plus/icons-vue'
 import { computed } from 'vue'
@@ -137,6 +139,14 @@ const heading = computed(() => {
 })
 </script>
 <style scoped lang="less">
+.about-brand {
+  display: block;
+  width: min(100%, 360px);
+  height: auto;
+  margin-bottom: 24px;
+  border-radius: 16px;
+  background: #fffbf8;
+}
 .panel-page {
   --panel-surface: var(--fd-bg-secondary);
   --panel-text: var(--fd-text-primary);

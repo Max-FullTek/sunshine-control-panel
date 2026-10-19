@@ -16,7 +16,7 @@ static LAST_SHOWN_NOTIFICATION: Mutex<Option<(String, u64)>> = Mutex::new(None);
 #[cfg(target_os = "windows")]
 const WINDOWS_NOTIFICATION_ICON_BYTES: &[u8] = include_bytes!("../../icons/tray/sunshine.ico");
 #[cfg(target_os = "windows")]
-const WINDOWS_NOTIFICATION_ICON_FILE: &str = "notification-icon-v2.ico";
+const WINDOWS_NOTIFICATION_ICON_FILE: &str = "notification-icon-e1.ico";
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 enum ConnectionChange {
