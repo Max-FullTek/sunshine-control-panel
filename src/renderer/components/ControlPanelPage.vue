@@ -77,7 +77,7 @@
             <a class="about-repository" :href="liteRepositoryUrl" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(liteRepositoryUrl)">{{ t.aboutLite.forkLink }} <span aria-hidden="true">↗</span></a>
             <span class="about-version">{{ displayVersion }}</span>
           </div>
-          <div class="about-art"><img :src="sunshineLiteLogo" class="about-brand" alt="Sunshine Lite" /></div>
+          <div class="about-art"><img :src="themeMode === 'dark' ? sunshineLiteLogoDark : sunshineLiteLogo" class="about-brand" alt="Sunshine Lite" /></div>
         </article>
         <div class="about-principles">
           <section v-for="(section, index) in t.aboutLite.introSections.slice(1)" :key="section.title" class="about-principle">
@@ -97,9 +97,9 @@
           <p class="about-support-note"><strong>{{ t.aboutLite.supportTitle }}</strong> {{ t.aboutLite.supportBody }}</p>
         </section>
         <div class="about-footer-grid">
-          <section class="about-footer-card settings-card">
-            <h2>{{ t.aboutLite.forkTitle }}</h2><p>{{ t.aboutLite.forkBody }}</p>
-            <a :href="liteRepositoryUrl" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(liteRepositoryUrl)">{{ t.aboutLite.forkLink }} ↗</a>
+          <section v-for="project in driverProjects" :key="project.id" class="about-footer-card settings-card">
+            <h2>{{ t.aboutLite.driverProjects[project.id].title }}</h2><p>{{ t.aboutLite.driverProjects[project.id].body }}</p>
+            <a :href="project.url" target="_blank" rel="noopener noreferrer" @click.prevent="actions.openUrl(project.url)">{{ t.sidebar.visit }} GitHub ↗</a>
           </section>
           <section class="about-footer-card settings-card">
             <h2>{{ t.sidebar.diagnostics }}</h2><p>{{ t.sidebar.diagnosticsDescription }}</p>
@@ -114,12 +114,13 @@
 <script setup>
 import PageHeading from './PageHeading.vue'
 import sunshineLiteLogo from '../../assets/sunshine-lite-logo.png?url'
+import sunshineLiteLogoDark from '../../assets/sunshine-lite-logo-dark.png?url'
 import DesktopOnly from './DesktopOnly.vue'
 import { Setting, QuestionFilled } from '@element-plus/icons-vue'
 import { computed } from 'vue'
 import DesktopPreferences from '../desktop/views/SettingsView.vue'
 import { useI18n } from '../desktop/i18n/index.js'
-import { referenceLinks, liteRepositoryUrl } from '../shared/referenceLinks.js'
+import { referenceLinks, liteRepositoryUrl, driverProjects } from '../shared/referenceLinks.js'
 import { isNativeUiPreview } from '../shared/preview.js'
 import { ROUTES } from '../composables/useRouter.js'
 const props = defineProps({
@@ -291,7 +292,7 @@ const heading = computed(() => {
 .about-repository { display:inline-flex; align-items:center; gap:14px; background:var(--ui-action-primary, var(--panel-accent)); color:var(--ui-action-contrast, #fff); border-radius:9px; padding:11px 16px; margin-top:24px; font-size:13px; font-weight:500; }
 .about-repository:hover { filter:brightness(1.1); }
 .about-version { display:block; color:var(--panel-muted); font-size:11px; margin-top:12px; }
-.about-art { display:flex; align-items:center; justify-content:center; background:#fffbf8; padding:20px; border-left:1px solid var(--panel-border); }
+.about-art { display:flex; align-items:center; justify-content:center; padding:20px; }
 .about-principles { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:28px; }
 .about-principle { display:flex; gap:16px; padding:4px 0; }
 .about-number { font-size:13px; color:var(--panel-accent); padding-top:3px; font-variant-numeric:tabular-nums; }
@@ -305,7 +306,8 @@ const heading = computed(() => {
 .about-reference-action { grid-column:1 / -1; font-size:12px; color:var(--panel-accent); }
 .about-support-note { padding:14px 2px 0; font-size:12px !important; }
 .about-support-note strong { color:var(--panel-text); font-weight:500; margin-right:8px; }
-.about-footer-grid { display:grid; grid-template-columns:minmax(0, 1.4fr) minmax(0, 1fr); gap:12px; }
+.about-footer-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
+.about-footer-card:last-child { grid-column:1 / -1; }
 .about-footer-card.settings-card { padding:22px; }
 .about-footer-card p { font-size:13px; }
 .about-footer-card a { display:inline-block; color:var(--panel-accent); font-size:13px; margin-top:16px; }
@@ -319,7 +321,7 @@ const heading = computed(() => {
 }
 @media (max-width: 650px) {
   .about-hero.settings-card, .about-principles, .about-reference-grid, .about-footer-grid { grid-template-columns:minmax(0, 1fr); }
-  .about-art { grid-row:1; border-left:0; border-bottom:1px solid var(--panel-border); padding:12px; }
+  .about-art { grid-row:1; padding:12px; }
   .about-brand { max-width:270px; }
   .about-layout { gap:22px; }
   .about-principles { gap:20px; }

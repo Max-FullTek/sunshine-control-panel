@@ -55,8 +55,10 @@ export const zh_TW = {
   "supportTitle": "支持原作者",
   "supportBody": "喜歡這些開源成果，歡迎到原作者的 GitHub 專案按下 Star。這是表達支持與持續關注更新的簡單方式。",
   "starLink": "前往 GitHub · 給予 Star",
-  "forkTitle": "我們的輕量版",
-  "forkBody": "Lite 的修改、原始碼與問題回報；上游專案仍由各自作者獨立維護。",
+  "driverProjects": {
+    "vdd": { "title": "自建虛擬顯示器", "body": "我們維護的 VDD 原始碼、驅動建置與版本更新，可獨立於 Lite 安裝及升級。" },
+    "mouse": { "title": "自建虛擬滑鼠", "body": "我們維護的虛擬滑鼠原始碼、驅動建置與存取控制，可獨立於 Lite 安裝及升級。" }
+  },
   "forkLink": "查看 Foundation Sunshine Lite",
   "previewVersion": "介面預覽"
 },

@@ -5,3 +5,7 @@ export const referenceLinks = [
   { id: 'resources', name: 'awesome-sunshine — LizardByte', url: 'https://github.com/LizardByte/awesome-sunshine' },
 ]
 export const liteRepositoryUrl = 'https://github.com/Max-FullTek/foundation-sunshine'
+export const driverProjects = [
+  { id: 'vdd', url: 'https://github.com/Max-FullTek/zako-vdd' },
+  { id: 'mouse', url: 'https://github.com/Max-FullTek/foundation-virtual-mouse' },
+]

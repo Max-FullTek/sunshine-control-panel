@@ -55,8 +55,10 @@ export const en = {
   "supportTitle": "Support the original authors",
   "supportBody": "Visit the original GitHub projects and consider giving them a Star to show your support and follow their updates.",
   "starLink": "Visit GitHub · Give a Star",
-  "forkTitle": "Our lightweight version",
-  "forkBody": "Lite source, changes and issue reports. Each upstream project remains independently maintained by its authors.",
+  "driverProjects": {
+    "vdd": { "title": "Our virtual display driver", "body": "Our maintained VDD source, driver builds and releases. Install and update independently of Lite." },
+    "mouse": { "title": "Our virtual mouse driver", "body": "Our maintained virtual mouse source, driver builds and access controls. Install and update independently of Lite." }
+  },
   "forkLink": "View Foundation Sunshine Lite",
   "previewVersion": "UI preview"
 },

@@ -73,7 +73,7 @@ const DEFAULT_TABS = [
       output_name: '',
       hdr_luminance_analysis: 'auto',
       vdd_borrowed_texture: 'enabled',
-      vdd_vulkan_hdr_bridge: 'enabled',
+      vdd_vulkan_hdr_bridge: 'disabled',
       display_device_prep: 'no_operation',
       vdd_reuse: 'disabled',
       resolution_change: 'automatic',

@@ -55,8 +55,10 @@ export const zh = {
   "supportTitle": "支持原作者",
   "supportBody": "喜欢这些开源成果，欢迎到原作者的 GitHub 项目点亮 Star，表达支持并持续关注更新。",
   "starLink": "前往 GitHub · 给予 Star",
-  "forkTitle": "我们的轻量版",
-  "forkBody": "Lite 的修改、源码与问题反馈；上游项目仍由各自作者独立维护。",
+  "driverProjects": {
+    "vdd": { "title": "自建虚拟显示器", "body": "我们维护的 VDD 源码、驱动构建与版本更新，可独立于 Lite 安装及升级。" },
+    "mouse": { "title": "自建虚拟鼠标", "body": "我们维护的虚拟鼠标源码、驱动构建与访问控制，可独立于 Lite 安装及升级。" }
+  },
   "forkLink": "查看 Foundation Sunshine Lite",
   "previewVersion": "界面预览"
 },
