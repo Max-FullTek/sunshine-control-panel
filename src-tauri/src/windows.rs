@@ -552,15 +552,19 @@ pub fn open_about_window<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
     open_panel_page(app, "/config#help")
 }
 
-/// 打开日志控制台窗口（单例模式）
-pub fn open_log_console<R: Runtime>(app: &AppHandle<R>) {
+pub fn open_diagnostics<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
+    open_panel_page(app, "/troubleshooting#desktop-logs")
+}
+
+/// Offline desktop diagnostics, sharing the same log component as troubleshooting.
+pub fn open_log_console<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
     match get_or_create_window(app, LOG_CONSOLE_WINDOW_ID, |app| {
         tauri::WebviewWindowBuilder::new(
             app,
             LOG_CONSOLE_WINDOW_ID,
             tauri::WebviewUrl::App("console/index.html".into()),
         )
-        .title("日志控制台")
+        .title("Desktop diagnostics")
         .inner_size(1000.0, 700.0)
         .resizable(true)
         .maximizable(true)
@@ -573,9 +577,10 @@ pub fn open_log_console<R: Runtime>(app: &AppHandle<R>) {
             #[cfg(target_os = "windows")]
             configure_webview_security(&window);
             disable_context_menu(&window);
-            debug!("✅ 日志控制台窗口已打开");
+            debug!("Desktop diagnostics window opened");
+            Ok(())
         }
-        Err(e) => error!("❌ {}", e),
+        Err(e) => Err(e.to_string()),
     }
 }
 

@@ -12,6 +12,7 @@ mod device_config;
 #[cfg(target_os = "windows")]
 mod elevation;
 mod fs_utils;
+mod log_store;
 mod logger;
 mod power;
 mod proxy_server;
@@ -214,9 +215,8 @@ fn main() {
             fs_utils::cleanup_unused_covers,
             fs_utils::resolve_lnk_target,
             fs_utils::save_text_file,
-            logger::get_all_logs,
-            logger::clear_logs,
-            logger::export_logs,
+            logger::get_desktop_log_snapshot,
+            logger::get_desktop_log_archive,
             clipboard::clipboard_sync_status,
             windows::webview_heartbeat,
             windows::resize_about_window,

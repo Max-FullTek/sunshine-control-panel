@@ -113,3 +113,24 @@ test('a disposed screen aborts its probe and ignores late success', async t => {
   assert.equal(navigations, 0)
   assert.equal(host.root.dataset.found, 'false')
 })
+
+test('offline diagnostics opens only with native capability and reports failures without stopping recovery', async t => {
+  const host = connectionHost(t)
+  const button = host.root.querySelector('[data-diagnostics]')
+  let click
+  button.addEventListener = (type, listener) => { if (type === 'click') click = listener }
+  let screen = mountConnectionScreen(host, { locale: 'en', autoStart: false })
+  assert.equal(button.hidden, true)
+  screen.dispose()
+  let calls = 0
+  screen = mountConnectionScreen(host, {
+    locale: 'en', autoStart: false, openDiagnostics: async () => { calls++; throw Error('fixture') },
+  })
+  assert.equal(button.hidden, false)
+  await click()
+  assert.equal(calls, 1)
+  assert.equal(host.root.querySelector('[data-status]').textContent, connectionMessages.en.diagnosticsFailed)
+  screen.setState('ready')
+  assert.equal(button.hidden, true)
+  screen.dispose()
+})

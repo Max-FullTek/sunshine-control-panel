@@ -370,7 +370,7 @@ const ZH_STRINGS: TrayStrings = TrayStrings {
     reset_display_confirm: "这将重置已保存的显示设备状态。是否继续？",
     restart_user_mode: "以用户模式运行 Sunshine",
     prevent_sleep: "阻止系统休眠",
-    log_console: "日志控制台",
+    log_console: "故障排除",
     #[cfg(target_os = "windows")]
     auto_start: "开机运行",
     about: "关于 Sunshine",
@@ -428,7 +428,7 @@ const ZH_TW_STRINGS: TrayStrings = TrayStrings {
     reset_display_confirm: "這將重置已儲存的顯示裝置狀態。是否繼續？",
     restart_user_mode: "以使用者模式執行 Sunshine",
     prevent_sleep: "防止系統睡眠",
-    log_console: "記錄主控台",
+    log_console: "疑難排解",
     #[cfg(target_os = "windows")]
     auto_start: "開機啟動",
     about: "關於 Sunshine",
@@ -486,7 +486,7 @@ const EN_STRINGS: TrayStrings = TrayStrings {
     reset_display_confirm: "This resets persisted display-device state. Continue?",
     restart_user_mode: "Run Sunshine in User Mode",
     prevent_sleep: "Prevent System Sleep",
-    log_console: "Log Console",
+    log_console: "Troubleshooting",
     #[cfg(target_os = "windows")]
     auto_start: "Run at Startup",
     about: "About Sunshine",

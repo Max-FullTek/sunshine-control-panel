@@ -27,8 +27,11 @@ pub async fn open_tool_window(app: AppHandle, tool_name: String) -> Result<(), S
         "about" => {
             windows::open_about_window(&app)?;
         }
+        "diagnostics" => {
+            windows::open_diagnostics(&app)?;
+        }
         "logs" | "log_console" => {
-            windows::open_log_console(&app);
+            windows::open_log_console(&app)?;
         }
         _ => return Err(format!("Unknown tool name: {}", tool_name)),
     }

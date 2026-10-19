@@ -4,7 +4,12 @@
     <div class="container py-4">
       <PageHeader :title="shellT.sidebar.diagnostics" :description="shellT.sidebar.diagnosticsDescription" ><template #icon><IconTroubleshooting /></template></PageHeader>
 
-      <LogsSection
+      <div v-if="desktopAvailable" class="d-flex flex-wrap gap-2 mb-3" role="group" :aria-label="$t('troubleshooting.logs')">
+        <button type="button" class="btn" :class="logSource === 'host' ? 'btn-primary' : 'btn-outline-secondary'" :aria-pressed="logSource === 'host'" @click="logSource = 'host'">{{ logText.host }}</button>
+        <button type="button" class="btn" :class="logSource === 'desktop' ? 'btn-primary' : 'btn-outline-secondary'" :aria-pressed="logSource === 'desktop'" @click="logSource = 'desktop'">{{ logText.desktop }}</button>
+      </div>
+      <DesktopLogsPanel v-if="desktopAvailable && logSource === 'desktop'" />
+      <LogsSection v-else
         v-model:logFilter="logFilter"
         v-model:matchMode="matchMode"
         v-model:ignoreCase="ignoreCase"
@@ -201,7 +206,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, onBeforeUnmount, ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Navbar from '../components/layout/Navbar.vue'
 import PageHeader from '../components/common/PageHeader.vue'
@@ -213,7 +218,13 @@ import ConfirmDialog from '../components/common/ConfirmDialog.vue'
 import { useTroubleshooting } from '../composables/useTroubleshooting.js'
 import { useLogout } from '../composables/useLogout.js'
 
-const { t: shellT } = useShellI18n()
+import DesktopLogsPanel from '@/shared/DesktopLogsPanel.vue'
+import { desktopLogText, hasDesktopLogAccess } from '@/shared/desktop-logs.js'
+import { isNativeUiPreview } from '@/shared/preview.js'
+const { t: shellT, locale: shellLocale } = useShellI18n()
+const desktopAvailable = hasDesktopLogAccess() || isNativeUiPreview()
+const logSource = ref(desktopAvailable && location.hash === '#desktop-logs' ? 'desktop' : 'host')
+const logText = computed(() => desktopLogText[shellLocale.value] || desktopLogText.en)
 
 const { t } = useI18n()
 const { logout } = useLogout()
@@ -287,10 +298,25 @@ const handleCopyConfig = () => copyConfig(t)
 
 const handleReopenSetupWizard = () => reopenSetupWizard(t)
 
+let alive = true, ready = false
+const syncLogSource = () => { logSource.value = desktopAvailable && location.hash === '#desktop-logs' ? 'desktop' : 'host' }
 onMounted(async () => {
-  await Promise.all([loadPlatform(), refreshLogs()])
-  startLogRefresh()
+  window.addEventListener('hashchange', syncLogSource)
+  await Promise.all([loadPlatform(), logSource.value === 'host' ? refreshLogs() : Promise.resolve()])
+  if (!alive) return
+  ready = true
+  if (logSource.value === 'host') startLogRefresh()
 })
+watch(logSource, source => {
+  history.replaceState(history.state, '', location.pathname + location.search + (source === 'desktop' ? '#desktop-logs' : ''))
+  stopLogRefresh()
+  if (ready && source === 'host') { refreshLogs(); startLogRefresh() }
+})
+onBeforeUnmount(() => {
+  alive = false
+  window.removeEventListener('hashchange', syncLogSource)
+})
+
 </script>
 
 <style>

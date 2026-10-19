@@ -5,18 +5,21 @@ export const connectionMessages = {
     preparing: '正在準備控制面板', waiting: '正在連接 Sunshine', offline: '尚未連上 Sunshine', ready: '已找到 Sunshine', mismatch: '需要相容的 Sunshine 版本',
     preparingDescription: '正在準備本機連線，請稍候。', waitingDescription: '控制介面準備中，連線成功後會自動開啟。', offlineDescription: '仍會自動重試。請確認 Sunshine 是否正在執行。', readyDescription: '連線成功，即將開啟控制介面。', mismatchDescription: '控制面板與 Sunshine 版本不相容，請更新為相容的版本。',
     searching: '正在搜尋 Sunshine…', readyStatus: 'Sunshine 已就緒', mismatchStatus: '版本檢查未通過', retry: '重新偵測', help: '連線說明',
+    diagnostics: '桌面診斷', diagnosticsFailed: '無法開啟桌面診斷，請從系統匣重試。',
     helpText: '首次啟動或套用設定後，Sunshine 可能需要一點時間。若持續無法連線，請確認 Sunshine 是否正在執行。',
   },
   zh: {
     preparing: '正在准备控制面板', waiting: '正在连接 Sunshine', offline: '尚未连接 Sunshine', ready: '已找到 Sunshine', mismatch: '需要兼容的 Sunshine 版本',
     preparingDescription: '正在准备本机连接，请稍候。', waitingDescription: '控制界面准备中，连接成功后会自动打开。', offlineDescription: '仍会自动重试。请确认 Sunshine 是否正在运行。', readyDescription: '连接成功，即将打开控制界面。', mismatchDescription: '控制面板与 Sunshine 版本不兼容，请更新为兼容的版本。',
     searching: '正在搜索 Sunshine…', readyStatus: 'Sunshine 已就绪', mismatchStatus: '版本检查未通过', retry: '重新检测', help: '连接说明',
+    diagnostics: '桌面诊断', diagnosticsFailed: '无法打开桌面诊断，请从系统托盘重试。',
     helpText: '首次启动或应用设置后，Sunshine 可能需要一点时间。如果持续无法连接，请确认 Sunshine 是否正在运行。',
   },
   en: {
     preparing: 'Preparing the control panel', waiting: 'Connecting to Sunshine', offline: 'Sunshine is not connected yet', ready: 'Sunshine found', mismatch: 'A compatible Sunshine version is required',
     preparingDescription: 'Preparing the local connection. Please wait.', waitingDescription: 'The control interface will open automatically when ready.', offlineDescription: 'Retrying automatically. Check that Sunshine is running.', readyDescription: 'Connected. Opening the control interface…', mismatchDescription: 'The control panel and Sunshine versions are incompatible. Update to compatible versions.',
     searching: 'Searching for Sunshine…', readyStatus: 'Sunshine is ready', mismatchStatus: 'Version check failed', retry: 'Check again', help: 'Connection help',
+    diagnostics: 'Desktop diagnostics', diagnosticsFailed: 'Unable to open desktop diagnostics. Try again from the system tray.',
     helpText: 'Sunshine may take a moment after first launch or a settings change. If it stays disconnected, check that Sunshine is running.',
   },
 }
@@ -52,6 +55,9 @@ export function mountConnectionScreen(host, options = {}) {
   const name = root.querySelector('.ss-name')
   const ray = root.querySelector('.ss-ray')
   const retry = root.querySelector('[data-retry]')
+  const diagnostics = root.querySelector('[data-diagnostics]')
+  const openDiagnostics = options.openDiagnostics || (globalThis.window?.__TAURI_INTERNALS__
+    ? () => window.__TAURI_INTERNALS__.invoke('open_tool_window', { toolName: 'log_console' }) : null)
   let locale = options.locale || initialConnectionLocale()
   let phase = options.phase || 'waiting'
   let attempt = 0, timer, navigationTimer, controller, generation = 0, disposed = false
@@ -79,6 +85,7 @@ export function mountConnectionScreen(host, options = {}) {
     root.querySelector('details p').textContent = text.helpText
     retry.textContent = text.retry
     retry.hidden = phase === 'ready'
+    if (diagnostics) { diagnostics.textContent = text.diagnostics; diagnostics.hidden = !openDiagnostics || phase === 'ready' }
     radar.setAttribute('aria-label', phase === 'ready' ? text.readyStatus : text.searching)
   }
   function setState(value) {
@@ -132,6 +139,11 @@ export function mountConnectionScreen(host, options = {}) {
     setState(attempt >= 10 ? 'offline' : 'waiting')
     timer = setTimeout(() => check(), retryDelay(attempt++))
   }
+  const onDiagnostics = async () => {
+    try { await openDiagnostics?.() }
+    catch { if (!disposed) root.querySelector('[data-status]').textContent = connectionMessages[connectionLocale(locale)].diagnosticsFailed }
+  }
+  diagnostics?.addEventListener('click', onDiagnostics)
   const onRetry = () => check(true)
   const onStorage = () => { locale = options.locale || initialConnectionLocale(); applyTheme(); render() }
   retry.addEventListener('click', onRetry)
@@ -146,6 +158,7 @@ export function mountConnectionScreen(host, options = {}) {
     retry: onRetry,
     dispose() {
       disposed = true; generation++; controller?.abort(); clearTimeout(timer); clearTimeout(navigationTimer); cancelAnimationFrame(frameId)
+      diagnostics?.removeEventListener('click', onDiagnostics)
       retry.removeEventListener('click', onRetry); media.removeEventListener('change', applyTheme); window.removeEventListener('storage', onStorage)
     },
   }

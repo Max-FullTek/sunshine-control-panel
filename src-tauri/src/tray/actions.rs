@@ -44,7 +44,9 @@ pub fn handle_tray_menu_event<R: Runtime + 'static>(app: &AppHandle<R>, menu_id:
         ),
         #[cfg(target_os = "windows")]
         "restart_user_mode" => toggle_sunshine_mode(app),
-        "log_console" => windows::open_log_console(app),
+        "log_console" => {
+            let _ = windows::open_diagnostics(app);
+        }
         #[cfg(target_os = "windows")]
         "prevent_sleep" => toggle_prevent_sleep(app),
         "about" => {

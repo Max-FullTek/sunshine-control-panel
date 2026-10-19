@@ -1,11 +1,10 @@
+use crate::log_store::LogStore;
 use chrono::Local;
 use log::{Level, LevelFilter, Log, Metadata, Record};
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::PathBuf;
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::{Arc, Mutex};
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::AppHandle;
 
 /// In-memory log entry.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -22,32 +21,64 @@ pub struct LogEntry {
 pub struct LogCollector {
     logs: Arc<Mutex<Vec<LogEntry>>>,
     max_logs: usize,
-    app_handle: Arc<Mutex<Option<AppHandle>>>,
+    store: Option<LogStore>,
+    storage_error: Mutex<Option<String>>,
 }
 
 impl LogCollector {
     pub fn new(max_logs: usize) -> Self {
-        Self {
-            logs: Arc::new(Mutex::new(Vec::with_capacity(max_logs))),
-            max_logs,
-            app_handle: Arc::new(Mutex::new(None)),
-        }
+        let store = dirs::config_dir()
+            .ok_or_else(|| "Cannot resolve user config directory".to_string())
+            .and_then(|dir| {
+                LogStore::new(dir.join("Sunshine GUI").join("logs")).map_err(|e| e.to_string())
+            });
+        Self::with_store(max_logs, store)
     }
 
-    pub fn set_app_handle(&self, app: AppHandle) {
-        *self.app_handle.lock().unwrap() = Some(app);
+    fn with_store(max_logs: usize, store: Result<LogStore, String>) -> Self {
+        let (store, mut storage_error) = match store {
+            Ok(store) => (Some(store), None),
+            Err(error) => (None, Some(error)),
+        };
+        let mut restored = Vec::new();
+        if let Some(store) = &store {
+            match store.read() {
+                Ok(text) => {
+                    restored = text
+                        .lines()
+                        .filter_map(|line| serde_json::from_str::<LogEntry>(line).ok())
+                        .collect()
+                }
+                Err(error) => storage_error = Some(error.to_string()),
+            }
+        }
+        if restored.len() > max_logs {
+            restored.drain(..restored.len() - max_logs);
+        }
+        Self {
+            logs: Arc::new(Mutex::new(restored)),
+            max_logs,
+            store,
+            storage_error: Mutex::new(storage_error),
+        }
     }
 
     pub fn add_log(&self, record: &Record) {
         // Keep only the file name, not the full path.
-        let file = record.file().map(|f| {
-            f.split('/')
-                .last()
-                .or_else(|| f.split('\\').last())
-                .unwrap_or(f)
-                .to_string()
-        });
+        let file = record
+            .file()
+            .map(|f| f.rsplit(['/', '\\']).next().unwrap_or(f).to_string());
 
+        let mut message = format!("{}", record.args());
+        // Bound one record before serialization and memory retention.
+        if message.len() > 16 * 1024 {
+            let mut end = 16 * 1024;
+            while !message.is_char_boundary(end) {
+                end -= 1;
+            }
+            message.truncate(end);
+            message.push_str(" [truncated]");
+        }
         let entry = LogEntry {
             timestamp: Local::now().format("%Y-%m-%d %H:%M:%S%.3f").to_string(),
             level: match record.level() {
@@ -57,7 +88,7 @@ impl LogCollector {
                 Level::Debug => "debug".to_string(),
                 Level::Trace => "trace".to_string(),
             },
-            message: format!("{}", record.args()),
+            message,
             target: Some(record.target().to_string()),
             file,
             line: record.line(),
@@ -66,29 +97,18 @@ impl LogCollector {
         // Append and cap the in-memory log list.
         {
             let mut logs = self.logs.lock().unwrap();
-            logs.push(entry.clone());
+            if let Some(store) = &self.store {
+                let result = serde_json::to_string(&entry)
+                    .map_err(|e| e.to_string())
+                    .and_then(|line| store.append(&line).map_err(|e| e.to_string()));
+                *self.storage_error.lock().unwrap() = result.err();
+            }
+            logs.push(entry);
 
             if logs.len() > self.max_logs {
                 logs.remove(0);
             }
         }
-
-        // Stream new entries to the log console when it is open.
-        if let Ok(app_guard) = self.app_handle.lock() {
-            if let Some(app) = app_guard.as_ref() {
-                if let Some(window) = app.get_webview_window("log_console") {
-                    let _ = window.emit("log-entry", &entry);
-                }
-            }
-        }
-    }
-
-    pub fn get_logs(&self) -> Vec<LogEntry> {
-        self.logs.lock().unwrap().clone()
-    }
-
-    pub fn clear_logs(&self) {
-        self.logs.lock().unwrap().clear();
     }
 }
 
@@ -175,9 +195,8 @@ pub fn set_log_level(level: &str) {
 }
 
 /// Initialize logging.
-pub fn init_logger(app: AppHandle) {
+pub fn init_logger(_app: AppHandle) {
     let collector = Arc::new(LogCollector::new(10000));
-    collector.set_app_handle(app);
     let settings = crate::desktop_settings::load_desktop_settings_from_disk();
     set_log_level(&settings.log_level);
 
@@ -190,113 +209,96 @@ pub fn init_logger(app: AppHandle) {
         .expect("Failed to initialize logger");
 }
 
-/// Return all collected logs.
-#[tauri::command]
-pub fn get_all_logs() -> Vec<LogEntry> {
-    if let Some(collector) = LOG_COLLECTOR.get() {
-        collector.get_logs()
-    } else {
-        Vec::new()
-    }
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DesktopLogSnapshot {
+    entries: Vec<LogEntry>,
+    storage_path: Option<String>,
+    storage_error: Option<String>,
 }
 
-/// Clear all collected logs.
 #[tauri::command]
-pub fn clear_logs() {
-    if let Some(collector) = LOG_COLLECTOR.get() {
-        collector.clear_logs();
-    }
+pub fn get_desktop_log_snapshot() -> Result<DesktopLogSnapshot, String> {
+    let collector = LOG_COLLECTOR
+        .get()
+        .ok_or("Log collector is not initialized")?;
+    let logs = collector.logs.lock().map_err(|e| e.to_string())?;
+    Ok(DesktopLogSnapshot {
+        entries: logs
+            .iter()
+            .skip(logs.len().saturating_sub(2000))
+            .cloned()
+            .collect(),
+        storage_path: collector
+            .store
+            .as_ref()
+            .map(|store| store.path.to_string_lossy().into_owned()),
+        storage_error: collector
+            .storage_error
+            .lock()
+            .map_err(|e| e.to_string())?
+            .clone(),
+    })
 }
 
-/// Export collected logs to a file.
 #[tauri::command]
-pub async fn export_logs(
-    app: AppHandle,
-    format: String, // "txt" or "json"
-) -> Result<String, String> {
-    use tauri_plugin_dialog::DialogExt;
-    use tokio::sync::oneshot;
+pub fn get_desktop_log_archive() -> Result<String, String> {
+    let collector = LOG_COLLECTOR
+        .get()
+        .ok_or("Log collector is not initialized")?;
+    // Serialize reads with writes/rotation; neither clear nor export touches unrelated files.
+    let _logs = collector.logs.lock().map_err(|e| e.to_string())?;
+    collector
+        .store
+        .as_ref()
+        .ok_or("Desktop log storage is unavailable")?
+        .read()
+        .map_err(|e| e.to_string())
+}
 
-    let logs = if let Some(collector) = LOG_COLLECTOR.get() {
-        collector.get_logs()
-    } else {
-        return Err("Log collector is not initialized".to_string());
-    };
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    if logs.is_empty() {
-        return Err("No logs to export".to_string());
-    }
-
-    // Generate default file name.
-    let timestamp = Local::now().format("%Y%m%d_%H%M%S").to_string();
-    let default_filename = format!("sunshine_gui_logs_{}.{}", timestamp, format);
-
-    // Receive the save dialog result through a oneshot channel.
-    let (tx, rx) = oneshot::channel();
-
-    // Open save-file dialog.
-    app.dialog()
-        .file()
-        .set_file_name(&default_filename)
-        .add_filter("Text files", &["txt"])
-        .add_filter("JSON files", &["json"])
-        .add_filter("All files", &["*"])
-        .save_file(move |file_path_opt| {
-            let _ = tx.send(file_path_opt);
-        });
-
-    // Wait for the user to choose a file.
-    let file_path = rx
-        .await
-        .map_err(|_| "Failed to receive dialog result".to_string())?
-        .ok_or_else(|| "Save canceled".to_string())?;
-
-    // Convert FilePath to PathBuf.
-    let file_path: PathBuf = PathBuf::from(file_path.to_string());
-
-    // Generate export content.
-    let content = match format.as_str() {
-        "json" => serde_json::to_string_pretty(&logs)
-            .map_err(|e| format!("Failed to serialize JSON: {}", e))?,
-        "txt" | _ => {
-            let mut text = String::new();
-            text.push_str("Sunshine Control Panel Log Export\n");
-            text.push_str(&format!(
-                "Export time: {}\n",
-                Local::now().format("%Y-%m-%d %H:%M:%S")
-            ));
-            text.push_str(&format!("Total logs: {}\n", logs.len()));
-            text.push_str(&format!("{}\n\n", "=".repeat(80)));
-
-            for log in &logs {
-                let file_info = if let (Some(file), Some(line)) = (log.file.as_ref(), log.line) {
-                    format!("{}:{}", file, line)
-                } else if let Some(file) = log.file.as_ref() {
-                    file.clone()
-                } else {
-                    "unknown".to_string()
-                };
-
-                text.push_str(&format!(
-                    "[{}] [{}] [{}] {}\n",
-                    log.timestamp,
-                    log.level.to_uppercase(),
-                    file_info,
-                    log.message
-                ));
-            }
-            text
+    #[test]
+    fn collector_restores_bounded_history_and_truncates_utf8_records() {
+        let directory =
+            std::env::temp_dir().join(format!("foundation-collector-{}", uuid::Uuid::new_v4()));
+        let collector = LogCollector::with_store(2, Ok(LogStore::new(directory.clone()).unwrap()));
+        for message in ["old".to_string(), "recent".to_string(), "聲".repeat(7000)] {
+            collector.add_log(
+                &Record::builder()
+                    .args(format_args!("{message}"))
+                    .level(Level::Info)
+                    .file(Some(r"C:\src\app.rs"))
+                    .line(Some(7))
+                    .build(),
+            );
         }
-    };
+        let restored = LogCollector::with_store(2, Ok(LogStore::new(directory.clone()).unwrap()));
+        let logs = restored.logs.lock().unwrap();
+        assert_eq!(logs.len(), 2);
+        assert_eq!(logs[0].message, "recent");
+        assert_eq!(logs[1].file.as_deref(), Some("app.rs"));
+        assert!(logs[1].message.ends_with(" [truncated]"));
+        assert!(logs[1].message.len() < 16 * 1024 + 20);
+        std::fs::remove_file(directory.join("desktop.jsonl")).unwrap();
+        std::fs::remove_dir(directory).unwrap();
+    }
 
-    // Write export file.
-    fs::write(&file_path, content).map_err(|e| format!("Failed to write file: {}", e))?;
-
-    let file_name = file_path
-        .file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or("unknown file")
-        .to_string();
-
-    Ok(format!("Logs exported to: {}", file_name))
+    #[test]
+    fn unavailable_disk_keeps_live_diagnostics_and_reports_the_error() {
+        let collector = LogCollector::with_store(2, Err("fixture: unavailable storage".into()));
+        collector.add_log(
+            &Record::builder()
+                .args(format_args!("still available"))
+                .level(Level::Warn)
+                .build(),
+        );
+        assert_eq!(collector.logs.lock().unwrap()[0].message, "still available");
+        assert_eq!(
+            collector.storage_error.lock().unwrap().as_deref(),
+            Some("fixture: unavailable storage")
+        );
+    }
 }
