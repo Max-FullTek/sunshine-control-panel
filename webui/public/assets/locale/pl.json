@@ -1245,7 +1245,7 @@
     "unknown_display": "Nieznany wyświetlacz",
     "vdd_driver_browser_hint": "Otwórz aplikację komputerową Sunshine na hoście i zainstaluj sterownik z ustawień VDD, a następnie wróć i sprawdź ponownie.",
     "vdd_driver_desktop_hint": "Sunshine może teraz zainstalować dołączony sterownik. Wymagana jest zgoda administratora.",
-    "vdd_driver_required": "Przed użyciem tej opcji należy zainstalować ZakoVDD. Sterownik jest domyślnie zaznaczony w instalatorze i obsługuje wyłącznie system Windows 10 22H2 lub nowszy.",
+    "vdd_driver_required": "Przed użyciem tej opcji należy zainstalować ZakoVDD. Sterownik jest domyślnie zaznaczony w instalatorze i obsługuje wyłącznie system Windows 11 lub nowszy.",
     "vdd_install_continue": "Zainstaluj i kontynuuj",
     "vdd_recheck_continue": "Sprawdź ponownie i kontynuuj",
     "virtual_display": "Wirtualny wyświetlacz (ZakoHDR)",

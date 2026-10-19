@@ -1245,7 +1245,7 @@
     "unknown_display": "Neznámý displej",
     "vdd_driver_browser_hint": "Otevřete na hostiteli desktopovou aplikaci Sunshine, nainstalujte ovladač v nastavení VDD, poté se vraťte a proveďte novou kontrolu.",
     "vdd_driver_desktop_hint": "Sunshine nyní může nainstalovat přibalený ovladač. Je vyžadováno schválení správce.",
-    "vdd_driver_required": "Před použitím této možnosti musí být nainstalován ZakoVDD. Ovladač je v instalačním programu ve výchozím nastavení vybrán a podporuje pouze Windows 10 22H2 nebo novější.",
+    "vdd_driver_required": "Před použitím této možnosti musí být nainstalován ZakoVDD. Ovladač je v instalačním programu ve výchozím nastavení vybrán a podporuje pouze Windows 11 nebo novější.",
     "vdd_install_continue": "Nainstalovat a pokračovat",
     "vdd_recheck_continue": "Znovu zkontrolovat a pokračovat",
     "virtual_display": "Virtuální displej (ZakoHDR)",

@@ -41,7 +41,7 @@ fn check_device_installed() -> (bool, bool, String) {
     use std::process::Command;
 
     // 使用 PowerShell 的 Get-PnpDevice 检查设备状态。
-    // ZakoVirtualMouse 的 ROOT\HIDCLASS 根设备在部分系统上 FriendlyName 为空，
+    // FoundationVirtualMouse 的 ROOT\HIDCLASS 根设备在部分系统上 FriendlyName 为空，
     // 但 HardwareID/Status/Problem 仍然能准确反映设备节点是否存在并启动。
     // 因此不能用 FriendlyName 非空作为“已安装”的必要条件，否则 GUI 会在
     // 驱动实际创建 ROOT\HIDCLASS\xxxx 设备后仍显示“未安装”。
@@ -51,7 +51,7 @@ fn check_device_installed() -> (bool, bool, String) {
         .creation_flags(CREATE_NO_WINDOW)
         .args(&[
             "-NoProfile", "-Command",
-            "Get-PnpDevice -InstanceId 'ROOT\\HIDCLASS\\*' -ErrorAction SilentlyContinue | Where-Object { $_.HardwareID -contains 'Root\\ZakoVirtualMouse' -or $_.FriendlyName -like '*Virtual Mouse*' } | Select-Object -First 1 Status, FriendlyName, Problem, InstanceId | ConvertTo-Json -Compress"
+            "Get-PnpDevice -InstanceId 'ROOT\\HIDCLASS\\*' -ErrorAction SilentlyContinue | Where-Object { $_.HardwareID -contains 'Root\\FoundationVirtualMousePrototype' } | Select-Object -First 1 Status, FriendlyName, Problem, InstanceId | ConvertTo-Json -Compress"
         ])
         .output();
 
@@ -72,7 +72,7 @@ fn check_device_installed() -> (bool, bool, String) {
                     .get("FriendlyName")
                     .and_then(|v| v.as_str())
                     .filter(|s| !s.trim().is_empty())
-                    .unwrap_or("Zako Virtual Mouse");
+                    .unwrap_or("Foundation Virtual Mouse");
                 let instance_id = json
                     .get("InstanceId")
                     .and_then(|v| v.as_str())
@@ -80,7 +80,7 @@ fn check_device_installed() -> (bool, bool, String) {
                 let problem = json.get("Problem").and_then(|v| v.as_u64()).unwrap_or(0);
 
                 let root_ok = status == "OK" && problem == 0;
-                // ZakoVirtualMouse 是 UMDF + ROOT\HIDCLASS 架构，子 HID PDO
+                // FoundationVirtualMouse 是 UMDF + ROOT\HIDCLASS 架构，子 HID PDO
                 // 的 InstanceId 形如 `HID\HIDCLASS\1&xxxx` —— **不带 VID/PID
                 // 字符串**（VID/PID 只走 HidD_GetAttributes，不进 InstanceId）。
                 // 因此必须通过根设备的 DEVPKEY_Device_Children 拿到子 PDO 列表

@@ -1245,7 +1245,7 @@
     "unknown_display": "Visualizzazione sconosciuta",
     "vdd_driver_browser_hint": "Apri l'app desktop Sunshine sull'host e installa il driver dalle impostazioni VDD, quindi torna indietro e ricontrolla.",
     "vdd_driver_desktop_hint": "Sunshine può ora installare il driver in bundle. È richiesta l'approvazione dell'amministratore.",
-    "vdd_driver_required": "ZakoVDD deve essere installato prima di poter utilizzare questa opzione. Il driver è selezionato per impostazione predefinita nel programma di installazione e supporta solo Windows 10 22H2 o versioni successive.",
+    "vdd_driver_required": "ZakoVDD deve essere installato prima di poter utilizzare questa opzione. Il driver è selezionato per impostazione predefinita nel programma di installazione e supporta solo Windows 11 o versioni successive.",
     "vdd_install_continue": "Installa e continua",
     "vdd_recheck_continue": "Ricontrolla e continua",
     "virtual_display": "Display virtuale (ZakoHDR)",

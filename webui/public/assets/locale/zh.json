@@ -1247,7 +1247,7 @@
     "unknown_display": "未知显示器",
     "vdd_driver_browser_hint": "请在主机上打开 Sunshine 桌面端，从 VDD 设置安装驱动，然后回来重新检查。",
     "vdd_driver_desktop_hint": "Sunshine 现在可以安装随附驱动，需要管理员授权。",
-    "vdd_driver_required": "ZakoVDD 为选用组件。仅使用虚拟显示器时需要安装（Windows 10 22H2 或更新版本）。也可选择实体显示器或略过显示器设置。",
+    "vdd_driver_required": "ZakoVDD 为选用组件。仅使用虚拟显示器时需要安装（Windows 11 或更新版本）。也可选择实体显示器或略过显示器设置。",
     "vdd_install_continue": "安装并继续",
     "vdd_recheck_continue": "重新检查并继续",
     "virtual_display": "基地显示器",

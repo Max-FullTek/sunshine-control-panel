@@ -1245,7 +1245,7 @@
     "unknown_display": "Bilinmeyen Ekran",
     "vdd_driver_browser_hint": "Ana makinede Sunshine uygulamasını açın, VDD ayarlarından sürücüyü yükleyin ve ardından yeniden denetlemek için geri dönün.",
     "vdd_driver_desktop_hint": "Sunshine birlikte verilen sürücüyü şimdi yükleyebilir. Yönetici onayı gerekir.",
-    "vdd_driver_required": "Bu seçenek kullanılmadan önce ZakoVDD'nin yüklenmiş olması gerekir. Sürücü, yükleyicide varsayılan olarak seçilidir ve yalnızca Windows 10 22H2 ve sonraki sürümlerini destekler.",
+    "vdd_driver_required": "Bu seçenek kullanılmadan önce ZakoVDD'nin yüklenmiş olması gerekir. Sürücü, yükleyicide varsayılan olarak seçilidir ve yalnızca Windows 11 ve sonraki sürümlerini destekler.",
     "vdd_install_continue": "Yükle ve devam et",
     "vdd_recheck_continue": "Yeniden denetle ve devam et",
     "virtual_display": "Sanal Ekran (ZakoHDR)",

@@ -1245,7 +1245,7 @@
     "unknown_display": "Tela Desconhecida",
     "vdd_driver_browser_hint": "Abra o aplicativo do Sunshine no host, instale o driver nas configurações de VDD e depois volte para verificar novamente.",
     "vdd_driver_desktop_hint": "O Sunshine pode instalar agora o driver incluído. É necessária aprovação de administrador.",
-    "vdd_driver_required": "O ZakoVDD precisa estar instalado antes que esta opção possa ser usada. O driver vem selecionado por padrão no instalador e é compatível apenas com o Windows 10 22H2 ou versões posteriores.",
+    "vdd_driver_required": "O ZakoVDD precisa estar instalado antes que esta opção possa ser usada. O driver vem selecionado por padrão no instalador e é compatível apenas com o Windows 11 ou versões posteriores.",
     "vdd_install_continue": "Instalar e continuar",
     "vdd_recheck_continue": "Verificar novamente e continuar",
     "virtual_display": "Tela Virtual (ZakoHDR)",

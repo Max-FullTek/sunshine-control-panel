@@ -520,7 +520,7 @@ fn apply_dwm_rounded_corners<R: Runtime>(window: &WebviewWindow<R>) {
             std::mem::size_of::<u32>() as u32,
         ) {
             Ok(_) => debug!("✅ 已设置 DWM 圆角 (DWMWCP_ROUND)"),
-            Err(e) => debug!("⚠️ DWM 圆角设置失败（Windows 10 不支持）: {:?}", e),
+            Err(e) => debug!("⚠️ DWM 圆角设置失败: {:?}", e),
         }
     }
 }

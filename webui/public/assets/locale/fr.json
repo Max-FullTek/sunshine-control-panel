@@ -1245,7 +1245,7 @@
     "unknown_display": "Écran inconnu",
     "vdd_driver_browser_hint": "Ouvrez l'application de bureau Sunshine sur l'hôte et installez le pilote depuis les paramètres VDD, puis revenez effectuer une nouvelle vérification.",
     "vdd_driver_desktop_hint": "Sunshine peut installer maintenant le pilote fourni. Une autorisation administrateur est requise.",
-    "vdd_driver_required": "ZakoVDD doit être installé avant de pouvoir utiliser cette option. Le pilote est sélectionné par défaut dans le programme d’installation et ne prend en charge que Windows 10 22H2 ou une version ultérieure.",
+    "vdd_driver_required": "ZakoVDD doit être installé avant de pouvoir utiliser cette option. Le pilote est sélectionné par défaut dans le programme d’installation et ne prend en charge que Windows 11 ou une version ultérieure.",
     "vdd_install_continue": "Installer et continuer",
     "vdd_recheck_continue": "Revérifier et continuer",
     "virtual_display": "Écran virtuel (ZakoHDR)",

@@ -1245,7 +1245,7 @@
     "unknown_display": "Visor desconhecido",
     "vdd_driver_browser_hint": "Abra a aplicação Sunshine desktop no host e instale o controlador nas definições VDD, depois volte atrás e verifique novamente.",
     "vdd_driver_desktop_hint": "O Sunshine pode instalar o controlador incluído agora. A aprovação do administrador é necessária.",
-    "vdd_driver_required": "O ZakoVDD tem de estar instalado antes de esta opção poder ser utilizada. O controlador vem selecionado por predefinição no instalador e é compatível apenas com o Windows 10 22H2 ou versões posteriores.",
+    "vdd_driver_required": "O ZakoVDD tem de estar instalado antes de esta opção poder ser utilizada. O controlador vem selecionado por predefinição no instalador e é compatível apenas com o Windows 11 ou versões posteriores.",
     "vdd_install_continue": "Instalar e continuar",
     "vdd_recheck_continue": "Verifique novamente e continue",
     "virtual_display": "Visor virtual (ZakoHDR)",
