@@ -11,15 +11,15 @@
           <el-icon><RefreshRight /></el-icon>
           {{ logText.refresh }}
         </button>
-        <button class="btn" @click="exportLogs('txt')">
+        <button class="btn" @click="exportLogs('txt')" :disabled="preview">
           <el-icon><Download /></el-icon>
           {{ logText.exportTxt }}
         </button>
-        <button class="btn" @click="exportLogs('json')">
+        <button class="btn" @click="exportLogs('json')" :disabled="preview">
           <el-icon><Download /></el-icon>
           {{ logText.exportJson }}
         </button>
-        <button class="btn danger" @click="clearLogs">
+        <button class="btn danger" @click="clearLogs" :disabled="preview">
           <el-icon><Delete /></el-icon>
           {{ logText.clear }}
         </button>
@@ -135,6 +135,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watchEffect } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
+import { isNativeUiPreview } from '../shared/preview.js'
 import { listen } from '@tauri-apps/api/event'
 import { confirm as dialogConfirm, message as dialogMessage } from '@tauri-apps/plugin-dialog'
 import { ElMessage } from 'element-plus'
@@ -145,6 +146,7 @@ import { useTheme } from '../desktop/composables/useTheme.js'
 useTheme()
 
 const { t, locale } = useI18n()
+const preview = isNativeUiPreview()
 const logText = computed(() => t.value.logConsole)
 
 watchEffect(() => {
@@ -312,9 +314,9 @@ function handleLogScroll() {
 async function loadLogs() {
   loading.value = true
   try {
-    const logs = await invoke('get_all_logs')
+    const logs = preview ? (window.__FOUNDATION_CONSOLE_PREVIEW_LOGS__ || []) : await invoke('get_all_logs')
     allLogs.value = logs
-    ElMessage.success(logText.value.refreshed.replace('{count}', logs.length))
+    if (!preview) ElMessage.success(logText.value.refreshed.replace('{count}', logs.length))
   } catch (error) {
     console.error('加载日志失败:', error)
     ElMessage.error(`${logText.value.refreshFailed}: ${error}`)
@@ -325,6 +327,7 @@ async function loadLogs() {
 
 // 清空日志
 async function clearLogs() {
+  if (preview) return
   if (await dialogConfirm(logText.value.confirmClear, { title: logText.value.clearLogsTitle, kind: 'warning' })) {
     try {
       await invoke('clear_logs')
@@ -339,6 +342,7 @@ async function clearLogs() {
 
 // 导出日志
 async function exportLogs(format) {
+  if (preview) return
   try {
     const result = await invoke('export_logs', { format })
     await dialogMessage(result || logText.value.exportSuccess, { title: logText.value.exportComplete, kind: 'info' })
@@ -368,6 +372,8 @@ onMounted(async () => {
   updateViewportHeight()
   window.addEventListener('resize', updateViewportHeight)
   scrollToBottom()
+
+  if (preview) return
 
   // 监听新日志事件
   unsubscribe = await listen('log-entry', (event) => {
